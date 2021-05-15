@@ -1,0 +1,14 @@
+certifi==2020.12.5
+cffi==1.14.5
+chardet==4.0.0
+cryptography==3.4.7
+distro==1.5.0
+idna==2.10
+matrix-client==0.3.2
+pycparser==2.20
+pyOpenSSL==20.0.1
+requests==2.25.1
+selenium==3.141.0
+six==1.16.0
+urllib3==1.26.4
+zulip==0.7.1
