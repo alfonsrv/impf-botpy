@@ -41,18 +41,18 @@ WAIT_BROWSER_MAXIMUM: int = 10
 
 # > Advanced Features
 # ----------------------
-CONCURRENT_ENABLED = False
-CONCURRENT_WORKERS = 3
+CONCURRENT_ENABLED: bool = False
+CONCURRENT_WORKERS: int = 3
 # Keep the same browser window for checking all locations; makes it easier to run in background
 # Cannot be used in combination with `CONCURRENT_ENABLED`
-KEEP_BROWSER = True
+KEEP_BROWSER: bool = True
 
 # Chromium Driver Path - leave empty to use auto detect
 # OS examples for common paths - e.g.
 # Ubuntu: /usr/lib/chromium-browser/chromedriver
 # Windows: C:/ProgramData/chocolatey/bin/chromedriver.exe
 SELENIUM_PATH: str = ''
-# Open Chrome Developer Tab?
+# Open Chrome Developer Tab? - Recommended to set to true
 # Clicking on Network allows you to keep an eye on what's going on - if the server returns
 # status code <429>, you're making too many requests and it *shadow bans* you temporarily
 SELENIUM_DEBUG: bool = False
@@ -70,18 +70,18 @@ ALERT_TEXT = 'Neuer Impftermin in {{ LOCATION }}! SMS Code innerhalb der nächst
 # - Windows: 'PowerShell -Command "Add-Type –AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak(\'ALARM ALARM ALARM\');"'
 # - macOS: 'say "ALARM ALARM ALARM"'
 # - Debian: 'echo "ALARM ALARM ALARM"|espeak'
-COMMAND_ENABLED = True
-COMMAND_LINE = ''
+COMMAND_ENABLED: bool = True
+COMMAND_LINE: str = ''
 
 
 # Zulip (https://chat.zulip.org/api/)
-ZULIP_ENABLED = False
-ZULIP_URL = 'https://chat.zulip.org/'
-ZULIP_MAIL = 'bot@domain.tld'
-ZULIP_KEY = 'secret-key'
-ZULIP_TYPE = 'stream'  # private, stream
-ZULIP_TARGET = 'hunter'
-ZULIP_TOPIC = 'General'
+ZULIP_ENABLED: bool = False
+ZULIP_URL: str = 'https://chat.zulip.org/'
+ZULIP_MAIL: str = 'bot@domain.tld'
+ZULIP_KEY: str = 'secret-key'
+ZULIP_TYPE: str = 'stream'  # private, stream
+ZULIP_TARGET: str = 'hunter'
+ZULIP_TOPIC: str = 'General'
 
 
 # DO NOT EDIT
@@ -89,8 +89,9 @@ import os
 import logging
 import logging.handlers
 
-# set to logging.WARNING to minimal output
-LOG_LEVEL = logging.INFO # logging.DEBUG // .ERROR...
+# Set to logging.WARNING to minimal output
+LOG_LEVEL = logging.INFO  # logging.DEBUG // .ERROR...
+
 
 os.chdir(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))))
 WORK_DIR = os.getcwd()
@@ -112,5 +113,6 @@ logging.basicConfig(
 )
 
 class LocationAdapter(logging.LoggerAdapter):
+    """ Custom adapter to easily add PLZ to log string """
     def process(self, msg, kwargs):
         return '%s: %s' % (self.extra['location'], msg), kwargs

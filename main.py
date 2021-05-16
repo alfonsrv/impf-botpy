@@ -25,12 +25,12 @@ def impf_me(location):
     x = b or Browser(**location)
 
     # Keep Browser open
-    if settings.KEEP_BROWSER and not (settings.CONCURRENT_ENABLED) and b is None:
+    if settings.KEEP_BROWSER and not (settings.CONCURRENT_ENABLED):
         if b is None:
             logger.info('Keeping Browser open')
             x.keep_browser = True
             b = x
-        else: x = x.reinit(**location)
+        else: x.reinit(**location)
 
     # Continue with normal loop
     x.control_main()

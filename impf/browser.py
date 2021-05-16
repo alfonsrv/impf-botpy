@@ -42,7 +42,6 @@ class Browser:
         self.error_counter = 0
         self.location_full = ''
         self.logger = settings.LocationAdapter(logger, {'location': self.location[:5]})
-        return self
 
     @property
     def in_waiting_room(self) -> bool:
