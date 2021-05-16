@@ -196,7 +196,7 @@ class Browser:
                 send_alert('Entering code; check your mails! Thanks for using RVX Technologies :)')
                 return _code
             sleep(15)
-        self.logger.info('No SMS code received from backend; exiting'); exit()
+        self.logger.info('No SMS code received from backend')
 
     def fill_code(self) -> None:
         """ Vermittlungscode für Location eingeben und prüfen """
