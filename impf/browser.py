@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from time import sleep, time
 
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -248,8 +248,8 @@ class Browser:
             sms_code = self.alert_sms()
             self.enter_sms(sms_code)
             self.logger.info('Add the code you got via mail to settings.py and restart the script!')
-        except:
-            raise
+        except StaleElementReferenceException:
+            pass
         finally:
             if not self.keep_browser: self.driver.close()
 
