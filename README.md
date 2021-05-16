@@ -94,5 +94,6 @@ Adding your favorite backend (e.g. Slack) for alerting is easy. Simply add your 
 1. `alert.py` and integrate it with `read_code()` and `send_alert()`
 2. `constructor.py` if your API is a bit more complex to keep things tidy
 3. `settings.py` add your relevant settings (must include `ENABLED` flag)
-4. `main.py` in `print_config` for NextGen user feedback experience
+4. `main.py` in `print_config` for NextGen UX
 4. Done 💥
+

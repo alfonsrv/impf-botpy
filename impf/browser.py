@@ -35,6 +35,14 @@ class Browser:
         self.wait = WebDriverWait(self.driver, settings.WAIT_BROWSER_MAXIMUM)
         self.logger = settings.LocationAdapter(logger, {'location': self.location[:5]})
 
+    def reinit(self, *args, **kwargs):
+        """ Hacky Helper function - sorry """
+        self.location = kwargs.get('location')
+        self.code = kwargs.get('code')
+        self.error_counter = 0
+        self.location_full = ''
+        self.logger = settings.LocationAdapter(logger, {'location': self.location[:5]})
+
     @property
     def in_waiting_room(self) -> bool:
         """ Momentan im Warteraum? """

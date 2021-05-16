@@ -53,9 +53,9 @@ KEEP_BROWSER = True
 # Windows: C:/ProgramData/chocolatey/bin/chromedriver.exe
 SELENIUM_PATH: str = ''
 # Open Chrome Developer Tab?
-# Clicking on Network allows you to get more information - if server
-# returns <429>, you're making too many requests and it times you out
-SELENIUM_DEBUG: bool = True
+# Clicking on Network allows you to keep an eye on what's going on - if the server returns
+# status code <429>, you're making too many requests and it *shadow bans* you temporarily
+SELENIUM_DEBUG: bool = False
 
 # User Agent to use. Use 'default' to not alter the Browser's user agent manually
 # can be se to e.g. 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36'
