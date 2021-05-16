@@ -37,7 +37,7 @@ def impf_me(location):
 
     logger.info(f'Waiting until {(datetime.now() + timedelta(seconds=settings.WAIT_LOCATIONS)).strftime("%H:%M:%S")} '
                 f'before checking the next location')
-    #sleep(settings.WAIT_LOCATIONS)
+    sleep(settings.WAIT_LOCATIONS)
 
 
 if __name__ == '__main__':
