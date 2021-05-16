@@ -32,7 +32,7 @@ Extract the ZIP file. Configure the project `settings.py` as shown in `README.md
 Open Command Line again. And type the following
 
 ```bash
-cd Downloads/impf-botpy-master
+cd Downloads/impf-botpy-main
 pip3 install -r requirements.txt --user
 python3 main.py
 ```
@@ -73,13 +73,13 @@ Open `Terminal` and type
 
 ```bash
 cd ~/Downloads/
-git clone ...
+git clone https://github.com/alfonsrv/impf-botpy.git
 ```
 
 Configure the project `settings.py` as shown in `README.md` and then type in Temrinal:
 
 ```bash
-cd ~/Downloads/impf-botpy-master
+cd ~/Downloads/impf-botpy
 pip3 install -r requirements.txt
 python3 main.py
 ```
@@ -108,13 +108,13 @@ Open `Terminal` and type
 
 ```bash
 cd ~/Downloads/
-git clone ...
+git clone https://github.com/alfonsrv/impf-botpy.git
 ```
 
 Configure the project `settings.py` as shown in `README.md` and then type in Temrinal:
 
 ```bash
-cd ~/Downloads/impf-botpy-master
+cd ~/Downloads/impf-botpy
 pip3 install -r requirements.txt
 python3 main.py
 ```

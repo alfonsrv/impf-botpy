@@ -2,6 +2,10 @@ from typing import List, Dict
 
 # EDIT ME HERE WITH YOUR DATA
 BUNDESLAND: str = 'Baden-Württemberg'
+# Enter the locations to monitor here; as seen on ImpfterminService. If you have a Vermittlungscode
+# for the corresponding location, enter it at `code`, otherwise leave empty. Please be careful when
+# editing this. It's easy to make mistakes and prevent the application from starting up; it's
+# advisable to just replace the locations with your preferred ones if you're unsure what you're doing.
 LOCATIONS: List[Dict[str, str]] = [
     {
         'location': '70174 Stuttgart',
@@ -18,12 +22,14 @@ LOCATIONS: List[Dict[str, str]] = [
     },
 ]
 
-AGE: str = '30'
+AGE: str = '27'
 # after the +49 // after the 0
 PHONE: str = '1514201337'
 MAIL: str = 'erst-mal@ent-spahnen.de'
 
 
+# > Waiting Times
+# ----------------------
 # Seconds before checking next location
 WAIT_LOCATIONS: int = 60*5  # 5 Min
 # Seconds to wait for manual SMS input, if no
@@ -32,6 +38,14 @@ WAIT_SMS_MANUAL: int = 60*9  # 9 Min
 # Seconds to wait for page to load and elements to show
 WAIT_BROWSER_MAXIMUM: int = 10
 
+
+# > Advanced Features
+# ----------------------
+CONCURRENT_ENABLED = False
+CONCURRENT_WORKERS = 3
+# Keep the same browser window for checking all locations; makes it easier to run in background
+# Cannot be used in combination with `CONCURRENT_ENABLED`
+KEEP_BROWSER = True
 
 # Chromium Driver Path - leave empty to use auto detect
 # OS examples for common paths - e.g.
@@ -44,18 +58,20 @@ SELENIUM_PATH: str = ''
 SELENIUM_DEBUG: bool = True
 
 # User Agent to use. Use 'default' to not alter the Browser's user agent manually
-USER_AGENT: str = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36'
+# can be se to e.g. 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36'
+USER_AGENT: str = 'default'
 
 
 # ALERTING SETTINGS
 ALERT_TEXT = 'Neuer Impftermin in {{ LOCATION }}! SMS Code innerhalb der nächsten 10 Minuten übermitteln. (sms:123-456)'
 
-# Run a custom command when a new appointment is found (e.g. audio alerts) - Text-to-Speech
-# Windows: 'PowerShell -Command "Add-Type –AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak(\'ALARM ALARM ALARM\');"'
-# macOS: 'say "ALARM ALARM ALARM"'
-# Debian: 'echo "ALARM ALARM ALARM"|espeak'
+# Run a custom command when a new appointment is found (e.g. audio alerts)
+# Text-to-Speech examples
+# - Windows: 'PowerShell -Command "Add-Type –AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak(\'ALARM ALARM ALARM\');"'
+# - macOS: 'say "ALARM ALARM ALARM"'
+# - Debian: 'echo "ALARM ALARM ALARM"|espeak'
 COMMAND_ENABLED = True
-COMMAND_LINE = 'echo "ALARM ALARM ALARM"|espeak'
+COMMAND_LINE = ''
 
 
 # Zulip (https://chat.zulip.org/api/)
@@ -66,3 +82,33 @@ ZULIP_KEY = 'secret-key'
 ZULIP_TYPE = 'stream'  # private, stream
 ZULIP_TARGET = 'hunter'
 ZULIP_TOPIC = 'General'
+
+
+# DO NOT EDIT
+import os
+import logging
+import logging.handlers
+
+os.chdir(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))))
+WORK_DIR = os.getcwd()
+LOG_FILE = ''
+LOG_LEVEL = logging.INFO # logging.DEBUG // .ERROR...
+IMPF_FORMAT = '%(asctime)s - %(location)s: $(message)s'
+
+LOG_PATH = os.path.join(WORK_DIR, LOG_FILE or 'bot.log')
+logging.basicConfig(
+    format='%(asctime)s - [%(levelname)s] <%(name)s.%(filename)s:%(lineno)s>  %(message)s',
+    level=LOG_LEVEL,
+    handlers=[
+        logging.StreamHandler(),
+        logging.handlers.RotatingFileHandler(
+            LOG_PATH,
+            maxBytes=1024 * 1024,   # 1 MB
+            backupCount=1
+        )
+    ]
+)
+
+class LocationAdapter(logging.LoggerAdapter):
+    def process(self, msg, kwargs):
+        return '%s: %s' % (self.extra['location'], msg), kwargs

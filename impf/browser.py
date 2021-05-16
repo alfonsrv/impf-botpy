@@ -11,8 +11,8 @@ from selenium.webdriver.support import expected_conditions as EC
 import settings
 from impf.alert import send_alert, read_code
 
-driver = None
-wait = None
+import logging
+logger = logging.getLogger(__name__)
 
 @dataclass
 class Browser:
@@ -20,8 +20,10 @@ class Browser:
     wait: WebDriverWait = field(init=False)
     location: str
     code: str = ''
-    location_full: str = ''
-    error_counter: int = 0
+    location_full: str = ''  # Helper variable for extracting full MVZ name
+    keep_browser: bool = False  # Helper variable to indicate whether or not to keep browser open for reuse
+    error_counter: int = 0  # Helper variable to avoid infinite loop
+    logger: logger = field(init=False)  # Internal adapter-logger to add PLZ field
 
     def __post_init__(self):
         opts = Options()
@@ -31,6 +33,7 @@ class Browser:
         else: self.driver = webdriver.Chrome(chrome_options=opts)
         self.driver.implicitly_wait(2.5)
         self.wait = WebDriverWait(self.driver, settings.WAIT_BROWSER_MAXIMUM)
+        self.logger = settings.LocationAdapter(logger, {'location': self.location[:5]})
 
     @property
     def in_waiting_room(self) -> bool:
@@ -80,8 +83,8 @@ class Browser:
     def loading_vacancy(self):
         """ Prüft ob Verfügbarkeit noch geladen wird """
         try:
-            element = self.driver.find_element_by_tag_name('body')
-            return 'Bitte warten, wir suchen verfügbare Termine in Ihrer Region' in element.text
+            element = self.driver.find_element_by_xpath('//div[contains(text(),"Bitte warten, wir suchen")]')
+            return bool(element)
         except NoSuchElementException:
             return False
 
@@ -99,6 +102,7 @@ class Browser:
         return page_state == 'complete'
 
     def main_page(self) -> None:
+        self.logger.info('Navigating to ImpfterminService')
         self.driver.get('https://www.impfterminservice.de/impftermine')
         elements = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//span[@role="combobox"]')))
         title = self.driver.find_element_by_xpath('//h1')
@@ -110,23 +114,23 @@ class Browser:
         # Select BaWü
         element = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//li[@role="option" and contains(text() , "{settings.BUNDESLAND}")]')))
         element.click()
-        print(f'Selected Bundesland: {settings.BUNDESLAND}')
+        self.logger.info(f'Selected Bundesland: {settings.BUNDESLAND}')
 
         # Load Cities
         elements[1].click()
         element = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//li[@role="option" and contains(text() , "{self.location}")]')))
         self.location_full = element.text
         element.click()
-        print(f'Selected Impfzentrum: {self.location_full}')
+        self.logger.info(f'Selected Impfzentrum: {self.location_full}')
 
         submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, f'//button[@type="submit"]')))
         submit.click()
 
     def waiting_room(self):
         if not self.in_waiting_room: return
-        print('Taking a seat in the waiting room (very german)')
+        self.logger.info('Taking a seat in the waiting room (very german)')
         while self.in_waiting_room: sleep(5)
-        print('No longer in waiting room!')
+        self.logger.info('No longer in waiting room!')
 
     def location_page(self) -> None:
         title = self.wait.until(EC.presence_of_element_located((By.XPATH, '//h1')))
@@ -175,7 +179,7 @@ class Browser:
     def alert_sms(self) -> str:
         """ Benachrichtigung User - um entweder SMS Code via ext. Plattform (Zulip, ...)
         oder manuell einzugeben. Wartet max. 10 Minuten, und fährt dann fährt dann fort """
-        print('Enter SMS code!')
+        self.logger.info('Enter SMS code!')
         send_alert(settings.ALERT_TEXT.replace('{{ LOCATION }}', self.location_full))
         start = time()
         while (time() - start) < settings.WAIT_SMS_MANUAL:
@@ -184,7 +188,7 @@ class Browser:
                 send_alert('Entering code; check your mails! Thanks for using RVX Technologies :)')
                 return _code
             sleep(15)
-        print('No SMS code received from backend; exiting'); exit()
+        self.logger.info('No SMS code received from backend; exiting'); exit()
 
     def fill_code(self) -> None:
         """ Vermittlungscode für Location eingeben und prüfen """
@@ -201,7 +205,7 @@ class Browser:
         sleep(2.5)
         if self.driver.find_element_by_xpath('//span[@class="its-slot-pair-search-no-results"]') \
             or self.driver.find_element_by_xpath('//span[contains(@class, "text-pre-wrap") and contains(text(), "Fehler")]'):
-            print('Vermittlungscode ok, but not free vaccination slots')
+            self.logger.info('Vermittlungscode ok, but not free vaccination slots')
             return False
 
         title = self.wait.until(EC.presence_of_element_located((By.XPATH, '//h1')))
@@ -211,7 +215,7 @@ class Browser:
 
     def alert_available(self):
         """ Alerts ... """
-        print('Available appointments!')
+        self.logger.info('Available appointments!')
         send_alert(f'Appointments available at {self.location_full}! Reserved for the next 10 minutes...')
         sleep(600)
 
@@ -219,7 +223,7 @@ class Browser:
         """ Kontrollfunktion um Vermittlungscode zu beziehen """
         try:
             if self.error_counter == 3:
-                print('Maximum errors exceeded...')
+                self.logger.error('Maximum errors exceeded...')
                 return
             self.main_page()
             self.waiting_room()
@@ -227,34 +231,34 @@ class Browser:
             if self.code: return self.control_appointment()
 
             while self.loading_vacancy: sleep(2.5)
-            if not self.has_vacancy: print('No vacancy right now...'); return
+            if not self.has_vacancy: self.logger.info('No vacancy right now...'); return
             self.confirm_eligible()
-            if not self.has_vacancy: print('No vacancy right now...'); return
-            print('We have vacancy! Requesting Vermittlungscode')
+            if not self.has_vacancy: self.logger.info('No vacancy right now...'); return
+            self.logger.info('We have vacancy! Requesting Vermittlungscode')
             self.claim_code()
-            if self.limit_reached: print('Request limit reached'); return
+            if self.limit_reached: self.logger.info('Request limit reached'); return
             sms_code = self.alert_sms()
             self.enter_sms(sms_code)
-            print('Add the code you got via mail to settings.py and restart the script!')
+            self.logger.info('Add the code you got via mail to settings.py and restart the script!')
         except:
             raise
         finally:
-            self.driver.close()
+            if not self.keep_browser: self.driver.close()
 
     def control_appointment(self):
         """ Kontrollfunktion um Verfügbarkeit von Impfterminen
          mit vorhandenem Vermittlungscode zu prüfen """
         self.fill_code()
         if not self.code_valid:
-            print(f'Code invalid for server {self.driver.current_url}')
+            self.logger.info(f'Code invalid for server {self.driver.current_url}')
             self.code = ''
             return self.control_main()
         if self.code_error:
             # We're likely sending too many requests too quickly
-            print(f'Ran into what is probably a temporary error with code {self.code}; retrying in a bit')
+            self.logger.info(f'Ran into what is probably a temporary error with code {self.code}; retrying in a bit')
             sleep(900)
             self.error_counter += 1
             return self.control_main()
         x = self.search_appointments()
         if x: self.alert_available()
-        else: print('No appointments available right now :(')
+        else: self.logger.info('No appointments available right now :(')
