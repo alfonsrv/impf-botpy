@@ -12,6 +12,9 @@ import settings
 from impf.alert import send_alert, read_code
 
 import logging
+
+from impf.decorators import shadow_ban
+
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -48,6 +51,12 @@ class Browser:
         """ Momentan im Warteraum? """
         title = self.wait.until(EC.presence_of_element_located((By.XPATH, '//h1')))
         return title.text == 'Virtueller Warteraum des Impfterminservice'
+
+    @property
+    def server_code(self) -> str:
+        """ Returns the server identifier we're connected to (001, 002, ...) """
+        return self.driver.current_url[8:11]
+
 
     @property
     def has_vacancy(self) -> bool:
@@ -88,7 +97,7 @@ class Browser:
             return False
 
     @property
-    def loading_vacancy(self):
+    def loading_vacancy(self) -> bool:
         """ Prüft ob Verfügbarkeit noch geladen wird """
         try:
             element = self.driver.find_element_by_xpath('//div[contains(text(),"Bitte warten, wir suchen")]')
@@ -96,6 +105,18 @@ class Browser:
         except NoSuchElementException:
             return False
 
+    @property
+    def too_many_requests(self) -> bool:
+        """ Checks if we're being blocked; unfortunately there is no better way, as
+        Selenium doesn't allow us to check HTTP status codes in the Network tab """
+        relevant = time() - 120
+        for log in self.driver.get_log('browser'):
+            if log.get('level') == 'SEVERE' \
+                and log.get('source') == 'network' \
+                and (log.get('timestamp') / 1000) > relevant \
+                and '429' in log.get('message'):
+                return True
+        return False
 
     def cookie_popup(self) -> None:
         try:
@@ -133,6 +154,7 @@ class Browser:
 
         submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, f'//button[@type="submit"]')))
         submit.click()
+        sleep(.5)
 
     def waiting_room(self):
         if not self.in_waiting_room: return
@@ -140,6 +162,7 @@ class Browser:
         while self.in_waiting_room: sleep(5)
         self.logger.info('No longer in waiting room!')
 
+    @shadow_ban
     def location_page(self) -> None:
         title = self.wait.until(EC.presence_of_element_located((By.XPATH, '//h1')))
         assert title.text == 'Wurde Ihr Anspruch auf eine Corona-Schutzimpfung bereits geprüft?'
@@ -188,7 +211,7 @@ class Browser:
         """ Benachrichtigung User - um entweder SMS Code via ext. Plattform (Zulip, ...)
         oder manuell einzugeben. Wartet max. 10 Minuten, und fährt dann fährt dann fort """
         self.logger.info('Enter SMS code! Waiting for user input.')
-        send_alert(settings.ALERT_TEXT.replace('{{ LOCATION }}', self.location_full))
+        send_alert(settings.ALERT_SMS.replace('{{ LOCATION }}', self.location_full))
         start = time()
         while (time() - start) < settings.WAIT_SMS_MANUAL:
             _code = read_code()
@@ -199,6 +222,7 @@ class Browser:
             sleep(15)
         self.logger.warning('No SMS code received from backend')
 
+    @shadow_ban
     def fill_code(self) -> None:
         """ Vermittlungscode für Location eingeben und prüfen """
         for i in range(3):
@@ -209,24 +233,38 @@ class Browser:
 
     def search_appointments(self) -> bool:
         """ Suche Termine mit Vermittlungscode """
-        submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, f'//button[contains(text(),"Termine suchen")]')))
-        submit.click()
-        sleep(2.5)
-        if self.driver.find_element_by_xpath('//span[@class="its-slot-pair-search-no-results"]') \
-            or self.driver.find_element_by_xpath('//span[contains(@class, "text-pre-wrap") and contains(text(), "Fehler")]'):
-            self.logger.info('Vermittlungscode ok, but not free vaccination slots')
-            return False
-
         title = self.wait.until(EC.presence_of_element_located((By.XPATH, '//h1')))
         assert title.text == 'Onlinebuchung für Ihre Corona-Schutzimpfung'
-        element = self.driver.find_element_by_xpath('//*[contains(text(), "1. Impftermin")]"')
+        submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(), "Termine suchen")]')))
+        submit.click()
+        sleep(2.5)
+        try:
+            if self.driver.find_element_by_xpath('//span[@class="its-slot-pair-search-no-results"]') \
+                or self.driver.find_element_by_xpath('//span[contains(@class, "text-pre-wrap") and contains(text(), "Fehler")]'):
+                self.logger.info('Vermittlungscode ok, but not free vaccination slots')
+                return False
+        except NoSuchElementException: pass
+
+        element = self.driver.find_element_by_xpath('//*[contains(text(), "1. Impftermin")]')
         return bool(element)
 
+    def rescan_appointments(self):
+        """ Erneut im Buchungsbildschirm nach Terminen suchen """
+        close = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//button[contains(text(), "Abbrechen")]')))[-1]
+        close.click()
+        rescan = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//a[contains(text(), "hier")]')))
+        rescan.click()
+        close = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//button[contains(text(), "Abbrechen")]')))[-1]
+        close.click()
+
     def alert_available(self):
-        """ Alerts ... """
+        """ Alert, Termin verfügbar! Und Exit """
         self.logger.warning('Available appointments!')
-        send_alert(f'Appointments available at {self.location_full}! Reserved for the next 10 minutes...')
-        sleep(600)
+        send_alert(settings.ALERT_AVAILABLE.replace('{{ LOCATION }}', self.location_full))
+        sleep(settings.WAIT_SMS_MANUAL)
+        self.keep_browser = True
+        self.logger.warning('Exiting, our job here is done. Keeping browser open.')
+        exit()
 
     def control_main(self):
         """ Kontrollfunktion um Vermittlungscode zu beziehen """
@@ -235,6 +273,7 @@ class Browser:
                 self.logger.error('Maximum errors exceeded...')
                 return
             self.main_page()
+            self.logger.info(f'Connected to server [{self.server_code}]')
             self.waiting_room()
             self.location_page()
             if self.code: return self.control_appointment()
@@ -243,14 +282,18 @@ class Browser:
             if not self.has_vacancy: self.logger.info('No vacancy right now...'); return
             self.confirm_eligible()
             if not self.has_vacancy: self.logger.info('No vacancy right now...'); return
-            self.logger.warning('We have vacancy! Requesting Vermittlungscode')
+            self.logger.warning(f'We have vacancy! Requesting Vermittlungscode for {self.driver.current_url}')
             self.claim_code()
             if self.limit_reached: self.logger.error('Request limit reached'); return
             sms_code = self.alert_sms()
             self.enter_sms(sms_code)
             self.logger.info('Add the code you got via mail to settings.py and restart the script!')
         except StaleElementReferenceException:
-            pass
+            self.logger.warning('StaleElementReferenceException - we probably detatched somehow; reinitializing')
+            # Reinitialize the browser, so we can reattach
+            if self.keep_browser:
+                self.driver.close()
+                self.__post_init__()
         finally:
             if not self.keep_browser: self.driver.close()
 
@@ -259,15 +302,25 @@ class Browser:
          mit vorhandenem Vermittlungscode zu prüfen """
         self.fill_code()
         if not self.code_valid:
-            self.logger.info(f'Code invalid for server {self.driver.current_url}')
+            self.logger.warning(f'Code invalid for server {self.driver.current_url}')
+            self.logger.info('Retrying without code')
             self.code = ''
             return self.control_main()
         if self.code_error:
-            # We're likely sending too many requests too quickly
-            self.logger.info(f'Ran into what is probably a temporary error with code {self.code}; retrying in a bit')
+            # We're likely sending too many requests too quickly or the server is under too much stress
+            self.logger.info(f'Ran into what is probably a temporary error with code {self.code}; retrying in 15 minutes')
             sleep(900)
             self.error_counter += 1
             return self.control_main()
-        x = self.search_appointments()
-        if x: self.alert_available()
+
+        appointments = self.search_appointments()
+        if settings.RESCAN_APPOINTMENT and not appointments:
+            self.logger.info('RESCAN_APPOINTMENT is enabled - automatically rechecking in 10m...')
+            while not appointments:
+                sleep(600)
+                self.logger.info('Rechecking for new appointments')
+                self.rescan_appointments()
+                appointments = self.search_appointments()
+
+        if appointments: self.alert_available()
         else: self.logger.info('No appointments available right now :(')

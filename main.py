@@ -13,7 +13,7 @@ def print_config() -> None:
     print('[x] General')
     print(f'- Age: {settings.AGE}')
     print(f'- Mail: {settings.MAIL}')
-    print(f'- Mobile: {settings.PHONE}')
+    print(f'- Mobile: +49{settings.PHONE}')
     print(f'- Centers: {len(settings.LOCATIONS)} locations')
     print('[x] Alerting Methods')
     if settings.COMMAND_ENABLED: print('- Custom Command ✓')
@@ -27,16 +27,17 @@ def impf_me(location):
     # Keep Browser open
     if settings.KEEP_BROWSER and not (settings.CONCURRENT_ENABLED):
         if b is None:
-            logger.info('Keeping Browser open')
+            logger.info('Keeping Browser open; KEEP_BROWSER is set to True')
             x.keep_browser = True
             b = x
         else: x.reinit(**location)
 
     # Continue with normal loop
     x.control_main()
+
     logger.info(f'Waiting until {(datetime.now() + timedelta(seconds=settings.WAIT_LOCATIONS)).strftime("%H:%M:%S")} '
                 f'before checking the next location')
-    sleep(settings.WAIT_LOCATIONS)
+    #sleep(settings.WAIT_LOCATIONS)
 
 
 if __name__ == '__main__':
@@ -45,6 +46,7 @@ if __name__ == '__main__':
 
     while True:
         if settings.CONCURRENT_ENABLED:
+            logger.info(f'CONCURRENT_ENABLED set with {settings.CONCURRENT_WORKERS} simultaneous workers')
             with concurrent.futures.ThreadPoolExecutor(max_workers=settings.CONCURRENT_WORKERS) as executor:
                 _ = executor.map(impf_me, settings.LOCATIONS)
         else:

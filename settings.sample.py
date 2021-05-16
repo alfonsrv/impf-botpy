@@ -15,7 +15,7 @@ LOCATIONS: List[Dict[str, str]] = [
         'code': ''
     }, {
         'location': '71636 Ludwigsburg',
-        'code': 'Q123-ABCD-C0DE'
+        'code': 'Q123-ABCD-C0DE'  # sample Vermittlungscode
     }, {
         'location': '75175 Pforzheim',
         'code': ''
@@ -37,15 +37,30 @@ WAIT_LOCATIONS: int = 60*5  # 5 Min
 WAIT_SMS_MANUAL: int = 60*9  # 9 Min
 # Seconds to wait for page to load and elements to show
 WAIT_BROWSER_MAXIMUM: int = 10
+# Only relevant if AVOID_SHADOW_BAN is set to True
+WAIT_SHADOW_BAN: int = 60*15  # 15 Min
 
 
 # > Advanced Features
 # ----------------------
+# Check availability with multiple browsers simultaneously
 CONCURRENT_ENABLED: bool = False
+# How many processes / browsers to use (do not set this number higher
+#  than the amount of overall LOCATIONS defined)
 CONCURRENT_WORKERS: int = 3
 # Keep the same browser window for checking all locations; makes it easier to run in background
-# Cannot be used in combination with `CONCURRENT_ENABLED`
+# Cannot be used in combination with `CONCURRENT_ENABLED` (ignored if CONCURRENT_ENABLED)
 KEEP_BROWSER: bool = True
+# Checks if the backend is returning error `429` (Too Many Requests) and then sleeps for WAIT_SHADOW_BAN
+# seconds before sending the last request again.
+AVOID_SHADOW_BAN: bool = True
+# Controls whether or not the bot should simply keep on rechecking if new appointments
+# are available once we have passed the *Vermittlungscode* and are in the Online Booking screen.
+# This is done by clicking "Check for new appointments" after the 10m reservation time runs out
+# This can be very useful if you only want to check for one center; however it might also result
+# in an undesired behavior; if CONCURRENT_ENABLED is not used the bot will evidently only keep on
+# checking only one center over and over again.
+RESCAN_APPOINTMENT: bool = True
 
 # Chromium Driver Path - leave empty to use auto detect
 # OS examples for common paths - e.g.
@@ -62,11 +77,14 @@ SELENIUM_DEBUG: bool = False
 USER_AGENT: str = 'default'
 
 
-# ALERTING SETTINGS
-ALERT_TEXT = 'Neuer Impftermin in {{ LOCATION }}! SMS Code innerhalb der nächsten 10 Minuten übermitteln. (sms:123-456)'
+# > Alerting Settings
+# ----------------------
+ALERT_SMS: str = 'Neuer Impftermin in {{ LOCATION }}! SMS Code innerhalb der nächsten 10 Minuten übermitteln. (sms:123-456)'
+ALERT_AVAILABLE: str = 'Impftermine verfügbar in {self.location_full}! Reserviert für die nächsten 10 Minuten...'
 
-# Run a custom command when a new appointment is found (e.g. audio alerts)
-# Text-to-Speech examples
+# Run a custom command when a new appointment is found (e.g. audio alerts); if COMMAND_ENABLED is set to True, but no
+# command is supplied in COMMAND_LINE, script will automatically fall back to pre-configured Text-to-speech below:
+# Text-to-Speech Commands
 # - Windows: 'PowerShell -Command "Add-Type –AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak(\'ALARM ALARM ALARM\');"'
 # - macOS: 'say "ALARM ALARM ALARM"'
 # - Debian: 'echo "ALARM ALARM ALARM"|espeak'
@@ -84,15 +102,18 @@ ZULIP_TARGET: str = 'hunter'
 ZULIP_TOPIC: str = 'General'
 
 
-# DO NOT EDIT
-import os
+
+# > Logging Setup
+# ----------------------
 import logging
-import logging.handlers
 
 # Set to logging.WARNING to minimal output
 LOG_LEVEL = logging.INFO  # logging.DEBUG // .ERROR...
 
 
+# DO NOT EDIT
+import os
+import logging.handlers
 os.chdir(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))))
 WORK_DIR = os.getcwd()
 LOG_FILE = ''

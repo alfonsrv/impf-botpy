@@ -1,25 +1,32 @@
 # Impf Bot.py 🐍⚡
 
+[![Python](https://img.shields.io/badge/Made with-Python 3.x-blue.svg?style=flat-square&logo=Python&logoColor=white)](https://www.python.org/)
+[![Selenium](https://img.shields.io/badge/Selenium-3.141.59-green.svg?style=flat-square&logo=Selenium&logoColor=white)](https://www.selenium.dev/)
+
 ### Damit ihr im Sommer erstmal Entspahnen könnt ☀
 
 Searches the official "[ImpfterminService - Der Patientenservice 116117](https://www.impfterminservice.de/)" for free
 Corona vaccination slots. It can search multiple locations at once which can be provided in a list. 
 
-When it finds a free slot, it can use Zulip (or other platforms) to send you a message. Just send your SMS confirmation
-code through your favorite chat app from anywhere and let your PC do the work while you're out and about.
+When it finds a free slot, the bot sends you a notification message via Zulip (or any other platform/chat app). Just 
+send your SMS confirmation code through your favorite chat app from anywhere and let your PC do the work while you're 
+out and about.
 
-Important timings can be configured to avoid blocking (status code `429`).  
+Important timings can be configured to avoid being timed-out aka *shadow banned* (HTTP status code `429`).  
 
 This is a Python implementation of the Java-based [💉🤖 Impf-Bot](https://github.com/TobseF/impf-bot)
 
 ## ⭐ Features
+ ⭐ Easy to set up  
  ⭐ Python for the 21st Century  
  ⭐ Full browser automation  
  ⭐ Concurrent checking  
  ⭐ Waiting room detection  
+ ⭐ Timeout `429` detection  
+ ⭐ Monitoring / re-checking *Vermittlungscode*  
  ⭐ `settings.py` for single point of configuration  
- ⭐ Zulip integration
- ⭐ Run custom Commands for Alerting  
+ ⭐ Zulip integration  
+ ⭐ Run custom Commands for Alerting (Text-to-Speech preconfigured)  
  ⭐ Easy to add additional backends, like Telegram, Slack, Webhooks ...  
 
 ## Workflow
@@ -34,7 +41,7 @@ has its own valid *Vermittlungscode*, which you'll need to acquire first to adva
     4. ImpfterminService will send you a SMS with a confirmation code
     5. Either enter the code manually or send it to the bot using `sms:123-456`
     6. The *Vermittlungscode* is sent to your email
-    7. Enter the *Vermittlungscode* on the center in `settings.py` 🚨
+    7. Enter the *Vermittlungscode* on the center in `settings.py` and restart the bot 🚨
 2. If you have a *Vermittlungscode* for a center
     1. The bot will enter your *Vermittlungscode*
     2. It will check if there are available appointments
