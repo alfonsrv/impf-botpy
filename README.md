@@ -17,13 +17,13 @@ Important timings can be configured to avoid being timed-out aka *shadow banned*
 This is a Python implementation of the Java-based [💉🤖 Impf-Bot](https://github.com/TobseF/impf-bot)
 
 ## ⭐ Features
- ⭐ Easy to set up  
+ ⭐ Easy to Set up  
  ⭐ Python for the 21st Century  
  ⭐ Full browser automation  
  ⭐ Concurrent checking  
  ⭐ Waiting room detection  
- ⭐ Timeout `429` detection  
- ⭐ Monitoring / re-checking *Vermittlungscode*  
+ ⭐ Timeout / Shadow Ban `429` detection  
+ ⭐ Automatically re-checking *Vermittlungscode*  
  ⭐ `settings.py` for single point of configuration  
  ⭐ Zulip integration  
  ⭐ Run custom Commands for Alerting (Text-to-Speech preconfigured)  
