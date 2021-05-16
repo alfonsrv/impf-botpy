@@ -89,10 +89,12 @@ import os
 import logging
 import logging.handlers
 
+# set to logging.WARNING to minimal output
+LOG_LEVEL = logging.INFO # logging.DEBUG // .ERROR...
+
 os.chdir(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))))
 WORK_DIR = os.getcwd()
 LOG_FILE = ''
-LOG_LEVEL = logging.INFO # logging.DEBUG // .ERROR...
 IMPF_FORMAT = '%(asctime)s - %(location)s: $(message)s'
 
 LOG_PATH = os.path.join(WORK_DIR, LOG_FILE or 'bot.log')

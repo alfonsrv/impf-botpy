@@ -30,6 +30,7 @@ def read_code() -> str:
 
 
 def send_alert(message: str) -> None:
+    logger.info(f'Sending alert {message}')
     if settings.COMMAND_ENABLED:
         try: os.system(get_command())
         except: pass

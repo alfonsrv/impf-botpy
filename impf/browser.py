@@ -187,16 +187,17 @@ class Browser:
     def alert_sms(self) -> str:
         """ Benachrichtigung User - um entweder SMS Code via ext. Plattform (Zulip, ...)
         oder manuell einzugeben. Wartet max. 10 Minuten, und fährt dann fährt dann fort """
-        self.logger.info('Enter SMS code!')
+        self.logger.info('Enter SMS code! Waiting for user input.')
         send_alert(settings.ALERT_TEXT.replace('{{ LOCATION }}', self.location_full))
         start = time()
         while (time() - start) < settings.WAIT_SMS_MANUAL:
             _code = read_code()
             if _code:
+                self.logger.warning(f'Received Code from backend: {_code} - entering now...')
                 send_alert('Entering code; check your mails! Thanks for using RVX Technologies :)')
                 return _code
             sleep(15)
-        self.logger.info('No SMS code received from backend')
+        self.logger.warning('No SMS code received from backend')
 
     def fill_code(self) -> None:
         """ Vermittlungscode für Location eingeben und prüfen """
@@ -223,7 +224,7 @@ class Browser:
 
     def alert_available(self):
         """ Alerts ... """
-        self.logger.info('Available appointments!')
+        self.logger.warning('Available appointments!')
         send_alert(f'Appointments available at {self.location_full}! Reserved for the next 10 minutes...')
         sleep(600)
 
@@ -242,9 +243,9 @@ class Browser:
             if not self.has_vacancy: self.logger.info('No vacancy right now...'); return
             self.confirm_eligible()
             if not self.has_vacancy: self.logger.info('No vacancy right now...'); return
-            self.logger.info('We have vacancy! Requesting Vermittlungscode')
+            self.logger.warning('We have vacancy! Requesting Vermittlungscode')
             self.claim_code()
-            if self.limit_reached: self.logger.info('Request limit reached'); return
+            if self.limit_reached: self.logger.error('Request limit reached'); return
             sms_code = self.alert_sms()
             self.enter_sms(sms_code)
             self.logger.info('Add the code you got via mail to settings.py and restart the script!')
