@@ -30,7 +30,7 @@ def impf_me(location):
             logger.info('Keeping Browser open')
             x.keep_browser = True
             b = x
-        else: x.reinit(**location)
+        else: x = x.reinit(**location)
 
     # Continue with normal loop
     x.control_main()
