@@ -17,6 +17,7 @@ from impf.decorators import shadow_ban
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class Browser:
     driver: webdriver = field(init=False)
@@ -32,8 +33,10 @@ class Browser:
         opts = Options()
         if settings.SELENIUM_DEBUG: opts.add_argument('--auto-open-devtools-for-tabs')
         if settings.USER_AGENT != 'default': opts.add_argument(f'user-agent={settings.USER_AGENT}')
-        if settings.SELENIUM_PATH: self.driver = webdriver.Chrome(settings.SELENIUM_PATH, chrome_options=opts)
-        else: self.driver = webdriver.Chrome(chrome_options=opts)
+        if settings.SELENIUM_PATH:
+            self.driver = webdriver.Chrome(settings.SELENIUM_PATH, chrome_options=opts)
+        else:
+            self.driver = webdriver.Chrome(chrome_options=opts)
         self.driver.implicitly_wait(2.5)
         self.wait = WebDriverWait(self.driver, settings.WAIT_BROWSER_MAXIMUM)
         self.logger = settings.LocationAdapter(logger, {'location': self.location[:5]})
@@ -57,13 +60,13 @@ class Browser:
         """ Returns the server identifier we're connected to (001, 002, ...) """
         return self.driver.current_url[8:11]
 
-
     @property
     def has_vacancy(self) -> bool:
         """ Impfzentrum hat freie Termine """
         try:
-            element = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class, "alert-danger")]')))
-            return not('keine freien Termine' in element.text)
+            element = self.wait.until(
+                EC.presence_of_element_located((By.XPATH, '//div[contains(@class, "alert-danger")]')))
+            return not ('keine freien Termine' in element.text)
         except TimeoutException:
             return True
 
@@ -82,7 +85,7 @@ class Browser:
         """ Check ob Vermittlungscode von Server generell akzeptiert wird """
         try:
             element = self.driver.find_element_by_xpath('//div[contains(@class, "kv-alert-danger")]')
-            return not('Ungültiger Vermittlungscode' in element.text)
+            return not ('Ungültiger Vermittlungscode' in element.text)
         except NoSuchElementException:
             return True
 
@@ -91,6 +94,7 @@ class Browser:
         """ Check ob Vermittlungscode an sich ok, aber auf Error gelaufen ist; bspw.
          wegen zu vielen Anfragen (429) """
         try:
+            sleep(1.5)
             element = self.driver.find_element_by_xpath('//div[contains(@class, "kv-alert-danger")]')
             return 'unerwarteter Fehler' in element.text
         except NoSuchElementException:
@@ -110,11 +114,12 @@ class Browser:
         """ Checks if we're being blocked; unfortunately there is no better way, as
         Selenium doesn't allow us to check HTTP status codes in the Network tab """
         relevant = time() - 120
+        sleep(1.5)  # give browser time to catch-up
         for log in self.driver.get_log('browser'):
             if log.get('level') == 'SEVERE' \
-                and log.get('source') == 'network' \
-                and (log.get('timestamp') / 1000) > relevant \
-                and '429' in log.get('message'):
+                    and log.get('source') == 'network' \
+                    and (log.get('timestamp') / 1000) > relevant \
+                    and '429' in log.get('message'):
                 return True
         return False
 
@@ -141,13 +146,15 @@ class Browser:
         # Load Bundesländer
         elements[0].click()
         # Select BaWü
-        element = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//li[@role="option" and contains(text() , "{settings.BUNDESLAND}")]')))
+        element = self.wait.until(EC.presence_of_element_located(
+            (By.XPATH, f'//li[@role="option" and contains(text() , "{settings.BUNDESLAND}")]')))
         element.click()
         self.logger.info(f'Selected Bundesland: {settings.BUNDESLAND}')
 
         # Load Cities
         elements[1].click()
-        element = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//li[@role="option" and contains(text() , "{self.location}")]')))
+        element = self.wait.until(EC.presence_of_element_located(
+            (By.XPATH, f'//li[@role="option" and contains(text() , "{self.location}")]')))
         self.location_full = element.text
         element.click()
         self.logger.info(f'Selected Impfzentrum: {self.location_full}')
@@ -167,10 +174,13 @@ class Browser:
         title = self.wait.until(EC.presence_of_element_located((By.XPATH, '//h1')))
         assert title.text == 'Wurde Ihr Anspruch auf eine Corona-Schutzimpfung bereits geprüft?'
         self.cookie_popup()
+        sleep(3)
         claim = 'Ja' if self.code else 'Nein'
         element = self.wait.until(EC.presence_of_element_located(
-            (By.XPATH, f'//input[@type="radio" and @name="vaccination-approval-checked"]//following-sibling::span[contains(text(),"{claim}")]/..')))
+            (By.XPATH,
+             f'//input[@type="radio" and @name="vaccination-approval-checked"]//following-sibling::span[contains(text(),"{claim}")]/..')))
         element.click()
+        sleep(2)  # make the request gods happy
 
     def confirm_eligible(self) -> None:
         """ Termin verfügbar; prüfe ob Termine für unser Alter """
@@ -178,7 +188,8 @@ class Browser:
         submit.click()
         sleep(.5)
         element = self.wait.until(EC.presence_of_element_located(
-            (By.XPATH, '//input[@type="radio" and @formcontrolname="isValid"]//following-sibling::span[contains(text(),"Ja")]/..')))
+            (By.XPATH,
+             '//input[@type="radio" and @formcontrolname="isValid"]//following-sibling::span[contains(text(),"Ja")]/..')))
         element.click()
 
         # Enter Age
@@ -217,7 +228,7 @@ class Browser:
             _code = read_code()
             if _code:
                 self.logger.warning(f'Received Code from backend: {_code} - entering now...')
-                send_alert('Entering code; check your mails! Thanks for using RVX Technologies :)')
+                send_alert('Entering code; check your mails! Thanks for using RAUSYS Technologies :)')
                 return _code
             sleep(15)
         self.logger.warning('No SMS code received from backend')
@@ -226,7 +237,8 @@ class Browser:
     def fill_code(self) -> None:
         """ Vermittlungscode für Location eingeben und prüfen """
         for i in range(3):
-            element = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//input[@type="text" and @data-index="{i}"]')))
+            element = self.wait.until(
+                EC.presence_of_element_located((By.XPATH, f'//input[@type="text" and @data-index="{i}"]')))
             element.send_keys(self.code.split('-')[i])
         submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, f'//button[@type="submit"]')))
         submit.click()
@@ -240,13 +252,28 @@ class Browser:
         sleep(2.5)
         try:
             if self.driver.find_element_by_xpath('//span[@class="its-slot-pair-search-no-results"]') \
-                or self.driver.find_element_by_xpath('//span[contains(@class, "text-pre-wrap") and contains(text(), "Fehler")]'):
+                    or self.driver.find_element_by_xpath(
+                    '//span[contains(@class, "text-pre-wrap") and contains(text(), "Fehler")]'):
                 self.logger.info('Vermittlungscode ok, but not free vaccination slots')
                 return False
-        except NoSuchElementException: pass
+        except NoSuchElementException:
+            pass
 
         element = self.driver.find_element_by_xpath('//*[contains(text(), "1. Impftermin")]')
         return bool(element)
+
+    def wiggle_recover(self) -> None:
+        """ Can solve `429` error by clicking Yes, No """
+        claims = [
+            'Nein' if self.code else 'Ja',  # click opposite than current
+            'Ja' if self.code else 'Nein'
+        ]
+        for claim in claims:
+            element = self.wait.until(EC.presence_of_element_located(
+                (By.XPATH, f'//input[@type="radio" and @name="vaccination-approval-checked"]//following-sibling::span[contains(text(),"{claim}")]/..')))
+            element.click()
+            sleep(2)
+
 
     def rescan_appointments(self):
         """ Erneut im Buchungsbildschirm nach Terminen suchen """
@@ -254,7 +281,8 @@ class Browser:
         close.click()
         rescan = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//a[contains(text(), "hier")]')))
         rescan.click()
-        close = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//button[contains(text(), "Abbrechen")]')))[-1]
+        close = \
+        self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//button[contains(text(), "Abbrechen")]')))[-1]
         close.click()
 
     def alert_available(self):
@@ -272,7 +300,11 @@ class Browser:
             if self.error_counter == 3:
                 self.logger.error('Maximum errors exceeded...')
                 return
-            self.main_page()
+
+            # Quick Restart
+            if self.error_counter == 0: self.main_page()
+            else: self.driver.refresh()
+
             self.logger.info(f'Connected to server [{self.server_code}]')
             self.waiting_room()
             self.location_page()
@@ -308,8 +340,10 @@ class Browser:
             return self.control_main()
         if self.code_error:
             # We're likely sending too many requests too quickly or the server is under too much stress
-            self.logger.info(f'Ran into what is probably a temporary error with code {self.code}; retrying in 15 minutes')
-            sleep(900)
+            self.logger.info(
+                f'Ran into what is probably a temporary error with code {self.code}; retrying in '
+                f'{settings.AVOID_SHADOW_BAN // 60}min')
+            sleep(settings.AVOID_SHADOW_BAN)
             self.error_counter += 1
             return self.control_main()
 
@@ -322,5 +356,7 @@ class Browser:
                 self.rescan_appointments()
                 appointments = self.search_appointments()
 
-        if appointments: self.alert_available()
-        else: self.logger.info('No appointments available right now :(')
+        if appointments:
+            self.alert_available()
+        else:
+            self.logger.info('No appointments available right now :(')

@@ -1,5 +1,9 @@
 import platform
-import zulip
+
+try:
+    import zulip
+except ModuleNotFoundError:
+    print('Zulip package not found - skipping for alerts')
 
 import settings
 
@@ -33,8 +37,11 @@ def zulip_read_payload() -> dict:
     return request
 
 def zulip_client():
-    return zulip.Client(
-        email=settings.ZULIP_MAIL,
-        site=settings.ZULIP_URL,
-        api_key=settings.ZULIP_KEY
-    )
+    try:
+        return zulip.Client(
+            email=settings.ZULIP_MAIL,
+            site=settings.ZULIP_URL,
+            api_key=settings.ZULIP_KEY
+        )
+    except:
+        return None

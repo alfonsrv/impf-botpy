@@ -1,9 +1,12 @@
+import argparse
 import concurrent.futures
+from concurrent.futures import FIRST_COMPLETED
 from time import sleep
 from datetime import datetime, timedelta
 import logging
 
 import settings
+from impf.alert import send_alert
 from impf.browser import Browser
 
 logger = logging.getLogger(__name__)
@@ -18,6 +21,10 @@ def print_config() -> None:
     print('[x] Alerting Methods')
     if settings.COMMAND_ENABLED: print('- Custom Command ✓')
     if settings.ZULIP_ENABLED: print('- Zulip ✓')
+
+def print_version() -> None:
+    from impf import __version__ as v
+    print(v)
 
 def impf_me(location):
     """ Helper function to support concurrency """
@@ -38,17 +45,32 @@ def impf_me(location):
     logger.info(f'Waiting until {(datetime.now() + timedelta(seconds=settings.WAIT_LOCATIONS)).strftime("%H:%M:%S")} '
                 f'before checking the next location')
     sleep(settings.WAIT_LOCATIONS)
+    return location
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--alerts', help='Check all alert backends and exit', action='store_true')
+    parser.add_argument('--version', help='Print version and exit', action='store_true')
+    args = parser.parse_args()
+
+    if args.version: print_version(); exit()
+    if args.alerts: print_config(); send_alert('Notification test from Impf Bot.py - https://github.com/alfonsrv/impf-botpy'); exit();
+
     logger.info('Starting up Impf Bot.py - @alfonsrv, 05/2021')
     print_config()
 
     while True:
         if settings.CONCURRENT_ENABLED:
             logger.info(f'CONCURRENT_ENABLED set with {settings.CONCURRENT_WORKERS} simultaneous workers')
+            locations = settings.LOCATIONS
             with concurrent.futures.ThreadPoolExecutor(max_workers=settings.CONCURRENT_WORKERS) as executor:
-                _ = executor.map(impf_me, settings.LOCATIONS)
+                futures = [executor.submit(impf_me, location) for location in settings.LOCATIONS]
+                while True:
+                    for future in concurrent.futures.as_completed(futures):
+                        futures.remove(future)
+                        futures.append(executor.submit(impf_me, future.result()))
+                        break
         else:
             for location in settings.LOCATIONS:
                 impf_me(location)

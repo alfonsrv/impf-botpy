@@ -1,7 +1,7 @@
 # Installation Guide
 
 This guide is designed to be as easy as possible. If anything is unclear, please feel free to ask.
-
+shell
 ## Windows
 
 Make sure you have Google Chrome installed.
@@ -14,6 +14,8 @@ Open Command Line (`Windows` -> Start typing to activate search `cmd` -> `Rightc
 @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
 choco install selenium-chrome-driver
 ```
+
+Alternatively, you can download the executable here manually `https://sites.google.com/a/chromium.org/chromedriver/downloads`
 
 ### Python Installation
 
@@ -40,6 +42,9 @@ python3 main.py
 If it gives you an error, simply type `cd ` and Drag+Drop the extracted folder with the `main.py` in the Command Line window.
 Press Enter and continue with the `pip3`-Step
 
+If you get an error regarding `cryptography` and `Rust`, simply open the `requirements.txt` and remove the line starting
+with `cryptography` + `zulip` and run `pip` again.
+
 ----
 
 
@@ -57,6 +62,8 @@ brew install selenium-server-standalone
 ```
 
 It will ask for your password. Just type it and press Enter. You won't be able to see it, so don't get confused.
+
+Alternatively, you can download the executable here manually `https://sites.google.com/a/chromium.org/chromedriver/downloads`
 
 ### Python Installation
 
@@ -95,6 +102,8 @@ Make sure you have Google Chrome installed.
 ```bash
 sudo apt update && sudo apt install chromium-chromedriver -y
 ```
+
+Alternatively, you can download the executable here manually `https://sites.google.com/a/chromium.org/chromedriver/downloads`
 
 ### Python Installation
 

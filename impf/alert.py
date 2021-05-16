@@ -30,7 +30,7 @@ def read_code() -> str:
 
 
 def send_alert(message: str) -> None:
-    logger.info(f'Sending alert {message}')
+    logger.info(f'Sending alert "{message}"')
     if settings.COMMAND_ENABLED:
         try: os.system(get_command())
         except: pass
@@ -40,6 +40,7 @@ def send_alert(message: str) -> None:
 
 def zulip_send(message: str) -> None:
     client = zulip_client()
+    if client is None: return
     request = zulip_send_payload()
     request.setdefault('content', message)
     r = client.send_message(request)
@@ -49,6 +50,7 @@ def zulip_send(message: str) -> None:
 
 def zulip_read() -> str:
     client = zulip_client()
+    if client is None: return
     request = zulip_read_payload()
     r = client.get_messages(request)
 

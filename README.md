@@ -1,9 +1,9 @@
 # Impf Bot.py 🐍⚡
 
-[![Python](https://img.shields.io/badge/Made with-Python 3.x-blue.svg?style=flat-square&logo=Python&logoColor=white)](https://www.python.org/)
-[![Selenium](https://img.shields.io/badge/Selenium-3.141.59-green.svg?style=flat-square&logo=Selenium&logoColor=white)](https://www.selenium.dev/)
+[![Python](https://img.shields.io/badge/Made%20with-Python%203.x-blue.svg?style=flat-square&logo=Python&logoColor=white)](https://www.python.org/)  
+[![Selenium](https://img.shields.io/badge/Selenium-3.141.0-green.svg?style=flat-square&logo=Selenium&logoColor=white)](https://www.selenium.dev/)
 
-### Damit ihr im Sommer erstmal Entspahnen könnt ☀
+### Entspahnt in den Sommer ☀
 
 Searches the official "[ImpfterminService - Der Patientenservice 116117](https://www.impfterminservice.de/)" for free
 Corona vaccination slots. It can search multiple locations at once which can be provided in a list. 
@@ -17,7 +17,7 @@ Important timings can be configured to avoid being timed-out aka *shadow banned*
 This is a Python implementation of the Java-based [💉🤖 Impf-Bot](https://github.com/TobseF/impf-bot)
 
 ## ⭐ Features
- ⭐ Easy to Set up  
+ ⭐ Easy to set up  
  ⭐ Python for the 21st Century  
  ⭐ Full browser automation  
  ⭐ Concurrent checking  
@@ -62,7 +62,7 @@ The automatically opening browser windows can be run in the background.
 ### Requirements
 
 * [Python 3.x](https://www.python.org/downloads/)
-* [Selenium](https://www.selenium.dev) for Chrome
+* [Selenium](https://sites.google.com/a/chromium.org/chromedriver/downloads) for Chrome
 * Google Chrome
 * `pip3 install -r requirements.txt`
 
@@ -92,7 +92,8 @@ python3 main.py
 
 ### Run it
 
-`python3 main.py` und entspahnen
+* `python3 main.py` und entspahnen
+* `python3 main.py --alerts` to test configured alerts
 
 ## Adding Backends for Alerts
 
@@ -103,4 +104,3 @@ Adding your favorite backend (e.g. Slack) for alerting is easy. Simply add your 
 3. `settings.py` add your relevant settings (must include `ENABLED` flag)
 4. `main.py` in `print_config` for NextGen UX
 4. Done 💥
-
