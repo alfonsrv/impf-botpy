@@ -1,6 +1,6 @@
 # Impf Bot.py 🐍⚡
 
-> Damit ihr im Sommer erstmal Entspahnen könnt ☀
+### Damit ihr im Sommer erstmal Entspahnen könnt ☀
 
 Searches the official "[ImpfterminService - Der Patientenservice 116117](https://www.impfterminservice.de/)" for free
 Corona vaccination slots. It can search multiple locations at once which can be provided in a list. 
