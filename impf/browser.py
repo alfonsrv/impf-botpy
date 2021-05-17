@@ -279,10 +279,13 @@ class Browser:
         """ Erneut im Buchungsbildschirm nach Terminen suchen """
         close = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//button[contains(text(), "Abbrechen")]')))[-1]
         close.click()
-        rescan = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//a[contains(text(), "hier")]')))
-        rescan.click()
-        close = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//button[contains(text(), "Abbrechen")]')))[-1]
-        close.click()
+        try:
+            rescan = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//a[contains(text(), "hier")]')))
+            rescan.click()
+            close = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//button[contains(text(), "Abbrechen")]')))[-1]
+            close.click()
+        except NoSuchElementException:
+            pass
 
     def alert_available(self):
         """ Alert, Termin verfügbar! Und Exit """
@@ -354,7 +357,7 @@ class Browser:
         if settings.RESCAN_APPOINTMENT and not appointments:
             self.logger.info('RESCAN_APPOINTMENT is enabled - automatically rechecking in 10m...')
             while not appointments:
-                sleep(600)
+                sleep(150)  # Should be able to divide 600s (10m)
                 self.logger.info('Rechecking for new appointments')
                 self.rescan_appointments()
                 appointments = self.search_appointments()
