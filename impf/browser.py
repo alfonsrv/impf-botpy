@@ -56,7 +56,7 @@ class Browser:
         return title.text == 'Virtueller Warteraum des Impfterminservice'
 
     @property
-    def server_code(self) -> str:
+    def server_id(self) -> str:
         """ Returns the server identifier we're connected to (001, 002, ...) """
         return self.driver.current_url[8:11]
 
@@ -71,7 +71,7 @@ class Browser:
             return True
 
     @property
-    def limit_reached(self) -> bool:
+    def register_limit_reached(self) -> bool:
         """ Max. Anzahl an Nummern-Registrierungen erreicht """
         try:
             element = self.wait.until(
@@ -199,7 +199,7 @@ class Browser:
         submit.click()
 
     def claim_code(self) -> None:
-        """ Alles ok! fülle Felder aus um Vermittlungscode zu erhalten """
+        """ Alles ok! fülle Felder aus um Vermittlungscode via SMS zu erhalten """
         title = self.wait.until(EC.presence_of_element_located((By.XPATH, '//h1')))
         assert title.text == 'Vermittlungscode anfordern'
         mail = self.wait.until(EC.presence_of_element_located((By.XPATH, '//input[@formcontrolname="email"]')))
@@ -228,7 +228,7 @@ class Browser:
             _code = read_code()
             if _code:
                 self.logger.warning(f'Received Code from backend: {_code} - entering now...')
-                send_alert('Entering code; check your mails! Thanks for using RAUSYS Technologies :)')
+                send_alert(f'Entering code "{_code}"; check your mails! Thanks for using RAUSYS Technologies :)')
                 return _code
             sleep(15)
         self.logger.warning('No SMS code received from backend')
@@ -281,8 +281,7 @@ class Browser:
         close.click()
         rescan = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//a[contains(text(), "hier")]')))
         rescan.click()
-        close = \
-        self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//button[contains(text(), "Abbrechen")]')))[-1]
+        close = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//button[contains(text(), "Abbrechen")]')))[-1]
         close.click()
 
     def alert_available(self):
@@ -291,21 +290,22 @@ class Browser:
         send_alert(settings.ALERT_AVAILABLE.replace('{{ LOCATION }}', self.location_full))
         sleep(settings.WAIT_SMS_MANUAL)
         self.keep_browser = True
-        self.logger.warning('Exiting, our job here is done. Keeping browser open.')
+        self.logger.warning('Exiting in 10 minutes, our job here is done. Keeping browser open.')
+        sleep(600)
         exit()
 
     def control_main(self):
         """ Kontrollfunktion um Vermittlungscode zu beziehen """
         try:
-            if self.error_counter == 3:
-                self.logger.error('Maximum errors exceeded...')
+            if self.error_counter == 5:
+                self.logger.error('Maximum errors and retries exceeded - skipping location for now')
                 return
 
             # Quick Restart
             if self.error_counter == 0: self.main_page()
             else: self.driver.refresh()
 
-            self.logger.info(f'Connected to server [{self.server_code}]')
+            self.logger.info(f'Connected to server [{self.server_id}]')
             self.waiting_room()
             self.location_page()
             if self.code: return self.control_appointment()
@@ -316,7 +316,10 @@ class Browser:
             if not self.has_vacancy: self.logger.info('No vacancy right now...'); return
             self.logger.warning(f'We have vacancy! Requesting Vermittlungscode for {self.driver.current_url}')
             self.claim_code()
-            if self.limit_reached: self.logger.error('Request limit reached'); return
+            if self.register_limit_reached:
+                self.logger.error('Request limit reached - try using a different phone number and email')
+                send_alert(f'Server [{self.server_id}] returned max. requests. Consider changing phone number and email')
+                return
             sms_code = self.alert_sms()
             self.enter_sms(sms_code)
             self.logger.info('Add the code you got via mail to settings.py and restart the script!')
@@ -344,7 +347,7 @@ class Browser:
                 f'Ran into what is probably a temporary error with code {self.code}; retrying in '
                 f'{settings.AVOID_SHADOW_BAN // 60}min')
             sleep(settings.AVOID_SHADOW_BAN)
-            self.error_counter += 1
+            self.error_counter += 3
             return self.control_main()
 
         appointments = self.search_appointments()

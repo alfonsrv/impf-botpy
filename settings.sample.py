@@ -37,9 +37,11 @@ WAIT_LOCATIONS: int = 60*5  # 5 Min
 WAIT_SMS_MANUAL: int = 60*9  # 9 Min
 # Seconds to wait for page to load and elements to show
 WAIT_BROWSER_MAXIMUM: int = 10
+# If CONCURRENT_ENABLED browsers will be delayed WAIT_CONCURRENT
+# seconds before started to avoid getting `429` directly
+WAIT_CONCURRENT: int = 30
 # Only relevant if AVOID_SHADOW_BAN is set to True
 WAIT_SHADOW_BAN: int = 60*15  # 15 Min
-
 
 # > Advanced Features
 # ----------------------
@@ -79,8 +81,8 @@ USER_AGENT: str = 'default'
 
 # > Alerting Settings
 # ----------------------
-ALERT_SMS: str = 'Neuer Impftermin in {{ LOCATION }}! SMS Code innerhalb der nächsten 10 Minuten übermitteln. (sms:123-456)'
-ALERT_AVAILABLE: str = 'Impftermine verfügbar in {self.location_full}! Reserviert für die nächsten 10 Minuten...'
+ALERT_SMS: str = 'Neuer Vermittlungscode für {{ LOCATION }}! SMS Code innerhalb der nächsten 10 Minuten übermitteln. (sms:123-456)'
+ALERT_AVAILABLE: str = 'Impftermine verfügbar in {{ LOCATION }}! Reserviert für die nächsten 10 Minuten...'
 
 # Run a custom command when a new appointment is found (e.g. audio alerts); if COMMAND_ENABLED is set to True, but no
 # command is supplied in COMMAND_LINE, script will automatically fall back to pre-configured Text-to-speech below:

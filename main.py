@@ -57,20 +57,29 @@ if __name__ == '__main__':
     if args.version: print_version(); exit()
     if args.alerts: print_config(); send_alert('Notification test from Impf Bot.py - https://github.com/alfonsrv/impf-botpy'); exit();
 
-    logger.info('Starting up Impf Bot.py - @alfonsrv, 05/2021')
+    logger.info('Starting up Impf Bot.py - github/@alfonsrv, 05/2021')
     print_config()
 
     while True:
         if settings.CONCURRENT_ENABLED:
             logger.info(f'CONCURRENT_ENABLED set with {settings.CONCURRENT_WORKERS} simultaneous workers')
+            logger.info(f'Spawning Browsers with {settings.WAIT_CONCURRENT}s delay.')
             locations = settings.LOCATIONS
             with concurrent.futures.ThreadPoolExecutor(max_workers=settings.CONCURRENT_WORKERS) as executor:
-                futures = [executor.submit(impf_me, location) for location in settings.LOCATIONS]
-                while True:
-                    for future in concurrent.futures.as_completed(futures):
+                #futures = [executor.submit(impf_me, location) for location in settings.LOCATIONS]10
+                futures = []
+                for location in settings.LOCATIONS:
+                    futures.append(executor.submit(impf_me, location))
+                    sleep(30)
+
+                while futures:
+                    done, _ = concurrent.futures.wait(futures, return_when=FIRST_COMPLETED)
+
+                    for future in done:
                         futures.remove(future)
-                        futures.append(executor.submit(impf_me, future.result()))
-                        break
+                        _location = future.result()
+                        futures.append(executor.submit(impf_me, _location))
+
         else:
             for location in settings.LOCATIONS:
                 impf_me(location)

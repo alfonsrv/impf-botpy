@@ -23,7 +23,7 @@ This is a Python implementation of the Java-based [💉🤖 Impf-Bot](https://gi
  ⭐ Concurrent checking  
  ⭐ Waiting room detection  
  ⭐ Timeout / Shadow Ban `429` detection  
- ⭐ Automatically re-checking *Vermittlungscode*  
+ ⭐ Automatically re-check *Vermittlungscode*  
  ⭐ `settings.py` for single point of configuration  
  ⭐ Zulip integration  
  ⭐ Run custom Commands for Alerting (Text-to-Speech preconfigured)  

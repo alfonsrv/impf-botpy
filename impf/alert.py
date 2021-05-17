@@ -13,7 +13,7 @@ p = re.compile("sms:\d{3}-?\d{3}")
 def sms_code(string: str) -> Union[str, None]:
     """ Checks if string contains a valid SMS code """
     m = p.search(string.strip())
-    if m: m = m.group().replace('-', '')
+    if m: m = m.group().replace('-', '').replace('sms:', '')
     return m
 
 
