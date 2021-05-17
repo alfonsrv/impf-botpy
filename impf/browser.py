@@ -3,7 +3,6 @@ from time import sleep, time
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -13,6 +12,7 @@ from impf.alert import send_alert, read_code
 
 import logging
 
+from impf.constructors import browser_options
 from impf.decorators import shadow_ban
 
 logger = logging.getLogger(__name__)
@@ -30,9 +30,7 @@ class Browser:
     logger: logger = field(init=False)  # Internal adapter-logger to add PLZ field
 
     def __post_init__(self):
-        opts = Options()
-        if settings.SELENIUM_DEBUG: opts.add_argument('--auto-open-devtools-for-tabs')
-        if settings.USER_AGENT != 'default': opts.add_argument(f'user-agent={settings.USER_AGENT}')
+        opts = browser_options()
         if settings.SELENIUM_PATH:
             self.driver = webdriver.Chrome(settings.SELENIUM_PATH, chrome_options=opts)
         else:

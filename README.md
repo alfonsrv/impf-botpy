@@ -106,7 +106,7 @@ into the `Advanced Features` section.
 * `python3 main.py --alerts` to test configured alerts
 
 ## Support & Contributing
-A
+
 ### Feature Requests & Feedback
 
 Too complex? Successfully booked an appointment?  

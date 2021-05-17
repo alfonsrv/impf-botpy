@@ -8,14 +8,18 @@ Make sure you have Google Chrome installed.
 
 ### Selenium Installation
 
-Open Command Line (`Windows` -> Start typing to activate search `cmd` -> `Rightclick` -> `Run as Administrator`)
-
-```shell
-@"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
-choco install selenium-chrome-driver
-```
-
-Alternatively, you can download the executable here manually `https://sites.google.com/a/chromium.org/chromedriver/downloads`
+1. Open your Chrome Browser 
+2. Click on the three dots (top right) to expand the settings
+3. Help -> About Google Chrome
+4. Note the Version (89.0..., 90.0..., 91.0...)
+5. Visit the [Selenium WebDriver website](https://sites.google.com/a/chromium.org/chromedriver/downloads)
+6. Download the zip-Archive
+7. Put the `chromedriver.exe` from the zip-Archive in `C:\Windows\system32`
+  * you can also put it somewhere else, but you should make sure the folder is in your %PATH%-variable
+  * or alternatively point the `SELENIUM_PATH` in `settings.py` to the path of the `chromedriver.exe` explicitly
+8. If you configured this step improperly, the bot will fail with this error - or a similar one
+   `selenium.common.exceptions.WebDriverException: Message: 'chromedriver.exe' executable needs to be in PATH. Please see https://sites.google.com/a/chromium.org/chromedriver/home`
+   OR `WebDriverException: unknown error: cannot find Chrome binary error with Selenium in Python for older versions of Google Chrome`
 
 ### Python Installation
 
@@ -45,8 +49,12 @@ Press Enter and continue with the `pip3`-Step
 If you get an error regarding `cryptography` and `Rust`, simply open the `requirements.txt` and remove the line starting
 with `cryptography` + `zulip` and run `pip` again.
 
-----
+### Troubleshooting
 
+* Error: `WebDriverException: unknown error: cannot find Chrome binary error with Selenium in Python for older versions of Google Chrome`
+  * Copy the path of your chrome.exe file (e.g. `C:\Program Files\Google\Chrome\Application\chrome.exe`) and set it as `CHROME_PATH` in `settings.py`
+
+----
 
 ## macOS
 

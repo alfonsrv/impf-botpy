@@ -68,11 +68,14 @@ RESCAN_APPOINTMENT: bool = True
 # OS examples for common paths - e.g.
 # Ubuntu: /usr/lib/chromium-browser/chromedriver
 # Windows: C:/ProgramData/chocolatey/bin/chromedriver.exe
-SELENIUM_PATH: str = ''
+SELENIUM_PATH: str = r''
 # Open Chrome Developer Tab? - Recommended to set to true
 # Clicking on Network allows you to keep an eye on what's going on - if the server returns
 # status code <429>, you're making too many requests and it *shadow bans* you temporarily
 SELENIUM_DEBUG: bool = False
+# Explicitly specify path of chrome executable if Selenium cannot figure it out by itself.
+# Read more in `INSTALL.md` under the Windows Troubleshooting section
+CHROME_PATH = r''
 
 # User Agent to use. Use 'default' to not alter the Browser's user agent manually
 # can be se to e.g. 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36'
