@@ -284,7 +284,7 @@ class Browser:
             rescan.click()
             close = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//button[contains(text(), "Abbrechen")]')))[-1]
             close.click()
-        except NoSuchElementException:
+        except TimeoutException:
             pass
 
     def alert_available(self):
@@ -332,6 +332,8 @@ class Browser:
             if self.keep_browser:
                 self.driver.close()
                 self.__post_init__()
+        except:
+            self.logger.exception('An unexpected exception occurred')
         finally:
             if not self.keep_browser: self.driver.close()
 
