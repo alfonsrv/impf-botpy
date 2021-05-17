@@ -55,9 +55,9 @@ has its own valid *Vermittlungscode*, which you'll need to acquire first to adva
     * Alternatively use a remote access tool (I prefer `AnyDesk`, but `TeamViewer` also works) 
        to access your machine remotely
 
-<small>* Every center is hosted on a server, indicated by the numbers in the URL, e.g. 
+<sup>* Every center is hosted on a server, indicated by the numbers in the URL, e.g. 
 https://001-iz.impfterminservice.de/impftermine/service?plz=70713 is server **001**.
-Vermittlungscodes are valid for *every* center on the given server</small>  
+Vermittlungscodes are valid for *every* center on the given server</sup>  
 
 
 > ### ⚠ Warning: The online booking isn't an authorization
@@ -106,7 +106,7 @@ into the `Advanced Features` section.
 * `python3 main.py --alerts` to test configured alerts
 
 ## Support & Contributing
-
+A
 ### Feature Requests & Feedback
 
 Too complex? Successfully booked an appointment?  
