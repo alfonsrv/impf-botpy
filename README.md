@@ -31,7 +31,9 @@ did a lot of the heavy lifting.
  ⭐ Timeout / Shadow Ban `429` detection  
  ⭐ Automatically re-check *Vermittlungscode*  
  ⭐ `settings.py` for single point of configuration  
+ ⭐ Smart & rugged error resilience  
  ⭐ Zulip integration  
+ ⭐ 50% Telegram integration  
  ⭐ Run custom Commands for Alerting (Text-to-Speech preconfigured)  
  ⭐ Easy to add additional backends, like Telegram, Slack, Webhooks ...  
 
