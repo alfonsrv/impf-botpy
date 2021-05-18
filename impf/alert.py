@@ -8,6 +8,11 @@ from impf.constructors import zulip_client, zulip_send_payload, zulip_read_paylo
 
 import requests
 
+HEADERS = {
+    'Accept': 'application/json',
+    'User-Agent': 'https://github.com/alfonsrv/impf-botpy'
+}
+
 logger = logging.getLogger(__name__)
 p = re.compile(r"sms:\d{3}-?\d{3}")
 
@@ -67,7 +72,12 @@ def telegram_send(message: str) -> None:
     api_token = settings.TELEGRAM_BOT_TOKEN
     chat_id = settings.TELEGRAM_BOT_CHATID
 
-    send_text = f'https://api.telegram.org/bot{api_token}/sendMessage?chat_id={chat_id}&parse_mode=Markdown&text={message}'
+    url = f'https://api.telegram.org/bot{api_token}/sendMessage'
+    params = {
+        'chat_id': chat_id,
+        'parse_mode': 'Markdown',
+        'text': message
+    }
 
-    response = requests.get(send_text)
+    response = requests.get(url, params=params, headers=HEADERS)
     logger.debug(response)
