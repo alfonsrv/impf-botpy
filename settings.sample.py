@@ -107,6 +107,11 @@ ZULIP_TARGET: str = 'hunter'
 ZULIP_TOPIC: str = 'General'
 
 
+# Telegram (https://core.telegram.org/)
+TELEGRAM_ENABLED: bool = False
+TELEGRAM_BOT_TOKEN: str = '1111111111:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+TELEGRAM_BOT_CHATID: str = '111111111'
+
 
 # > Logging Setup
 # ----------------------
