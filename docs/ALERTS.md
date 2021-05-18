@@ -10,6 +10,8 @@ Currently only Zulip is supported as an alerting backend. Zulip is open source a
 mainly for various project automations it's what's integrated right now. Zulip also offers a public service, along with
 an app for every major smartphone OS.
 
+Alerts can be tested using `python main.py --alerts`.
+
 ## Zulip Setup
 
 A full documentation of the backend can be found [here](https://chat.zulip.org/api/).
@@ -60,7 +62,8 @@ ZULIP_TOPIC: str = 'General'
 
 2. Create a new bot by sending BotFather `/newbot` - choose the names freely
 
-3. Send `/token` and obtain your `TELEGRAM_BOT_TOKEN` for `settings.py`
+3. Send `/token` and obtain your `TELEGRAM_BOT_TOKEN` for `settings.py` or just copy it from the BotFather message after
+   creating your bot. Start a chat with your bot and send it `/start`
 
 4. To get your Chat ID send `/start` to [IDBot](https://t.me/myidbot) and then obtain your Chat ID using `/getid`.
    Set your ChatID at `TELEGRAM_BOT_CHATID` in `settings.py`
