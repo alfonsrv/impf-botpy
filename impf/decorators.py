@@ -2,9 +2,12 @@ from datetime import datetime, timedelta
 from time import sleep
 import logging
 
+from selenium.common.exceptions import StaleElementReferenceException
+
 import settings
 
 logger = logging.getLogger(__name__)
+
 
 def sleep_bot() -> bool:
     """ Helper function to sleep bot during night"""
@@ -17,13 +20,16 @@ def sleep_bot() -> bool:
         return True
     return False
 
+
 def shadow_ban(func):
     """ Decorator um Shadow Ban autom. zu vermeiden """
 
     def f(self, *args, **kwargs):
         if sleep_bot(): return self.control_main()
+
         x = func(self, *args, **kwargs)
-        shadow_ban = self.too_many_requests
+
+        shadow_ban = self.too_many_requests  # oh Python 3.8...
         if shadow_ban:
             self.logger.warning('Sending too many requests - got `429` from server!')
             if not settings.AVOID_SHADOW_BAN: self.logger.info('AVOID_SHADOW_BAN not enabled; continuing without waiting')
@@ -35,7 +41,6 @@ def shadow_ban(func):
 
                 self.error_counter += 1
                 sleep(wait_time)
-                self.wiggle_recover()
                 x = func(self, *args, **kwargs)
                 shadow_ban = self.too_many_requests
 
@@ -43,4 +48,30 @@ def shadow_ban(func):
             else: self.control_main()
 
         return x
+    return f
+
+
+def control_errors(func):
+    """ Decorator to centrally coordinate error handling of control functions"""
+    def f(self, *args, **kwargs):
+        try:
+            return func(self, *args, **kwargs)
+        except StaleElementReferenceException:
+            self.logger.warning('StaleElementReferenceException - we probably detatched somehow; reinitializing')
+            # Reinitialize the browser, so we can reattach
+            if self.keep_browser:
+                self.driver.close()
+                self.__post_init__()
+        except AssertionError:
+            self.logger.error('AssertionError occurred. This usually happens if your computer or internet '
+                              'connection is slow. Trying to recover automatically...')
+            return self.control_assert()
+        except:
+            self.logger.exception('An unexpected exception occurred')
+            if settings.KEEP_BROWSER_CRASH:
+                self.logger.exception('KEEP_BROWSER_CRASH configured; keeping browser open post crash')
+                self.keep_browser = settings.KEEP_BROWSER_CRASH
+            else:
+                sleep(10)
+            if not self.keep_browser: self.driver.close()
     return f

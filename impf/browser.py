@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from time import sleep, time
 
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -13,7 +13,7 @@ from impf.alert import send_alert, read_code
 import logging
 
 from impf.constructors import browser_options
-from impf.decorators import shadow_ban
+from impf.decorators import shadow_ban, control_errors
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class Browser:
             self.driver = webdriver.Chrome(settings.SELENIUM_PATH, chrome_options=opts)
         else:
             self.driver = webdriver.Chrome(chrome_options=opts)
-        self.driver.implicitly_wait(2.5)
+        self.driver.implicitly_wait(settings.WAIT_BROWSER_MAXIMUM//2 or 2.5)
         self.wait = WebDriverWait(self.driver, settings.WAIT_BROWSER_MAXIMUM)
         self.logger = settings.LocationAdapter(logger, {'location': self.location[:5]})
 
@@ -94,7 +94,8 @@ class Browser:
         try:
             sleep(1.5)
             element = self.driver.find_element_by_xpath('//div[contains(@class, "kv-alert-danger")]')
-            return 'unerwarteter Fehler' in element.text
+            # interner Fehler x unerwarteter Fehler
+            return 'Fehler' in element.text
         except NoSuchElementException:
             return False
 
@@ -178,10 +179,14 @@ class Browser:
             (By.XPATH,
              f'//input[@type="radio" and @name="vaccination-approval-checked"]//following-sibling::span[contains(text(),"{claim}")]/..')))
         element.click()
-        sleep(2)  # make the request gods happy
+        # Ensure vacancy has fully loaded before proceeding
+        while self.loading_vacancy and claim == 'Nein':
+            sleep(2.5)
 
     def confirm_eligible(self) -> None:
         """ Termin verfügbar; prüfe ob Termine für unser Alter """
+        body = self.driver.find_element_by_tag_name('body')
+        assert 'Gehören Sie einer impfberechtigten Personengruppen an?' in body.text
         submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, f'//button[@type="submit"]')))
         submit.click()
         sleep(.5)
@@ -234,10 +239,25 @@ class Browser:
     @shadow_ban
     def fill_code(self) -> None:
         """ Vermittlungscode für Location eingeben und prüfen """
+        title = self.wait.until(EC.presence_of_element_located((By.XPATH, '//h1')))
+        assert title.text == 'Wurde Ihr Anspruch auf eine Corona-Schutzimpfung bereits geprüft?'
         for i in range(3):
             element = self.wait.until(
                 EC.presence_of_element_located((By.XPATH, f'//input[@type="text" and @data-index="{i}"]')))
-            element.send_keys(self.code.split('-')[i])
+            code = self.code.split('-')[i]
+            element.clear()
+            element.send_keys(code)
+
+            # Older devices or Docker containers may have difficulties getting keys quickly, so using a slower loop
+            if element.get_attribute('value') != code:
+                self.logger.warning('Code did not match with input field! Computer seems unreliable or vslow.')
+                element.clear()
+                sleep(3)
+                for c in code:
+                    self.logger.info(f'Typing {c}')
+                    element.send_keys(c)
+                    sleep(3)
+
         submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, f'//button[@type="submit"]')))
         submit.click()
 
@@ -257,7 +277,9 @@ class Browser:
         except NoSuchElementException:
             pass
 
-        element = self.driver.find_element_by_xpath('//*[contains(text(), "1. Impftermin")]')
+        # Fallback is internet connection too slow in order to avoid crash
+        try: element = self.driver.find_element_by_xpath('//*[contains(text(), "1. Impftermin")]')
+        except NoSuchElementException: element = None
         return bool(element)
 
     def wiggle_recover(self) -> None:
@@ -274,12 +296,17 @@ class Browser:
 
     def rescan_appointments(self):
         """ Erneut im Buchungsbildschirm nach Terminen suchen """
+        title = self.wait.until(EC.presence_of_element_located((By.XPATH, '//h1')))
+        assert title.text == 'Onlinebuchung für Ihre Corona-Schutzimpfung'
         close = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//button[contains(text(), "Abbrechen")]')))[-1]
         close.click()
         try:
             rescan = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//a[contains(text(), "hier")]')))
             rescan.click()
-            close = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//button[contains(text(), "Abbrechen")]')))[-1]
+            close = self.wait.until(
+                EC.presence_of_all_elements_located(
+                    (By.XPATH, '//button[contains(text(), "Abbrechen")]'))
+            )[-1]
             close.click()
         except TimeoutException:
             pass
@@ -294,49 +321,43 @@ class Browser:
         sleep(600)
         exit()
 
+    @control_errors
     def control_main(self):
-        """ Kontrollfunktion um Vermittlungscode zu beziehen """
-        try:
-            if self.error_counter == 5:
-                self.logger.error('Maximum errors and retries exceeded - skipping location for now')
-                return
+        """ 1/2 Kontrollfunktion um Vermittlungscode zu beziehen """
+        if self.error_counter == 5:
+            self.logger.error('Maximum errors and retries exceeded - skipping location for now')
+            return
 
-            # Quick Restart
-            if self.error_counter == 0: self.main_page()
-            else: self.driver.refresh()
+        # Quick Restart
+        if self.error_counter == 0: self.main_page()
+        else: self.driver.refresh()
 
-            self.logger.info(f'Connected to server [{self.server_id}]')
-            self.waiting_room()
-            self.location_page()
-            if self.code: return self.control_appointment()
+        self.logger.info(f'Connected to server [{self.server_id}]')
+        self.waiting_room()
+        self.location_page()
+        if self.code: return self.control_vermittlungscode()
+        if not self.has_vacancy: self.logger.info('No vacancy right now...'); return
+        self.confirm_eligible()
+        if not self.has_vacancy: self.logger.info('No vacancy right now...'); return
+        return self.control_sms()
 
-            while self.loading_vacancy: sleep(2.5)
-            if not self.has_vacancy: self.logger.info('No vacancy right now...'); return
-            self.confirm_eligible()
-            if not self.has_vacancy: self.logger.info('No vacancy right now...'); return
-            self.logger.warning(f'We have vacancy! Requesting Vermittlungscode for {self.driver.current_url}')
-            self.claim_code()
-            if self.register_limit_reached:
-                self.logger.error('Request limit reached - try using a different phone number and email')
-                send_alert(f'Server [{self.server_id}] returned max. requests. Consider changing phone number and email')
-                return
-            sms_code = self.alert_sms()
-            self.enter_sms(sms_code)
-            self.logger.info('Add the code you got via mail to settings.py and restart the script!')
-        except StaleElementReferenceException:
-            self.logger.warning('StaleElementReferenceException - we probably detatched somehow; reinitializing')
-            # Reinitialize the browser, so we can reattach
-            if self.keep_browser:
-                self.driver.close()
-                self.__post_init__()
-        except:
-            self.logger.exception('An unexpected exception occurred')
-        finally:
-            if not self.keep_browser: self.driver.close()
+    @control_errors
+    def control_sms(self) -> None:
+        """ 2/2 Kontrollfunktion um Vermittlungscode zu beziehen """
+        self.logger.warning(f'We have vacancy! Requesting Vermittlungscode for {self.driver.current_url}')
+        self.claim_code()
+        if self.register_limit_reached:
+            self.logger.error('Request limit reached - try using a different phone number and email')
+            send_alert(f'Server [{self.server_id}] returned max. requests. Consider changing phone number and email')
+            return
+        sms_code = self.alert_sms()
+        self.enter_sms(sms_code)
+        self.logger.info('Add the code you got via mail to settings.py and restart the script!')
 
-    def control_appointment(self):
-        """ Kontrollfunktion um Verfügbarkeit von Impfterminen
-         mit vorhandenem Vermittlungscode zu prüfen """
+    @control_errors
+    def control_vermittlungscode(self):
+        """ 1/2 Kontrollfunktion gibt Vermittlungscode ein - um Verfügbarkeit
+        von Impfterminen mit vorhandenem Vermittlungscode zu prüfen """
         self.fill_code()
         if not self.code_valid:
             self.logger.warning(f'Code invalid for server {self.driver.current_url}')
@@ -352,11 +373,17 @@ class Browser:
             self.error_counter += 3
             return self.control_main()
 
+        self.control_appointment()
+
+    @control_errors
+    def control_appointment(self) -> None:
+        """ 2/2 Kontrollfunktion sucht nach Terminen - um Verfügbarkeit von
+        Impfterminen mit vorhandenem Vermittlungscode zu prüfen """
         appointments = self.search_appointments()
         if settings.RESCAN_APPOINTMENT and not appointments:
             self.logger.info('RESCAN_APPOINTMENT is enabled - automatically rechecking in 10m...')
             while not appointments:
-                sleep(150)  # Should be able to divide 600s (10m)
+                sleep(100)  # Should be able to divide 600s (10m)
                 self.logger.info('Rechecking for new appointments')
                 self.rescan_appointments()
                 appointments = self.search_appointments()
@@ -365,3 +392,33 @@ class Browser:
             self.alert_available()
         else:
             self.logger.info('No appointments available right now :(')
+
+    def control_assert(self):
+        """ Hilfsfunktion - wenn ein AssertionError auftritt (Titel stimmt nicht mit aktuellem
+        Funktionsabruf überein) fährt der Bot mit dem entsprechenden Workflow für wesentliche
+        Schlüsselseiten (Terminbuchung, SMS Bestätigung, ...) fort.
+        Das ermöglicht es dem User außerdem frei auf der Seite zu navigieren, ohne den Bot
+        zum Absturz zu führen und autom. an der aktuellen Stelle fortzufahren """
+        title = self.driver.find_element_by_xpath('//h1')
+
+        if title.text == 'Wurde Ihr Anspruch auf eine Corona-Schutzimpfung bereits geprüft?' and self.code:
+            self.logger.info('Continuing with <control_vermuttlingscode>')
+            self.location_page()
+            return self.control_vermittlungscode()
+
+        if title.text == 'Vermittlungscode anfordern':
+            self.logger.info('Continuing with <control_sms>')
+            return self.control_sms()
+
+        if title.text == 'Onlinebuchung für Ihre Corona-Schutzimpfung':
+            self.logger.info('Continuing with <control_appointment>')
+            return self.control_appointment()
+
+        if title.text == 'Buchen Sie die Termine für Ihre Corona-Schutzimpfung':
+            self.error_counter = 0
+
+        # Virtueller Warteraum des Impfterminservice
+        # SMS Verifizierung
+        self.logger.info('Continuing with reset via <control_main>')
+        self.error_counter = 1
+        return self.control_main()

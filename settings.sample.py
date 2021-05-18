@@ -41,15 +41,11 @@ WAIT_BROWSER_MAXIMUM: int = 10
 # seconds before started to avoid getting `429` directly
 WAIT_CONCURRENT: int = 30
 # Only relevant if AVOID_SHADOW_BAN is set to True
-WAIT_SHADOW_BAN: int = 60*15  # 15 Min
+WAIT_SHADOW_BAN: int = 60*12  # 12 Min
 
-# > Advanced Features
+
+# > Basic Features
 # ----------------------
-# Check availability with multiple browsers simultaneously
-CONCURRENT_ENABLED: bool = False
-# How many processes / browsers to use (do not set this number higher
-#  than the amount of overall LOCATIONS defined)
-CONCURRENT_WORKERS: int = 3
 # Keep the same browser window for checking all locations; makes it easier to run in background
 # Cannot be used in combination with `CONCURRENT_ENABLED` (ignored if CONCURRENT_ENABLED)
 KEEP_BROWSER: bool = True
@@ -66,6 +62,19 @@ RESCAN_APPOINTMENT: bool = True
 # Pause bot during night times (2300-0600) since no new appointments are created anyways during
 # that time period. Can help reduce shadow bans
 SLEEP_NIGHT: bool = True
+
+
+# > Advanced Features
+# ----------------------
+# Check availability with multiple browsers simultaneously
+CONCURRENT_ENABLED: bool = False
+# How many processes / browsers to use (do not set this number higher
+#  than the amount of overall LOCATIONS defined)
+CONCURRENT_WORKERS: int = 3
+# Keep Browser open after workflow has crashed - helps to debug and possibly save important data;
+# however can backfire quickly as it can lead to an infinite amount of Browser windows. Also works
+# in combination with CONCURRENT_ENABLED
+KEEP_BROWSER_CRASH: bool = False
 
 # Chromium Driver Path - leave empty to use auto detect
 # OS examples for common paths - e.g.
