@@ -17,19 +17,19 @@ A full documentation of the backend can be found [here](https://chat.zulip.org/a
 1. Register on https://chat.zulip.org/ and login
 2. Open Settings
 
-[![Zulip Settings 1](/docs/zulip-1.jpg)]
+![Zulip Settings 1](/docs/zulip-1.jpg)
 
 3. Navigate to Your bots. Choose `Generic bot` and enter Full name and Bot email to your choosing.
 
-[![Zulip Settings 2](/docs/zulip-2.jpg)]
+![Zulip Settings 2](/docs/zulip-2.jpg)
 
 4. Note the displayed bot email and API key.
 
-[![Zulip Settings 3](/docs/zulip-3.jpg)]
+![Zulip Settings 3](/docs/zulip-3.jpg)
 
 5. Next we'll have to get your user id rq. For that click on your username in the user-list and note the `user1234`-part.
 
-[![Zulip Settings 4](/docs/zulip-4.jpg)]
+![Zulip Settings 4](/docs/zulip-4.jpg)
 
 6. Set the bot email and API key you noted in your `settings.py` as shown below. As `ZULIP_TARGET` use the user id we
    just got and add `<user-id>@chat.zulip.org`. Make sure you also set `ZULIP_ENABLED=True` and `ZULIP_TYPE='private'`.
@@ -49,7 +49,7 @@ ZULIP_TOPIC: str = 'General'
    notification, check if your phone allows Zulip to send notifications and in-app if you enabled notifications for 
    private messages (`Settings` -> `Notifications` -> `Notifications when offline/online`)
    
-[![Zulip Settings 5](/docs/zulip-5.jpg)]
+![Zulip Settings 5](/docs/zulip-5.jpg)
 
 
 ## Telegram
