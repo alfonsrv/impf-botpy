@@ -6,6 +6,8 @@ from typing import Union
 import settings
 from impf.constructors import zulip_client, zulip_send_payload, zulip_read_payload, get_command
 
+import requests
+
 logger = logging.getLogger(__name__)
 p = re.compile("sms:\d{3}-?\d{3}")
 
@@ -36,6 +38,8 @@ def send_alert(message: str) -> None:
         except: pass
     if settings.ZULIP_ENABLED:
         zulip_send(message)
+    if settings.TELEGRAM_ENABLED:
+        telegram_send(message)
 
 
 def zulip_send(message: str) -> None:
@@ -57,3 +61,11 @@ def zulip_read() -> str:
     for message in r.get('messages'):
         if sms_code(message.get('content')):
             return sms_code(message.get('content'))
+
+def telegram_send(message: str) -> None:
+    bot_token = settings.TELEGRAM_BOT_TOKEN
+    bot_chatID = settings.TELEGRAM_BOT_CHATID
+
+    send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + bot_chatID + '&parse_mode=Markdown&text=' + message
+
+    response = requests.get(send_text)

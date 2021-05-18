@@ -21,6 +21,7 @@ def print_config() -> None:
     print('[x] Alerting Methods')
     if settings.COMMAND_ENABLED: print('- Custom Command ✓')
     if settings.ZULIP_ENABLED: print('- Zulip ✓')
+    if settings.TELEGRAM_ENABLED: print('- Telegram ✓')
 
 def print_version() -> None:
     from impf import __version__ as v
