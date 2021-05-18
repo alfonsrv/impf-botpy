@@ -9,7 +9,7 @@ from impf.constructors import zulip_client, zulip_send_payload, zulip_read_paylo
 import requests
 
 logger = logging.getLogger(__name__)
-p = re.compile("sms:\d{3}-?\d{3}")
+p = re.compile(r"sms:\d{3}-?\d{3}")
 
 
 def sms_code(string: str) -> Union[str, None]:
@@ -62,10 +62,12 @@ def zulip_read() -> str:
         if sms_code(message.get('content')):
             return sms_code(message.get('content'))
 
-def telegram_send(message: str) -> None:
-    bot_token = settings.TELEGRAM_BOT_TOKEN
-    bot_chatID = settings.TELEGRAM_BOT_CHATID
 
-    send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + bot_chatID + '&parse_mode=Markdown&text=' + message
+def telegram_send(message: str) -> None:
+    api_token = settings.TELEGRAM_BOT_TOKEN
+    chat_id = settings.TELEGRAM_BOT_CHATID
+
+    send_text = f'https://api.telegram.org/bot{api_token}/sendMessage?chat_id={chat_id}&parse_mode=Markdown&text={message}'
 
     response = requests.get(send_text)
+    logger.debug(response)

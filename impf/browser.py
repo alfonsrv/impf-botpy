@@ -272,7 +272,6 @@ class Browser:
             element.click()
             sleep(2)
 
-
     def rescan_appointments(self):
         """ Erneut im Buchungsbildschirm nach Terminen suchen """
         close = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//button[contains(text(), "Abbrechen")]')))[-1]

@@ -63,6 +63,9 @@ AVOID_SHADOW_BAN: bool = True
 # in an undesired behavior; if CONCURRENT_ENABLED is not used the bot will evidently only keep on
 # checking only one center over and over again.
 RESCAN_APPOINTMENT: bool = True
+# Pause bot during night times (2300-0600) since no new appointments are created anyways during
+# that time period. Can help reduce shadow bans
+SLEEP_NIGHT: bool = True
 
 # Chromium Driver Path - leave empty to use auto detect
 # OS examples for common paths - e.g.

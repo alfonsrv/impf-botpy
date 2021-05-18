@@ -1,12 +1,27 @@
 from datetime import datetime, timedelta
 from time import sleep
+import logging
 
 import settings
+
+logger = logging.getLogger(__name__)
+
+def sleep_bot() -> bool:
+    """ Helper function to sleep bot during night"""
+    now = datetime.now()
+    if settings.SLEEP_NIGHT and (now.hour >= 23 or now.hour < 6):
+        logger.info('SLEEP_NIGHT enabled and current time is between 2300-0600; pausing bot')
+        while now.hour >= 23 or now.hour < 6:
+            sleep(120)
+        logger.info('Resuming Impf Bot.py!')
+        return True
+    return False
 
 def shadow_ban(func):
     """ Decorator um Shadow Ban autom. zu vermeiden """
 
     def f(self, *args, **kwargs):
+        if sleep_bot(): return self.control_main()
         x = func(self, *args, **kwargs)
         shadow_ban = self.too_many_requests
         if shadow_ban:

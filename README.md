@@ -19,7 +19,8 @@ Der Bot verwendet Browser-Automatisierung, die im Hintergrund laufen kann und es
 einzugreifen sowie einfach nachzuvollziehen, was gerade passiert. Die wichtigen Timings können dabei eingestellt
 werden, um einen Timeout (bzw. *Shadow Ban*) zu vermeiden.
 
-This is an improved Python implementation of the Java-based [💉🤖 Impf-Bot](https://github.com/TobseF/impf-bot)
+This is an improved Python implementation of the Java-based [💉🤖 Impf-Bot](https://github.com/TobseF/impf-bot) which
+did a lot of the heavy lifting.
 
 ## ⭐ Features
  ⭐ Easy to set up  
@@ -78,7 +79,7 @@ Vermittlungscodes are valid for *every* center on the given server</sup>
 
 > I don't know anything about programming! And CLI gives me anxiety
 
-Don't worry. It's easy. Follow [this](/INSTALL.md) Step-by-Step Guide and then come back.
+Don't worry. It's easy. Follow [this](/docs/INSTALL.md) Step-by-Step Guide and then come back.
 
 ### For Techies
 
@@ -99,6 +100,11 @@ python3 main.py
 4. Enter your age, mail and phone number
 5. The rest of the settings is ok as is. If you want to check locations with multiple browsers at the same time, dig 
 into the `Advanced Features` section.
+
+### Alerting
+
+Audio alerting is already preconfigured. If you also want to use smartphone notifications, follow [this](/docs/ALERTS.md)
+setup guide.
 
 ### Run it
 

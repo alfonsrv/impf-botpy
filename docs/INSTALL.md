@@ -1,7 +1,7 @@
 # Installation Guide
 
 This guide is designed to be as easy as possible. If anything is unclear, please feel free to ask.
-shell
+
 ## Windows
 
 Make sure you have Google Chrome installed.
@@ -46,8 +46,8 @@ python3 main.py
 If it gives you an error, simply type `cd ` and Drag+Drop the extracted folder with the `main.py` in the Command Line window.
 Press Enter and continue with the `pip3`-Step
 
-If you get an error regarding `cryptography` and `Rust`, simply open the `requirements.txt` and remove the line starting
-with `cryptography` + `zulip` and run `pip` again.
+If you get an error regarding `cryptography` and `Rust`, simply open the `requirements.txt` and remove the lines 
+starting with `cryptography` + `zulip` and run `pip` again.
 
 ### Troubleshooting
 
@@ -72,6 +72,7 @@ brew install selenium-server-standalone
 It will ask for your password. Just type it and press Enter. You won't be able to see it, so don't get confused.
 
 Alternatively, you can download the executable here manually `https://sites.google.com/a/chromium.org/chromedriver/downloads`
+See the Selenium installation for Windows for more details regarding which version to pick.
 
 ### Python Installation
 
