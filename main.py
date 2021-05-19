@@ -24,6 +24,7 @@ def print_config() -> None:
     if settings.COMMAND_ENABLED: print('- Custom Command ✓')
     if settings.ZULIP_ENABLED: print('- Zulip ✓')
     if settings.TELEGRAM_ENABLED: print('- Telegram ✓')
+    if settings.PUSHOVER_ENABLED: print('- Pushover ✓')
 
 
 def print_version() -> None:

@@ -125,6 +125,12 @@ TELEGRAM_BOT_TOKEN: str = '1111111111:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
 TELEGRAM_BOT_CHATID: str = '111111111'
 
 
+# Pushover (https://pushover.net/)
+PUSHOVER_ENABLED: bool = False
+PUSHOVER_USER_KEY: str = 'abcdefghijklmnopqrst0123456789'
+PUSHOVER_APP_TOKEN: str = '0123456789abcdefghijklmnopqrst'
+
+
 # > Logging Setup
 # ----------------------
 import logging
