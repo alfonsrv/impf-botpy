@@ -1,3 +1,6 @@
+import logging.handlers
+import os
+import logging
 from typing import List, Dict
 
 # EDIT ME HERE WITH YOUR DATA
@@ -125,17 +128,20 @@ TELEGRAM_BOT_TOKEN: str = '1111111111:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
 TELEGRAM_BOT_CHATID: str = '111111111'
 
 
+# Pushover (https://pushover.net/)
+PUSHOVER_ENABLED: bool = False
+PUSHOVER_USER_KEY: str = 'abcdefghijklmnopqrst0123456789'
+PUSHOVER_APP_TOKEN: str = '0123456789abcdefghijklmnopqrst'
+
+
 # > Logging Setup
 # ----------------------
-import logging
 
 # Set to logging.WARNING to minimal output
 LOG_LEVEL = logging.INFO  # logging.DEBUG // .ERROR...
 
 
 # DO NOT EDIT
-import os
-import logging.handlers
 os.chdir(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))))
 WORK_DIR = os.getcwd()
 LOG_FILE = ''

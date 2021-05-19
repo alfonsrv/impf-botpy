@@ -22,6 +22,7 @@ def print_config() -> None:
     if settings.COMMAND_ENABLED: print('- Custom Command ✓')
     if settings.ZULIP_ENABLED: print('- Zulip ✓')
     if settings.TELEGRAM_ENABLED: print('- Telegram ✓')
+    if settings.PUSHOVER_ENABLED: print('- Pushover ✓')
 
 def print_version() -> None:
     from impf import __version__ as v
@@ -56,7 +57,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.version: print_version(); exit()
-    if args.alerts: print_config(); send_alert('Notification test from Impf Bot.py - https://github.com/alfonsrv/impf-botpy'); exit();
+    if args.alerts: print_config(); send_alert('Notification test from Impf Bot.py - https://github.com/alfonsrv/impf-botpy'); exit()
 
     logger.info('Starting up Impf Bot.py - github/@alfonsrv, 05/2021')
     print_config()
