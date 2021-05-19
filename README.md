@@ -137,7 +137,8 @@ Simply add your preferred integration to
 
 ⚠ **Please note:** Even though this bot works very well and geared towards being as solid as possible, you should consider 
 regularly checking this repository (site) to ensure you have the latest version. Unfortunately this is a bit of an arms 
-race as the website is under constant modification.
+race as the website is under constant modification. The version indicator at the top of the page and comparing it with 
+`python main.py --version` is usually quite a good way to check if you're up-to-date.
 
 <br/>
 
