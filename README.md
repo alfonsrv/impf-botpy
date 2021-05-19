@@ -25,13 +25,13 @@ did a lot of the heavy lifting.
 ## ⭐ Features
  ⭐ Easy to set up  
  ⭐ Python for the 21st Century  
- ⭐ Full browser automation  
+ ⭐ Full browser automation   
  ⭐ Concurrent checking  
  ⭐ Waiting room detection  
  ⭐ Timeout / Shadow Ban `429` detection  
  ⭐ Automatically re-check *Vermittlungscode*  
  ⭐ `settings.py` for single point of configuration  
- ⭐ Smart & rugged error resilience  
+ ⭐ Manual user intervention & smart error resilience  
  ⭐ Zulip integration  
  ⭐ 50% Telegram integration  
  ⭐ Run custom Commands for Alerting (Text-to-Speech preconfigured)  

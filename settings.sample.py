@@ -97,7 +97,7 @@ USER_AGENT: str = 'default'
 # > Alerting Settings
 # ----------------------
 ALERT_SMS: str = 'Neuer Vermittlungscode für {{ LOCATION }}! SMS Code innerhalb der nächsten 10 Minuten übermitteln. (sms:123-456)'
-ALERT_AVAILABLE: str = 'Impftermine verfügbar in {{ LOCATION }}! Reserviert für die nächsten 10 Minuten...'
+ALERT_AVAILABLE: str = 'Impftermine verfügbar in {{ LOCATION }}! Reserviert für die nächsten 10 Minuten... \nTermine:\n{{ APPOINTMENTS }}'
 
 # Run a custom command when a new appointment is found (e.g. audio alerts); if COMMAND_ENABLED is set to True, but no
 # command is supplied in COMMAND_LINE, script will automatically fall back to pre-configured Text-to-speech below:

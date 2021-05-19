@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from time import sleep, time
+from typing import List
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
@@ -186,9 +187,7 @@ class Browser:
     def confirm_eligible(self) -> None:
         """ Termin verfügbar; prüfe ob Termine für unser Alter """
         body = self.driver.find_element_by_tag_name('body')
-        assert 'Gehören Sie einer impfberechtigten Personengruppen an?' in body.text
-        submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, f'//button[@type="submit"]')))
-        submit.click()
+        assert 'Schnellprüfung durchführen' in body.text
         sleep(.5)
         element = self.wait.until(EC.presence_of_element_located(
             (By.XPATH,
@@ -261,6 +260,7 @@ class Browser:
         submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, f'//button[@type="submit"]')))
         submit.click()
 
+    @shadow_ban
     def search_appointments(self) -> bool:
         """ Suche Termine mit Vermittlungscode """
         title = self.wait.until(EC.presence_of_element_located((By.XPATH, '//h1')))
@@ -294,7 +294,7 @@ class Browser:
             element.click()
             sleep(2)
 
-    def rescan_appointments(self):
+    def rescan_appointments(self) -> None:
         """ Erneut im Buchungsbildschirm nach Terminen suchen """
         title = self.wait.until(EC.presence_of_element_located((By.XPATH, '//h1')))
         assert title.text == 'Onlinebuchung für Ihre Corona-Schutzimpfung'
@@ -311,10 +311,21 @@ class Browser:
         except TimeoutException:
             pass
 
+    def parse_appointments(self) -> List[str]:
+        """ Gibt Auflistung aller verfügbaren Termine zurück """
+        try:
+            elements = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//label[contains(@class, "its-slot-pair-search-item")]')))
+            appointments = [element.text for element in elements]
+        except TimeoutException:
+            appointments = None
+        return appointments
+
     def alert_available(self):
         """ Alert, Termin verfügbar! Und Exit """
         self.logger.warning('Available appointments!')
-        send_alert(settings.ALERT_AVAILABLE.replace('{{ LOCATION }}', self.location_full))
+        alert = settings.ALERT_AVAILABLE.replace('{{ LOCATION }}', self.location_full)
+        #alert = alert.replace('{{ APPOINTMENTS }}', '  \n'.join(self.parse_appointments()))
+        send_alert(alert)
         sleep(settings.WAIT_SMS_MANUAL)
         self.keep_browser = True
         self.logger.warning('Exiting in 10 minutes, our job here is done. Keeping browser open.')
