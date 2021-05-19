@@ -16,6 +16,7 @@ def sleep_bot() -> bool:
         logger.info('SLEEP_NIGHT enabled and current time is between 2300-0600; pausing bot')
         while now.hour >= 23 or now.hour < 6:
             sleep(120)
+            now = datetime.now()
         logger.info('Resuming Impf Bot.py!')
         return True
     return False
