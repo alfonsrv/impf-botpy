@@ -49,6 +49,9 @@ WAIT_SHADOW_BAN: int = 60*12  # 12 Min
 # Keep the same browser window for checking all locations; makes it easier to run in background
 # Cannot be used in combination with `CONCURRENT_ENABLED` (ignored if CONCURRENT_ENABLED)
 KEEP_BROWSER: bool = True
+# If the browser window itself should be invisible.  This also makes it easier to run on a server
+# as you don't need a display server.
+HEADLESS_BROWSER: bool = True
 # Checks if the backend is returning error `429` (Too Many Requests) and then sleeps for WAIT_SHADOW_BAN
 # seconds before sending the last request again.
 AVOID_SHADOW_BAN: bool = True

@@ -20,6 +20,7 @@ def browser_options():
     if os.environ.get('DOCKER_ENV'):
         opts.add_argument('--no-sandbox')
         opts.add_argument('--disable-dev-shm-usage')
+    if settings.HEADLESS_BROWSER: opts.set_headless()
     return opts
 
 def get_command() -> str:
