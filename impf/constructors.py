@@ -20,6 +20,7 @@ def browser_options():
     if os.environ.get('DOCKER_ENV'):
         opts.add_argument('--no-sandbox')
         opts.add_argument('--disable-dev-shm-usage')
+    opts.add_experimental_option("excludeSwitches", ["enable-logging"])
     return opts
 
 def get_command() -> str:
