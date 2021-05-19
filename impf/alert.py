@@ -45,6 +45,8 @@ def send_alert(message: str) -> None:
         zulip_send(message)
     if settings.TELEGRAM_ENABLED:
         telegram_send(message)
+    if settings.PUSHOVER_ENABLED:
+        pushover_send(message)
 
 
 def zulip_send(message: str) -> None:
@@ -80,4 +82,19 @@ def telegram_send(message: str) -> None:
     }
 
     response = requests.get(url, params=params, headers=HEADERS)
+    logger.debug(response)
+
+
+def pushover_send(message: str) -> None:
+    app_token = settings.PUSHOVER_APP_TOKEN
+    user_key = settings.PUSHOVER_USER_KEY
+
+    url = f'https://api.pushover.net/1/messages.json'
+    data = {
+        'token': app_token,
+        'user': user_key,
+        'message': message
+    }
+
+    response = requests.post(url, data=data)
     logger.debug(response)
