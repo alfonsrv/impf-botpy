@@ -1,7 +1,7 @@
 # Impf Bot.py 🐍⚡ – Bot für Impftermine
 
 [![Python](https://img.shields.io/badge/Made%20with-Python%203.x-blue.svg?style=flat-square&logo=Python&logoColor=white)](https://www.python.org/) 
-[![Selenium](https://img.shields.io/badge/Selenium-3.141.0-green.svg?style=flat-square&logo=Selenium&logoColor=white)](https://www.selenium.dev/)
+[![Selenium](https://img.shields.io/badge/Selenium-3.141.0-green.svg?style=flat-square&logo=Selenium&logoColor=white)](https://www.selenium.dev/) 
 [![Version](https://img.shields.io/badge/Version-0.35-dc2f02.svg?style=flat-square&logoColor=white)](https://github.com/alfonsrv/impf-botpy)
 
 ### Entspahnt in den Sommer ☀
@@ -132,6 +132,12 @@ Simply add your preferred integration to
 3. `settings.py` add your relevant settings (must include `ENABLED` flag)
 4. `main.py` in `print_config` for NextGen UX
 4. Pull Request & Done 💥
+
+### Stay Up-to-Date
+
+⚠ **Please note:** Even though this bot works very well and geared towards being as solid as possible, you should consider 
+regularly checking this repository (site) to ensure you have the latest version. Unfortunately this is a bit of an arms 
+race as the website is under constant modification.
 
 <br/>
 
