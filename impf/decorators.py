@@ -66,6 +66,9 @@ def control_errors(func):
         except AssertionError:
             self.logger.error('AssertionError occurred. This usually happens if your computer or internet '
                               'connection is slow. Trying to recover automatically...')
+            self.logger.error('Sleeping for 120s before continuing, giving the user the '
+                              'ability to interact before continuing')
+            sleep(120)
             return self.control_assert()
         except:
             self.logger.exception('An unexpected exception occurred')
