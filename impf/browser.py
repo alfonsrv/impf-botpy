@@ -4,6 +4,7 @@ from typing import List
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -179,7 +180,14 @@ class Browser:
         element = self.wait.until(EC.presence_of_element_located(
             (By.XPATH,
              f'//input[@type="radio" and @name="vaccination-approval-checked"]//following-sibling::span[contains(text(),"{claim}")]/..')))
+
+        # Small Mouse Wiggle heh
+        action = ActionChains(self.driver)
+        action.move_to_element(element).click().perform()
+        action.move_by_offset(40, 20).perform()
         element.click()
+        action.move_by_offset(40, 20).perform()
+
         # Ensure vacancy has fully loaded before proceeding
         while self.loading_vacancy and claim == 'Nein':
             sleep(2.5)
@@ -247,16 +255,6 @@ class Browser:
             element.clear()
             element.send_keys(code)
 
-            # Older devices or Docker containers may have difficulties getting keys quickly, so using a slower loop
-            if element.get_attribute('value') != code:
-                self.logger.warning('Code did not match with input field! Computer seems unreliable or vslow.')
-                element.clear()
-                sleep(3)
-                for c in code:
-                    self.logger.info(f'Typing {c}')
-                    element.send_keys(c)
-                    sleep(3)
-
         submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, f'//button[@type="submit"]')))
         submit.click()
 
@@ -317,7 +315,7 @@ class Browser:
             elements = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//label[contains(@class, "its-slot-pair-search-item")]')))
             appointments = [element.text for element in elements]
         except TimeoutException:
-            appointments = None
+            appointments = ['<parsing error>']
         return appointments
 
     def alert_available(self):

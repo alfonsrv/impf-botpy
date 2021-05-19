@@ -7,10 +7,12 @@ import logging
 
 import settings
 from impf.alert import send_alert
+from impf.api import API
 from impf.browser import Browser
 
 logger = logging.getLogger(__name__)
 b = None  # helper variable for keeping browser open
+
 
 def print_config() -> None:
     print('[x] General')
@@ -23,11 +25,43 @@ def print_config() -> None:
     if settings.ZULIP_ENABLED: print('- Zulip ✓')
     if settings.TELEGRAM_ENABLED: print('- Telegram ✓')
 
+
 def print_version() -> None:
     from impf import __version__ as v
     print(v)
 
-def impf_me(location):
+
+def instant_code() -> None:
+    print('Before a Vermittlungscode can be generated, you must specify the location in `settings.py`')
+    print('Please note: This is an experimental feature and may break at any time.')
+    print('If it breaks, please just fall back to using the browser instead.\n\n')
+    zip_code = input('Enter the zip code or partial name of the location you require a Vermittlungscode for: ')
+    location = ''
+    for _location in settings.LOCATIONS:
+        if zip_code in _location['location']:
+            location = _location['location']
+            break
+
+    if not location or not location[:5].isdigit():
+        print(f'Location {location} not found or ZIP code (first five digits) not formatted properly')
+        return
+
+    print(f'Requesting Instant Vermittlungscode for location {location}...')
+    x = Browser(location=location, code='')
+    x.main_page()
+    x.location_page()
+    a = API(driver=x)
+    token = a.generate_vermittlungscode(location[:5].strip())
+    if not token: return
+
+    sms_pin = input('Please enter the SMS code you got via SMS: ').strip().replace('-', '')
+    if a.verify_token(token=token, sms_pin=sms_pin):
+        print('Please check your emails and enter the code for the correlating location')
+    else:
+        print('An error occurred when trying to request your Vermittlungscode')
+
+
+def impf_me(location: dict):
     """ Helper function to support concurrency """
     global b  # Open Browser Helper variable
     x = b or Browser(**location)
@@ -53,11 +87,13 @@ def impf_me(location):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--alerts', help='Check all alert backends and exit', action='store_true')
+    parser.add_argument('--code', help='Instant Vermittlungscode Generator', action='store_true')
     parser.add_argument('--version', help='Print version and exit', action='store_true')
     args = parser.parse_args()
 
     if args.version: print_version(); exit()
-    if args.alerts: print_config(); send_alert('Notification test from Impf Bot.py - https://github.com/alfonsrv/impf-botpy'); exit();
+    if args.alerts: print_config(); send_alert('Notification test from Impf Bot.py - https://github.com/alfonsrv/impf-botpy'); exit()
+    if args.code: instant_code(); exit()
 
     logger.info('Starting up Impf Bot.py - github/@alfonsrv, 05/2021')
     print_config()

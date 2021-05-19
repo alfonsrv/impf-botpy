@@ -63,6 +63,7 @@ def control_errors(func):
             if self.keep_browser:
                 self.driver.close()
                 self.__post_init__()
+                return self.control_main()
         except AssertionError:
             self.logger.error('AssertionError occurred. This usually happens if your computer or internet '
                               'connection is slow. Trying to recover automatically...')
@@ -78,4 +79,5 @@ def control_errors(func):
             else:
                 sleep(10)
             if not self.keep_browser: self.driver.close()
+            raise
     return f

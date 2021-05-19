@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Made%20with-Python%203.x-blue.svg?style=flat-square&logo=Python&logoColor=white)](https://www.python.org/) 
 [![Selenium](https://img.shields.io/badge/Selenium-3.141.0-green.svg?style=flat-square&logo=Selenium&logoColor=white)](https://www.selenium.dev/) 
-[![Version](https://img.shields.io/badge/Version-0.35-dc2f02.svg?style=flat-square&logoColor=white)](https://github.com/alfonsrv/impf-botpy)
+[![Version](https://img.shields.io/badge/Version-0.36-dc2f02.svg?style=flat-square&logoColor=white)](https://github.com/alfonsrv/impf-botpy)
 
 ### Entspahnt in den Sommer ☀
 
@@ -11,10 +11,10 @@ Der Bot kann mehrere Standorte parallel durchsuchen und auf verfügbare Terminen
 Prozess von der Vermittlungscode-Beschaffung bis zur Reservierung und Benachrichtigung freier Termine ganzheitlich 
 abgebildet.
 
-Wenn ein freier Impftermin / Slot gefunden wird, sendet der Bot eine Benachrichtigung via Zulip (Telegram, Slack, ...
-sind einfach integrierbar) und macht den Benutzer via Sprachausgabe auf den Slot aufmerksam. So kann der SMS 
-Bestätigungscode manuell oder von überall unterwegs via Lieblings-Chat App übermittelt werden - Impf Bot.py erledigt 
-den Rest. - [detaillierter Workflow](#Workflow)
+Wenn ein freier Impftermin / Slot gefunden wird, sendet der Bot eine Benachrichtigung via Zulip, Telegram oder Pushover 
+(Slack, Webhooks, ... sind einfach integrierbar) und macht den Benutzer via Sprachausgabe auf den Slot aufmerksam. 
+So kann der SMS Bestätigungscode manuell oder von überall unterwegs via Lieblings-Chat App übermittelt werden - 
+Impf Bot.py erledigt den Rest. - [detaillierter Workflow](#Workflow)
 
 Der Bot verwendet Browser-Automatisierung, die im Hintergrund laufen kann und es dem Benutzer ermöglicht manuell 
 einzugreifen sowie einfach nachzuvollziehen, was gerade passiert. Die wichtigen Timings können dabei eingestellt
@@ -29,21 +29,22 @@ did a lot of the heavy lifting.
  ⭐ Full browser automation   
  ⭐ Concurrent checking  
  ⭐ Waiting room detection  
+ ⭐ Instant Vermittlungscode Creation  
  ⭐ Timeout / Shadow Ban `429` detection  
  ⭐ Automatically re-check *Vermittlungscode*  
  ⭐ `settings.py` for single point of configuration  
  ⭐ Manual user intervention & smart error resilience  
- ⭐ Zulip integration  
- ⭐ 50% Telegram integration  
+ ⭐ Zulip, Pushover, Telegram integration  
  ⭐ Run custom Commands for Alerting (Text-to-Speech preconfigured)  
- ⭐ Easy to add additional backends, like Telegram, Slack, Webhooks ...  
+ ⭐ Easy to add additional backends, like Slack, Webhooks ...  
 
 ## Workflow
 
 This is a two-step process. First you'll need a *Vermittlungscode* to then book a vaccination appointment. Each center<sup>*</sup>
 has its own valid *Vermittlungscode*, which you'll need to acquire first to advance to the next step.
 
-1. If you do not have a *Vermittlungscode* for a center yet
+1. If you do not have a *Vermittlungscode* for a center yet - you can either follow the standard 
+   workflow or create one instantly
     * The bot will check the site to see if there is vacancy
     * If there is vacancy, the bot will enter your age, email and phone number
     * The bot will alert you that there is vacancy using the alert backends
@@ -113,6 +114,7 @@ setup guide.
 
 * `python3 main.py` und entspahnen
 * `python3 main.py --alerts` to test configured alerts
+* `python3 main.py --code` to instantly create a *Vermittlungscode*
 
 ## Support & Contributing
 
@@ -131,14 +133,16 @@ Simply add your preferred integration to
 2. `constructor.py` if your API is a bit more complex to keep things tidy
 3. `settings.py` add your relevant settings (must include `ENABLED` flag)
 4. `main.py` in `print_config` for NextGen UX
-4. Pull Request & Done 💥
+5. Optionally: Setup Guide in [ALERTS.md](/docs/ALERTS.md)
+6. Pull Request & Done 💥
 
 ### Stay Up-to-Date
 
 ⚠ **Please note:** Even though this bot is geared towards being as solid as possible, you should consider regularly 
 checking this repository (site) to ensure you have the latest version. Unfortunately this is a bit of an arms 
 race as the website is under constant modification. The version indicator at the top of the page and comparing it with 
-`python main.py --version` is usually quite a good way to check if you're up-to-date.
+`python main.py --version` is usually quite a good way to check if you're up-to-date.  
+When updating especially ensure your `settings.py` has all the options!
 
 ---
 
