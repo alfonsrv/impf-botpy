@@ -32,9 +32,9 @@ class Browser:
     def __post_init__(self):
         opts = browser_options()
         if settings.SELENIUM_PATH:
-            self.driver = webdriver.Chrome(settings.SELENIUM_PATH, chrome_options=opts)
+            self.driver = webdriver.Chrome(settings.SELENIUM_PATH, options=opts)
         else:
-            self.driver = webdriver.Chrome(chrome_options=opts)
+            self.driver = webdriver.Chrome(options=opts)
         self.driver.implicitly_wait(settings.WAIT_BROWSER_MAXIMUM//2 or 2.5)
         self.wait = WebDriverWait(self.driver, settings.WAIT_BROWSER_MAXIMUM)
         self.logger = settings.LocationAdapter(logger, {'location': self.location[:5]})

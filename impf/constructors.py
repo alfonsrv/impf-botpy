@@ -18,7 +18,6 @@ def browser_options():
     # Fallback, falls Chrome Installation in Program Files installiert ist
     if settings.CHROME_PATH: opts.binary_location = settings.CHROME_PATH
     if os.environ.get('DOCKER_ENV'):
-        os.system('touch /app/testy')
         opts.add_argument('--no-sandbox')
         opts.add_argument('--disable-dev-shm-usage')
     return opts

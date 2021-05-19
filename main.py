@@ -46,6 +46,7 @@ def impf_me(location):
     logger.info(f'Waiting until {(datetime.now() + timedelta(seconds=settings.WAIT_LOCATIONS)).strftime("%H:%M:%S")} '
                 f'before checking the next location')
     sleep(settings.WAIT_LOCATIONS)
+    if not x.keep_browser: x.driver.close()
     return location
 
 
