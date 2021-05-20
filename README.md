@@ -108,10 +108,10 @@ into the `Advanced Features` section.
 
 ### Alerting
 
-Audio alerting is already preconfigured. If you also want to use smartphone notifications, follow [this](/docs/ALERTS.md)
-setup guide.
+Audio alerting is already preconfigured. If you also want to use smartphone notifications in order to interact with 
+the bot remotely, follow [this](/docs/ALERTS.md) setup guide.
 
-### Run it
+### Run it ⚡ 
 
 * `python3 main.py` und entspahnen
 * `python3 main.py --alerts` to test configured alerts
@@ -121,7 +121,7 @@ setup guide.
 
 Please refer to the [Docker Setup](/docs/DOCKER.md) to run on a headless server.
 
-## Support & Contributing
+## Support & Contributing 🪢
 
 ### Feature Requests & Feedback
 
@@ -146,7 +146,8 @@ Simply add your preferred integration to
 ⚠ **Please note:** Even though this bot is geared towards being as solid as possible, you should consider regularly 
 checking this repository (site) to ensure you have the latest version. Unfortunately this is a bit of an arms 
 race as the website is under constant modification. Checking the version at the top of the page and comparing it with 
-`python main.py --version` is usually quite a good way to see if you're up-to-date.  
+`python main.py --version` is usually quite a good way to see if you're up-to-date. Alternatively you can get 
+`Notifications` on top of the page to know whenever the code changes.  
 When updating especially ensure your `settings.py` has all the options!
 
 ---

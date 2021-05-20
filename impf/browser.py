@@ -324,13 +324,17 @@ class Browser:
             appointments = [element.text for element in elements]
         except TimeoutException:
             appointments = ['<parsing error>']
+        except:
+            self.logger.exception('An unexpected error occurred attempting to parse appointments. '
+                                  'Please report this exception in Issues')
+            appointments = ['<please report this error>']
         return appointments
 
     def alert_available(self):
         """ Alert, Termin verfügbar! Und Exit """
         self.logger.warning('Available appointments!')
         alert = settings.ALERT_AVAILABLE.replace('{{ LOCATION }}', self.location_full)
-        #alert = alert.replace('{{ APPOINTMENTS }}', '  \n'.join(self.parse_appointments()))
+        alert = alert.replace('{{ APPOINTMENTS }}', '  \n'.join(self.parse_appointments()))
         send_alert(alert)
         sleep(settings.WAIT_SMS_MANUAL)
         self.keep_browser = True
