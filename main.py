@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import logging
 
 import settings
+from impf import __version__ as v
 from impf.alert import send_alert
 from impf.api import API
 from impf.browser import Browser
@@ -28,13 +29,15 @@ def print_config() -> None:
 
 
 def print_version() -> None:
-    from impf import __version__ as v
     print(v)
 
 
 def instant_code() -> None:
     print('Before a Vermittlungscode can be generated, you must specify your '
           'phone number, email and the location in `settings.py`\n')
+    print('The bot is hard-coded to only request BioNTech + Moderna (18-60yo)')
+    print('Should you request a vaccination for people older than that demographic or prefer another vaccination '
+          'this method won\'t work for you\n')
     print('Please note: This is an experimental feature and may break at any time.')
     print('If it breaks, please just fall back to using the browser instead.\n\n')
     zip_code = input('Enter the zip code or partial name of the location you require a Vermittlungscode for: ')
@@ -75,7 +78,8 @@ def impf_me(location: dict):
             logger.info('Keeping Browser open; KEEP_BROWSER is set to True')
             x.keep_browser = True
             b = x
-        else: x.reinit(**location)
+        else:
+            x.reinit(**location)
 
     # Continue with normal loop
     x.control_main()
@@ -97,7 +101,7 @@ if __name__ == '__main__':
     if args.version: print_version(); exit()
     if args.alerts: print_config(); send_alert('Notification test from Impf Bot.py - https://github.com/alfonsrv/impf-botpy'); exit()
 
-    logger.info('Starting up Impf Bot.py - github/@alfonsrv, 05/2021')
+    logger.info(f'Starting up Impf Bot.py - github/@alfonsrv, 05/2021 (version {v})')
     if args.code: instant_code(); exit()
     print_config()
 
@@ -107,7 +111,7 @@ if __name__ == '__main__':
             logger.info(f'Spawning Browsers with {settings.WAIT_CONCURRENT}s delay.')
             locations = settings.LOCATIONS
             with concurrent.futures.ThreadPoolExecutor(max_workers=settings.CONCURRENT_WORKERS) as executor:
-                #futures = [executor.submit(impf_me, location) for location in settings.LOCATIONS]10
+                # futures = [executor.submit(impf_me, location) for location in settings.LOCATIONS]10
                 futures = []
                 for location in settings.LOCATIONS:
                     futures.append(executor.submit(impf_me, location))

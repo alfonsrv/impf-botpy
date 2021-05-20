@@ -5,6 +5,7 @@ import logging
 from requests.sessions import Session
 import settings
 
+logger = logging.getLogger(__name__)
 
 @dataclass
 class API:
@@ -25,10 +26,11 @@ class API:
             })
             self.driver.driver.quit()
 
-        self.logger = logging.getLogger(__name__)
+        self.logger = settings.LocationAdapter(logger, {'location': 'API'})
 
     def generate_vermittlungscode(self, zip_code: str) -> str:
         """ Generiert Vermittlungscode via REST API Call """
+        self.logger.info('Attempting to get Vermittlungscode from server')
         data = {
             'email': settings.MAIL,
             'leistungsmerkmal': 'L921',  # BioNTech, Moderna
@@ -39,13 +41,14 @@ class API:
         r = self.s.post(f'{self.host}/rest/smspin/anforderung', json=data, timeout=25)
 
         if not r.json().get("token"):
-            self.logger.error(f'An error occurred requesting code from server; response [{r.status_code}]')
-            self.logger.info(r.text)
+            self.logger.error(f'An error occurred requesting code from server; status code [{r.status_code}]')
+            self.logger.info(f'Response: {r.text}')
 
         return r.json().get("token")
 
     def verify_token(self, token: str, sms_pin: str) -> bool:
         """ Verifiziert Token via SMS PIN """
+        self.logger.info(f'Verifying Vermittlungscode with SMS PIN "{sms_pin}"')
         data = {
             'token': token,
             'smspin': sms_pin

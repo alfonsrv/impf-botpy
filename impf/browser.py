@@ -186,7 +186,7 @@ class Browser:
         action.move_to_element(element).click().perform()
         action.move_by_offset(40, 20).perform()
         element.click()
-        action.move_by_offset(40, 20).perform()
+        action.move_by_offset(10, 5).perform()
 
         # Ensure vacancy has fully loaded before proceeding
         while self.loading_vacancy and claim == 'Nein':
@@ -340,7 +340,6 @@ class Browser:
         self.keep_browser = True
         self.logger.warning('Exiting in 10 minutes, our job here is done. Keeping browser open.')
         sleep(600)
-        exit()
 
     @control_errors
     def control_main(self):
