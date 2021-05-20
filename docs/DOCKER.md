@@ -16,7 +16,7 @@ The Container is always built during runtime - there is no DockerHub repo to pul
 ## Administration
 
 The container exposes port `6901 (noVNC)`. If you also want to expose `5901 (VNC)` to use your favorite VNC client, 
-add `-localhost :1` to the `vncserver` command in the Dockerfile.
+add `-localhost no :1` to the `vncserver` command in the Dockerfile.
 
 You can access the container's Xserver (Desktop) using VNC or via noVNC, which is essentially a web-based VNC client.
 Simply connect to `<ip-addr>:6901` and enter the `VNC_PASSWORD` previously specified. The preconfigured password is
