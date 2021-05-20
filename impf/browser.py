@@ -3,7 +3,7 @@ from time import sleep, time
 from typing import List
 
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -263,9 +263,17 @@ class Browser:
         """ Suche Termine mit Vermittlungscode """
         title = self.wait.until(EC.presence_of_element_located((By.XPATH, '//h1')))
         assert title.text == 'Onlinebuchung für Ihre Corona-Schutzimpfung'
-        submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(), "Termine suchen")]')))
-        submit.click()
-        sleep(2.5)
+
+        try:
+            submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(), "Termine suchen")]')))
+            submit.click()
+            sleep(2.5)
+
+        # Docker seems to have consistent runtime errors
+        except ElementClickInterceptedException:
+            self.rescan_appointments()
+            return self.search_appointments()
+
         try:
             if self.driver.find_element_by_xpath('//span[@class="its-slot-pair-search-no-results"]') \
                     or self.driver.find_element_by_xpath(
@@ -392,7 +400,7 @@ class Browser:
         if settings.RESCAN_APPOINTMENT and not appointments:
             self.logger.info('RESCAN_APPOINTMENT is enabled - automatically rechecking in 10m...')
             while not appointments:
-                sleep(100)  # Should be able to divide 600s (10m)
+                sleep(60)  # Should be able to divide 600s (10m)
                 self.logger.info('Rechecking for new appointments')
                 self.rescan_appointments()
                 appointments = self.search_appointments()

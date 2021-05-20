@@ -33,7 +33,8 @@ def print_version() -> None:
 
 
 def instant_code() -> None:
-    print('Before a Vermittlungscode can be generated, you must specify the location in `settings.py`')
+    print('Before a Vermittlungscode can be generated, you must specify your '
+          'phone number, email and the location in `settings.py`\n')
     print('Please note: This is an experimental feature and may break at any time.')
     print('If it breaks, please just fall back to using the browser instead.\n\n')
     zip_code = input('Enter the zip code or partial name of the location you require a Vermittlungscode for: ')
@@ -44,7 +45,7 @@ def instant_code() -> None:
             break
 
     if not location or not location[:5].isdigit():
-        print(f'Location {location} not found or ZIP code (first five digits) not formatted properly')
+        print(f'Location {location} not found or ZIP code ({location[:5]}) not formatted properly')
         return
 
     print(f'Requesting Instant Vermittlungscode for location {location}...')
@@ -95,9 +96,9 @@ if __name__ == '__main__':
 
     if args.version: print_version(); exit()
     if args.alerts: print_config(); send_alert('Notification test from Impf Bot.py - https://github.com/alfonsrv/impf-botpy'); exit()
-    if args.code: instant_code(); exit()
 
     logger.info('Starting up Impf Bot.py - github/@alfonsrv, 05/2021')
+    if args.code: instant_code(); exit()
     print_config()
 
     while True:

@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Made%20with-Python%203.x-blue.svg?style=flat-square&logo=Python&logoColor=white)](https://www.python.org/) 
 [![Selenium](https://img.shields.io/badge/Selenium-3.141.0-green.svg?style=flat-square&logo=Selenium&logoColor=white)](https://www.selenium.dev/) 
-[![Version](https://img.shields.io/badge/Version-0.36-dc2f02.svg?style=flat-square&logoColor=white)](https://github.com/alfonsrv/impf-botpy)
+[![Version](https://img.shields.io/badge/Version-0.37-dc2f02.svg?style=flat-square&logoColor=white)](https://github.com/alfonsrv/impf-botpy)
 
 ### Entspahnt in den Sommer ☀
 
@@ -34,17 +34,18 @@ did a lot of the heavy lifting.
  ⭐ Automatically re-check *Vermittlungscode*  
  ⭐ `settings.py` for single point of configuration  
  ⭐ Manual user intervention & smart error resilience  
- ⭐ Zulip, Pushover, Telegram integration  
+ ⭐ Zulip, Pushover, 50% Telegram integration  
  ⭐ Run custom Commands for Alerting (Text-to-Speech preconfigured)  
  ⭐ Easy to add additional backends, like Slack, Webhooks ...  
+ ⭐ Docker Support  
 
 ## Workflow
 
 This is a two-step process. First you'll need a *Vermittlungscode* to then book a vaccination appointment. Each center<sup>*</sup>
 has its own valid *Vermittlungscode*, which you'll need to acquire first to advance to the next step.
 
-1. If you do not have a *Vermittlungscode* for a center yet - you can either follow the standard 
-   workflow or create one instantly
+1. If you do not have a *Vermittlungscode* for a center yet - you can either follow the standard
+   workflow described below or create one instantly (see [Run it](#Run-it))
     * The bot will check the site to see if there is vacancy
     * If there is vacancy, the bot will enter your age, email and phone number
     * The bot will alert you that there is vacancy using the alert backends
@@ -116,6 +117,10 @@ setup guide.
 * `python3 main.py --alerts` to test configured alerts
 * `python3 main.py --code` to instantly create a *Vermittlungscode*
 
+### Docker
+
+Please refer to the [Docker Setup](/docs/DOCKER.md) to run on a headless server.
+
 ## Support & Contributing
 
 ### Feature Requests & Feedback
@@ -140,8 +145,8 @@ Simply add your preferred integration to
 
 ⚠ **Please note:** Even though this bot is geared towards being as solid as possible, you should consider regularly 
 checking this repository (site) to ensure you have the latest version. Unfortunately this is a bit of an arms 
-race as the website is under constant modification. The version indicator at the top of the page and comparing it with 
-`python main.py --version` is usually quite a good way to check if you're up-to-date.  
+race as the website is under constant modification. Checking the version at the top of the page and comparing it with 
+`python main.py --version` is usually quite a good way to see if you're up-to-date.  
 When updating especially ensure your `settings.py` has all the options!
 
 ---

@@ -1,13 +1,17 @@
 import os
 import platform
+import logging
+
 from selenium.webdriver.chrome.options import Options
+import settings
+
+logger = logging.getLogger(__name__)
 
 try:
     import zulip
 except ModuleNotFoundError:
-    print('Zulip package not found - skipping for alerts')
-
-import settings
+    if settings.ZULIP_ENABLED: logger.warning('Zulip package not found, but ZULIP_ENABLED configured '
+                                              '- cannot send alerts via zulip until package is installed')
 
 
 def browser_options():
@@ -22,12 +26,14 @@ def browser_options():
         opts.add_argument('--disable-dev-shm-usage')
     return opts
 
+
 def get_command() -> str:
     """ Helper function to return command """
     if settings.COMMAND_LINE: return settings.COMMAND_LINE
     # Command not configured; let's use a fallback to alert the user
     if platform.system() == 'Linux': return 'echo "ALARM ALARM ALARM"|espeak'
-    if platform.system() == 'Windows': return 'PowerShell -Command "Add-Type –AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak(\'ALARM ALARM ALARM\');"'
+    if platform.system() == 'Windows': return 'PowerShell -Command "Add-Type –AssemblyName System.Speech; ' \
+                                              '(New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak(\'ALARM ALARM ALARM\');"'
     if platform.system() == 'Darwin': return 'say "ALARM ALARM ALARM"'
     return ''
 
@@ -46,9 +52,13 @@ def zulip_read_payload() -> dict:
         'anchor': 'newest',
         'num_before': 5,
         'num_after': 5,
-        'narrow': [{'operator': settings.ZULIP_TYPE, 'operand': settings.ZULIP_TARGET}],
+        'narrow': [{
+            'operator': settings.ZULIP_TYPE,
+            'operand': settings.ZULIP_TARGET
+        }],
     }
     return request
+
 
 def zulip_client():
     try:
@@ -58,4 +68,5 @@ def zulip_client():
             api_key=settings.ZULIP_KEY
         )
     except:
+        logger.exception('An error occurred trying to instantiate Zulip Client')
         return None

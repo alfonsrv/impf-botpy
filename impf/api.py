@@ -21,6 +21,7 @@ class API:
             self.s.cookies.update({c['name']: c['value'] for c in self.driver.driver.get_cookies()})
             self.s.headers.update({
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36'
+                                if settings.USER_AGENT == 'default' else settings.USER_AGENT
             })
             self.driver.driver.quit()
 

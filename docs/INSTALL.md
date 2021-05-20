@@ -74,6 +74,9 @@ It will ask for your password. Just type it and press Enter. You won't be able t
 Alternatively, you can download the executable here manually `https://sites.google.com/a/chromium.org/chromedriver/downloads`
 See the Selenium installation for Windows for more details regarding which version to pick.
 
+Move the `chromedriver` from the zip-archive to `/usr/local/bin` and then run `export PATH=$PATH:/usr/local/bin` for
+good measure in Terminal.
+
 ### Python Installation
 
 Open `Terminal` and type
@@ -96,9 +99,10 @@ Configure the project `settings.py` as shown in `README.md` and then type in Tem
 
 ```bash
 cd ~/Downloads/impf-botpy
-pip3 install -r requirements.txt
+pip3 install -r requirements.txt --iser
 python3 main.py
 ```
+
 
 ---
 

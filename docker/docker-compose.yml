@@ -1,0 +1,17 @@
+---
+version: "3"
+services:
+    impf-botpy:
+        build:
+            context: .
+            dockerfile: ./docker/Dockerfile
+        container_name: impf-botpy
+        volumes:
+            - ./settings.py:/app/settings.py
+        ports:
+            - 5901:5901
+            - 6901:6901
+        environment:
+            - VNC_PASSWORD=CHANGEME
+            - TZ=Europe/Berlin
+        restart: unless-stopped
