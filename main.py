@@ -50,6 +50,7 @@ def instant_code() -> None:
     print(f'Requesting Instant Vermittlungscode for location {location}...')
     x = Browser(location=location, code='')
     x.main_page()
+    x.waiting_room()
     x.location_page()
     a = API(driver=x)
     token = a.generate_vermittlungscode(location[:5].strip())
