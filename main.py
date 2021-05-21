@@ -64,7 +64,8 @@ def instant_code() -> None:
     if a.verify_token(token=token, sms_pin=sms_pin):
         print('Please check your emails and enter the code for the correlating location')
     else:
-        print('An error occurred when trying to request your Vermittlungscode')
+        print('An error occurred when trying to request your Vermittlungscode – if your status code is [429], '
+              'please wait 30 minutes not sending any requests to ImpfterminService at all and try again.')
 
 
 def impf_me(location: dict):

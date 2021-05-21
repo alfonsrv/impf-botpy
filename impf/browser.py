@@ -194,8 +194,8 @@ class Browser:
 
     def confirm_eligible(self) -> None:
         """ Termin verfügbar; prüfe ob Termine für unser Alter """
-        body = self.driver.find_element_by_tag_name('body')
-        assert 'Schnellprüfung durchführen' in body.text
+        #body = self.driver.find_element_by_tag_name('body')
+        #assert 'Schnellprüfung durchführen' in body.text
         sleep(.5)
         element = self.wait.until(EC.presence_of_element_located(
             (By.XPATH,

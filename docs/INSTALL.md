@@ -53,7 +53,8 @@ starting with `cryptography` + `zulip` and run `pip` again.
 
 * Error: `WebDriverException: unknown error: cannot find Chrome binary error with Selenium in Python for older versions of Google Chrome`
   * Copy the path of your chrome.exe file (e.g. `C:\Program Files\Google\Chrome\Application\chrome.exe`) and set it as `CHROME_PATH` in `settings.py`
-
+* Error: `Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Manage App Execution Aliases.`
+  * You did not install Python properly. Either reinstall, following the steps or delete the `python.exe` and `python3.exe` in `%LocalAppData%\Microsoft\WindowsApps`
 ----
 
 ## macOS
@@ -66,7 +67,8 @@ Open `Terminal` and Copy+Paste the code below:
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-brew install selenium-server-standalone
+brew install chromedriver
+xattr -dr com.apple.quarantine /usr/local/bin/chromedriver
 ```
 
 It will ask for your password. Just type it and press Enter. You won't be able to see it, so don't get confused.
