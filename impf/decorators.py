@@ -65,7 +65,6 @@ def control_errors(func):
                 self.__post_init__()
                 return self.control_main()
         except AssertionError:
-
             self.logger.error(f'AssertionError occurred in {func.__name__}. This usually happens if your computer/internet '
                               'connection is slow or if the ImpfterminService site changed.')
             self.logger.error('Sleeping for 120s before continuing, giving the user the '
