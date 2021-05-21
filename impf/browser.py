@@ -194,6 +194,7 @@ class Browser:
 
     def confirm_eligible(self) -> None:
         """ Termin verfügbar; prüfe ob Termine für unser Alter """
+        # TODO: Implement proper assertion
         #body = self.driver.find_element_by_tag_name('body')
         #assert 'Schnellprüfung durchführen' in body.text
         sleep(.5)
@@ -420,6 +421,7 @@ class Browser:
         Das ermöglicht es dem User außerdem frei auf der Seite zu navigieren, ohne den Bot
         zum Absturz zu führen und autom. an der aktuellen Stelle fortzufahren """
         title = self.driver.find_element_by_xpath('//h1')
+        self.logger.info(f'Current page title is "{title}"')
 
         if title.text == 'Wurde Ihr Anspruch auf eine Corona-Schutzimpfung bereits geprüft?' and self.code:
             self.logger.info('Continuing with <control_vermuttlingscode>')

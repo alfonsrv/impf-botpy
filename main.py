@@ -38,7 +38,7 @@ def instant_code() -> None:
     print('The bot is hard-coded to only request BioNTech + Moderna (18-60yo)')
     print('Should you request a vaccination for people older than that demographic or prefer another vaccination '
           'this method won\'t work for you\n')
-    print('Please note: ONLY WORKS ON UBUNTU RN. This is an experimental feature and may break at any time.')
+    print('Please note: This only works on UNIX-based systems. This is an experimental feature and may break at any time.')
     print('If it breaks, please just fall back to using the browser instead.\n\n')
     zip_code = input('Enter the zip code or partial name of the location you require a Vermittlungscode for: ')
     location = ''

@@ -17,13 +17,13 @@ except ModuleNotFoundError:
 def browser_options():
     """ Helper function to build Selenium Browser options """
     opts = Options()
+    opts.add_argument('--disable-dev-shm-usage')
     if settings.SELENIUM_DEBUG: opts.add_argument('--auto-open-devtools-for-tabs')
     if settings.USER_AGENT != 'default': opts.add_argument(f'user-agent={settings.USER_AGENT}')
     # Fallback, falls Chrome Installation in Program Files installiert ist
     if settings.CHROME_PATH: opts.binary_location = settings.CHROME_PATH
     if os.environ.get('DOCKER_ENV'):
         opts.add_argument('--no-sandbox')
-        opts.add_argument('--disable-dev-shm-usage')
     return opts
 
 
