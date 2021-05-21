@@ -66,9 +66,9 @@ def control_errors(func):
                 return self.control_main()
         except AssertionError:
             self.logger.error(f'AssertionError occurred in {func.__name__}. This usually happens if your computer/internet '
-                              'connection is slow or if the ImpfterminService site changed. Trying to recover automatically...')
+                              'connection is slow or if the ImpfterminService site changed.')
             self.logger.error('Sleeping for 120s before continuing, giving the user the '
-                              'ability to interact before continuing')
+                              'ability to interact before attempting to revover automatically...')
             sleep(120)
             return self.control_assert()
         except:
