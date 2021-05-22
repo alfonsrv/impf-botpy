@@ -6,6 +6,7 @@ BUNDESLAND: str = 'Baden-Württemberg'
 # for the corresponding location, enter it at `code`, otherwise leave empty. Please be careful when
 # editing this. It's easy to make mistakes and prevent the application from starting up; it's
 # advisable to just replace the locations with your preferred ones if you're unsure what you're doing.
+# All locations REQUIRE the first five characters to be the center's ZIP code.
 LOCATIONS: List[Dict[str, str]] = [
     {
         'location': '70174 Stuttgart',
@@ -22,10 +23,23 @@ LOCATIONS: List[Dict[str, str]] = [
     },
 ]
 
+
 AGE: str = '27'
 # after the +49 // after the 0
 PHONE: str = '1514201337'
 MAIL: str = 'erst-mal@ent-spahnen.de'
+
+# > Appointment Booking
+# These settings are not mandatory and only required if you want to book an appointment via Chat app
+# ----------------------
+# Herr, Frau, Divers, Kind
+SALUTATION: str = 'Herr'
+FIRST_NAME: str = 'Jens'
+LAST_NAME: str = 'Mustermann'
+STREET_NAME: str = 'Königsstr.'
+HOUSE_NUMBER: str = '1337'
+CITY: str = 'Stuttgart'
+ZIP_CODE: str = '70173'
 
 
 # > Waiting Times
@@ -34,7 +48,7 @@ MAIL: str = 'erst-mal@ent-spahnen.de'
 WAIT_LOCATIONS: int = 60*5  # 5 Min
 # Seconds to wait for manual SMS input, if no
 # Zulip message is received or configured
-WAIT_SMS_MANUAL: int = 60*9  # 9 Min
+WAIT_SMS_MANUAL: int = 60*10  # 9 Min
 # Seconds to wait for page to load and elements to show
 WAIT_BROWSER_MAXIMUM: int = 10
 # If CONCURRENT_ENABLED browsers will be delayed WAIT_CONCURRENT
@@ -42,7 +56,9 @@ WAIT_BROWSER_MAXIMUM: int = 10
 WAIT_CONCURRENT: int = 30
 # Only relevant if AVOID_SHADOW_BAN is set to True
 WAIT_SHADOW_BAN: int = 60*12  # 12 Min
-
+# Seconds to wait time before attempting another API call. Only relevant
+# if using instant codes or BOOKING_ENABLED
+WAIT_API_CALLS: int = 60*1  # 1 Min
 
 # > Basic Features
 # ----------------------
@@ -62,7 +78,12 @@ RESCAN_APPOINTMENT: bool = True
 # Pause bot during night times (2300-0600) since no new appointments are created anyways during
 # that time period. Can help reduce shadow bans
 SLEEP_NIGHT: bool = True
-
+# Book appointments remotely via Chat app; requires setting all personal data above and configuring at least
+# one alert / chat backend. Requires at least one alerting backend to be configured.
+# If this feature is disabled, you will still get an audio alert and can book your appointment manually via the browser.
+# If this feature is enabled, manual bookings are also still possible.
+# Note: This is an experimental feature; but should be stable.
+BOOK_REMOTELY: bool = False
 
 # > Advanced Features
 # ----------------------
@@ -97,7 +118,8 @@ USER_AGENT: str = 'default'
 # > Alerting Settings
 # ----------------------
 ALERT_SMS: str = 'Neuer Vermittlungscode für {{ LOCATION }}! SMS Code innerhalb der nächsten 10 Minuten übermitteln. (sms:123-456)'
-ALERT_AVAILABLE: str = 'Impftermine verfügbar in {{ LOCATION }}! Reserviert für die nächsten 10 Minuten... \nTermine:\n{{ APPOINTMENTS }}'
+ALERT_AVAILABLE: str = 'Impftermine verfügbar in {{ LOCATION }}! Reserviert für die nächsten 10 Minuten...'
+ALERT_BOOKINGS: str = ' **Termine:**\n\n{{ APPOINTMENTS }}'
 
 # Run a custom command when a new appointment is found (e.g. audio alerts); if COMMAND_ENABLED is set to True, but no
 # command is supplied in COMMAND_LINE, script will automatically fall back to pre-configured Text-to-speech below:

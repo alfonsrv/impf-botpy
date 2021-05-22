@@ -1,5 +1,5 @@
 /venv/
-/media_files/20/
+/pytest-venv/
 settings.py
 
 # Byte-compiled / optimized / DLL files
@@ -111,4 +111,3 @@ venv.bak/
 .idea
 /static/admin/
 /static/rest_framework/
-

@@ -1,7 +1,8 @@
 import os
 import re
 import logging
-from typing import Union
+from time import time
+from typing import Union, Callable
 
 import settings
 from impf.constructors import zulip_client, zulip_send_payload, zulip_read_payload, get_command
@@ -14,23 +15,33 @@ HEADERS = {
 }
 
 logger = logging.getLogger(__name__)
-p = re.compile(r"sms:\d{3}-?\d{3}")
+SMS_RE = re.compile(r"sms:\d{3}-?\d{3}")
+APPT_RE = re.compile(r"appt:\d")
 
 
+# TODO: Make the following 3 functions pythonic
 def sms_code(string: str) -> Union[str, None]:
     """ Checks if string contains a valid SMS code """
-    m = p.search(string.strip())
+    m = SMS_RE.search(string.strip())
     if m: m = m.group().replace('-', '').replace('sms:', '')
     return m
 
 
-def read_code() -> str:
-    """ Reads the alert code from any given platform and returns it as string """
+def appointment_slot(string: str) -> Union[str, None]:
+    """ Checks if string contains a valid appointment wish """
+    m = APPT_RE.search(string.strip())
+    if m: m = m.group().replace('appt:', '')
+    return m
+
+
+def read_backend(case: str) -> str:
+    """ Reads the SMS Code from any of the confired alerting backends and returns it as string """
+    match_func = sms_code if case == 'sms' else appointment_slot
     code = ''
     if settings.ZULIP_ENABLED:
-        _code = zulip_read()
+        _code = zulip_read(match_func)
         if _code:
-            logger.info(f'Read SMS Code from Zulip: {_code}')
+            logger.info(f'Read {case.capitalize()} Code from Zulip: {_code}')
             code = _code
 
     return code
@@ -50,6 +61,7 @@ def send_alert(message: str) -> None:
 
 
 def zulip_send(message: str) -> None:
+    """ Just send a message; no logic going on here """
     client = zulip_client()
     if client is None: return
     request = zulip_send_payload()
@@ -59,15 +71,15 @@ def zulip_send(message: str) -> None:
         logger.error(f'Error sending Zulip message - got {r}')
 
 
-def zulip_read() -> str:
+def zulip_read(match_func: Callable) -> str:
     client = zulip_client()
     if client is None: return
     request = zulip_read_payload()
     r = client.get_messages(request)
-
     for message in r.get('messages'):
-        if sms_code(message.get('content')):
-            return sms_code(message.get('content'))
+        # wenn im erwarteten Format und innerhalb der letzten 2 Minuten
+        if match_func(message.get('content')) and time() - message.get('timestamp') <= 120:
+            return match_func(message.get('content'))
 
 
 def telegram_send(message: str) -> None:
@@ -86,13 +98,10 @@ def telegram_send(message: str) -> None:
 
 
 def pushover_send(message: str) -> None:
-    app_token = settings.PUSHOVER_APP_TOKEN
-    user_key = settings.PUSHOVER_USER_KEY
-
     url = f'https://api.pushover.net/1/messages.json'
     data = {
-        'token': app_token,
-        'user': user_key,
+        'token': settings.PUSHOVER_APP_TOKEN,
+        'user': settings.PUSHOVER_USER_KEY,
         'message': message
     }
 

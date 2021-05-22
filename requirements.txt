@@ -10,5 +10,5 @@ pyOpenSSL==20.0.1
 requests==2.25.1
 selenium==3.141.0
 six==1.16.0
-urllib3
+urllib3==1.25.11
 zulip==0.7.1

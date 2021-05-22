@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from time import sleep, time
-from typing import List
+from typing import List, Tuple
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
@@ -10,11 +10,12 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 import settings
-from impf.alert import send_alert, read_code
+from impf.alert import send_alert, read_backend
 
 import logging
 
-from impf.constructors import browser_options
+from impf.api import API
+from impf.constructors import browser_options, format_appointments
 from impf.decorators import shadow_ban, control_errors
 
 logger = logging.getLogger(__name__)
@@ -37,7 +38,7 @@ class Browser:
             self.driver = webdriver.Chrome(settings.SELENIUM_PATH, options=opts)
         else:
             self.driver = webdriver.Chrome(options=opts)
-        self.driver.implicitly_wait(settings.WAIT_BROWSER_MAXIMUM//2 or 2.5)
+        self.driver.implicitly_wait(settings.WAIT_BROWSER_MAXIMUM // 2 or 2.5)
         self.wait = WebDriverWait(self.driver, settings.WAIT_BROWSER_MAXIMUM)
         self.logger = settings.LocationAdapter(logger, {'location': self.location[:5]})
 
@@ -232,17 +233,64 @@ class Browser:
     def alert_sms(self) -> str:
         """ Benachrichtigung User - um entweder SMS Code via ext. Plattform (Zulip, ...)
         oder manuell einzugeben. Wartet max. 10 Minuten, und fährt dann fährt dann fort """
-        self.logger.info('Enter SMS code! Waiting for user input.')
+        self.logger.warning('Enter SMS code! Waiting for user input.')
         send_alert(settings.ALERT_SMS.replace('{{ LOCATION }}', self.location_full))
         start = time()
         while (time() - start) < settings.WAIT_SMS_MANUAL:
-            _code = read_code()
+            _code = read_backend('sms')
             if _code:
                 self.logger.warning(f'Received Code from backend: {_code} - entering now...')
                 send_alert(f'Entering code "{_code}"; check your mails! Thanks for using RAUSYS Technologies :)')
                 return _code
             sleep(15)
         self.logger.warning('No SMS code received from backend')
+
+    def alert_appointment(self) -> None:
+        """ Benachrichtigung User - um entweder Termin via ext. Plattform (Zulip, ...) zu buchen
+        oder manuell einzugeben. Kritischste Funktion – max. Exception-Verschachtelung """
+        self.logger.warning('Available appointments! Waiting for user input')
+        send_alert(settings.ALERT_AVAILABLE.replace('{{ LOCATION }}', self.location_full))
+        self.keep_browser = True
+
+        if not settings.BOOK_REMOTELY:
+            self.logger.warning('Exiting in 10 minutes, our job here is done. Keeping browser open.')
+            return
+
+        try:
+            self.remote_booking()
+        except:
+            self.logger.exception('Unexpected exception occurred trying to book appointments remotely!')
+            send_alert('Appointment could not be booked – please continue manually!')
+
+    def remote_booking(self) -> None:
+        """ Hilfsfunktion um Termine Remote zu buchen – wartet auf max 10 Minuten
+        auf User Input via Chat App und fährt dann fährt dann fort """
+        # Booking remotely - should probably be a dedicated function
+        api = API(driver=self)
+        appointments = api.control_appointments()
+
+        if not appointments:
+            self.logger.warning('BOOK_REMOTELY enabled, but appointments empty! Please continue manually')
+            send_alert('Booking remotely enabled, but didn\'t get appointments from backend. Please continue manually!')
+            return
+
+        fappointments = format_appointments(appointments.get('termine'))
+        send_alert(settings.ALERT_BOOKINGS.replace('{{ APPOINTMENTS }}', '  \n'.join(fappointments)))
+
+        start = time()
+        while (time() - start) < settings.WAIT_SMS_MANUAL:
+            _code = read_backend('appt')
+            if _code:
+                self.logger.warning(f'Received Appointment indicator from backend: {_code} - booking now...')
+                if api.book_appointment(appointments, int(_code)):
+                    appointment = fappointments[int(_code) - 1].replace("* ", "").replace(f' (appt:{_code})', '')
+                    send_alert(f'Successfully booked appointment "**{appointment}**" – check your mails! '
+                               f'Thanks for using RAUSYS Technologies :)')
+                    return
+                raise Exception('Did not get <201 Created> from server')
+            sleep(15)
+
+        self.logger.warning('No Appointment indicator received from backend')
 
     @shadow_ban
     def fill_code(self) -> None:
@@ -318,29 +366,7 @@ class Browser:
         except TimeoutException:
             pass
 
-    def parse_appointments(self) -> List[str]:
-        """ Gibt Auflistung aller verfügbaren Termine zurück """
-        try:
-            elements = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//label[contains(@class, "its-slot-pair-search-item")]')))
-            appointments = [element.text for element in elements]
-        except TimeoutException:
-            appointments = ['<parsing error>']
-        except:
-            self.logger.exception('An unexpected error occurred attempting to parse appointments. '
-                                  'Please report this exception in Issues')
-            appointments = ['<please report this error>']
-        return appointments
 
-    def alert_available(self):
-        """ Alert, Termin verfügbar! Und Exit """
-        self.logger.warning('Available appointments!')
-        alert = settings.ALERT_AVAILABLE.replace('{{ LOCATION }}', self.location_full)
-        alert = alert.replace('{{ APPOINTMENTS }}', '  \n'.join(self.parse_appointments()))
-        send_alert(alert)
-        sleep(settings.WAIT_SMS_MANUAL)
-        self.keep_browser = True
-        self.logger.warning('Exiting in 10 minutes, our job here is done. Keeping browser open.')
-        sleep(600)
 
     @control_errors
     def control_main(self):
@@ -400,19 +426,25 @@ class Browser:
     def control_appointment(self) -> None:
         """ 2/2 Kontrollfunktion sucht nach Terminen - um Verfügbarkeit von
         Impfterminen mit vorhandenem Vermittlungscode zu prüfen """
+        self.alert_appointment()
+
         appointments = self.search_appointments()
         if settings.RESCAN_APPOINTMENT and not appointments:
             self.logger.info('RESCAN_APPOINTMENT is enabled - automatically rechecking in 10m...')
             while not appointments:
-                sleep(60)  # Should be able to divide 600s (10m)
+                sleep(45)  # 15 seconds overhead
                 self.logger.info('Rechecking for new appointments')
                 self.rescan_appointments()
                 appointments = self.search_appointments()
 
         if appointments:
-            self.alert_available()
-        else:
-            self.logger.info('No appointments available right now :(')
+            self.alert_appointment()
+            sleep(600)
+            exit()
+        if settings.RESCAN_APPOINTMENT: return self.control_appointment()
+        # Rescanning for appointments not enabled
+        self.logger.info('No appointments available right now :(')
+
 
     def control_assert(self):
         """ Hilfsfunktion - wenn ein AssertionError auftritt (Titel stimmt nicht mit aktuellem

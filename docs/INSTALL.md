@@ -54,6 +54,7 @@ starting with `cryptography` + `zulip` and run `pip` again.
 * Error: `WebDriverException: unknown error: cannot find Chrome binary error with Selenium in Python for older versions of Google Chrome`
   * Copy the path of your chrome.exe file (e.g. `C:\Program Files\Google\Chrome\Application\chrome.exe`) and set it as `CHROME_PATH` in `settings.py`
 * Error: `Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Manage App Execution Aliases.`
+  * Try running `python main.py` instead. If that doesn't work, see below.
   * You did not install Python properly. Either reinstall, following the steps or delete the `python.exe` and `python3.exe` in `%LocalAppData%\Microsoft\WindowsApps`
 ----
 

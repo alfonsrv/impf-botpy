@@ -21,10 +21,16 @@ def print_config() -> None:
     print(f'- Mail: {settings.MAIL}')
     print(f'- Mobile: +49{settings.PHONE}')
     print(f'- Centers: {len(settings.LOCATIONS)} locations')
+    print(f'[x] Remote Booking {"ENABLED" if settings.BOOK_REMOTELY else "DISABLED"}')
+    if settings.BOOK_REMOTELY:
+        print('Appointments will be booked for:')
+        print(f'- {settings.SALUTATION} {settings.FIRST_NAME} {settings.LAST_NAME}')
+        print(f'- {settings.STREET_NAME} {settings.HOUSE_NUMBER}')
+        print(f'- {settings.ZIP_CODE} {settings.CITY}')
     print('[x] Alerting Methods')
     if settings.COMMAND_ENABLED: print('- Custom Command ✓')
     if settings.ZULIP_ENABLED: print('- Zulip ✓')
-    if settings.TELEGRAM_ENABLED: print('- Telegram ✓')
+    if settings.TELEGRAM_ENABLED: print('- Telegram ✓ (only sending)')
     if settings.PUSHOVER_ENABLED: print('- Pushover ✓')
 
 
@@ -36,9 +42,9 @@ def instant_code() -> None:
     print('Before a Vermittlungscode can be generated, you must specify your '
           'phone number, email and the location in `settings.py`\n')
     print('The bot is hard-coded to only request BioNTech + Moderna (18-60yo)')
-    print('Should you request a vaccination for people older than that demographic or prefer another vaccination '
-          'this method won\'t work for you\n')
-    print('Please note: This only works on UNIX-based systems. This is an experimental feature and may break at any time.')
+    print('Should you request a vaccination for an older demographic or prefer another vaccination '
+          'this method won\'t work for you.\n')
+    print('Please note: This is an experimental feature and may break at any time.')
     print('If it breaks, please just fall back to using the browser instead.\n\n')
     zip_code = input('Enter the zip code or partial name of the location you require a Vermittlungscode for: ')
     location = ''
@@ -57,15 +63,16 @@ def instant_code() -> None:
     x.waiting_room()
     x.location_page()
     a = API(driver=x)
-    token = a.generate_vermittlungscode(location[:5].strip())
+    x.driver.close()
+
+    token = a.generate_vermittlungscode()
     if not token: return
 
     sms_pin = input('Please enter the SMS code you got via SMS: ').strip().replace('-', '')
     if a.verify_token(token=token, sms_pin=sms_pin):
         print('Please check your emails and enter the code for the correlating location')
     else:
-        print('An error occurred when trying to request your Vermittlungscode – if your status code is [429], '
-              'please wait 30 minutes not sending any requests to ImpfterminService at all and try again.')
+        print('Token could not be verified – did you enter the right SMS PIN?')
 
 
 def impf_me(location: dict):
