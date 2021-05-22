@@ -130,6 +130,11 @@ Too complex? Successfully booked an appointment?
 Feedback and reasonable feature requests are always much appreciated and can be submitted 
 [here](https://github.com/alfonsrv/impf-botpy/issues/1)!
 
+### Web Designers
+
+If you're a web designer and want to create a [GitHub Pages](https://pages.github.com/) for this project, you're 
+more than welcome!
+
 ### Adding Backends for Alerts
 
 Contributions are welcome! Adding your favorite backend (e.g. Slack) for alerting is easy. 
