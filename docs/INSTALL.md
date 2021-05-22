@@ -102,7 +102,7 @@ Configure the project `settings.py` as shown in `README.md` and then type in Tem
 
 ```bash
 cd ~/Downloads/impf-botpy
-pip3 install -r requirements.txt --iser
+python3 -m pip install -r requirements.txt --user
 python3 main.py
 ```
 

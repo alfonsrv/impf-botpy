@@ -126,8 +126,10 @@ Please refer to the [Docker Setup](/docs/DOCKER.md) to run on a headless server.
 
 ### Feature Requests & Feedback
 
-Too complex? Successfully booked an appointment?  
-Feedback and reasonable feature requests are always much appreciated and can be submitted 
+Stuck? Too complex? File an [issue](https://github.com/alfonsrv/impf-botpy/issues/new/choose)!
+
+Successfully booked an appointment?  
+Feedback and feature requests are always much appreciated and can be submitted 
 [here](https://github.com/alfonsrv/impf-botpy/issues/1)!
 
 ### Web Designers
