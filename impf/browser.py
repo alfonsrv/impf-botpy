@@ -426,8 +426,6 @@ class Browser:
     def control_appointment(self) -> None:
         """ 2/2 Kontrollfunktion sucht nach Terminen - um Verfügbarkeit von
         Impfterminen mit vorhandenem Vermittlungscode zu prüfen """
-        self.alert_appointment()
-
         appointments = self.search_appointments()
         if settings.RESCAN_APPOINTMENT and not appointments:
             self.logger.info('RESCAN_APPOINTMENT is enabled - automatically rechecking in 10m...')
