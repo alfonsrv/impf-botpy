@@ -240,7 +240,8 @@ class Browser:
             _code = read_backend('sms')
             if _code:
                 self.logger.warning(f'Received Code from backend: {_code} - entering now...')
-                send_alert(f'Entering code "{_code}"; check your mails! Thanks for using RAUSYS Technologies :)')
+                send_alert(f'Entering code "{_code}"; check your mails!  \n'
+                           f'Thanks for using RAUSYS Technologies :)')
                 return _code
             sleep(15)
         self.logger.warning('No SMS code received from backend')
@@ -284,8 +285,12 @@ class Browser:
                 self.logger.warning(f'Received Appointment indicator from backend: {_code} - booking now...')
                 if api.book_appointment(appointments, int(_code)):
                     appointment = fappointments[int(_code) - 1].replace("* ", "").replace(f' (appt:{_code})', '')
-                    send_alert(f'Successfully booked appointment "**{appointment}**" – check your mails! '
-                               f'Thanks for using RAUSYS Technologies :)')
+                    send_alert(f'Successfully booked appointment "**{appointment}**" – check your mails!  \n'
+                               f'Thanks for using RAUSYS Technologies :)  \n'
+                               f'Feedback is highly appreciated: '
+                               f'https://github.com/alfonsrv/impf-botpy/issues/1 and only takes 2 seconds!')
+                    self.logger.info('Booking confirmed! Feedback is highly appreciated: '
+                                     'https://github.com/alfonsrv/impf-botpy/issues/1 and only takes 2 seconds!')
                     return
                 raise Exception('Did not get <201 Created> from server')
             sleep(15)
