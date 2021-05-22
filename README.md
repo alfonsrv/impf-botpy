@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Made%20with-Python%203.x-blue.svg?style=flat-square&logo=Python&logoColor=white)](https://www.python.org/) 
 [![Selenium](https://img.shields.io/badge/Selenium-3.141.0-green.svg?style=flat-square&logo=Selenium&logoColor=white)](https://www.selenium.dev/) 
-[![Version](https://img.shields.io/badge/Version-0.39-dc2f02.svg?style=flat-square&logoColor=white)](https://github.com/alfonsrv/impf-botpy)
+[![Version](https://img.shields.io/badge/Version-0.40-dc2f02.svg?style=flat-square&logoColor=white)](https://github.com/alfonsrv/impf-botpy)
 
 ### Entspahnt in den Sommer ☀
 
@@ -25,6 +25,7 @@ did a lot of the heavy lifting.
 
 ## ⭐ Features
  ⭐ Easy to set up  
+ ⭐ Book appointments remotely  
  ⭐ Python for the 21st Century  
  ⭐ Full browser automation   
  ⭐ Concurrent checking  
@@ -45,7 +46,7 @@ This is a two-step process. First you'll need a *Vermittlungscode* to then book 
 has its own valid *Vermittlungscode*, which you'll need to acquire first to advance to the next step.
 
 1. If you do not have a *Vermittlungscode* for a center yet - you can either follow the standard
-   workflow described below or create one instantly (see [Run it](#Run-it))
+   workflow described below or create one instantly (see [Run it](#Run-it-))
     * The bot will check the site to see if there is vacancy
     * If there is vacancy, the bot will enter your age, email and phone number
     * The bot will alert you that there is vacancy using the alert backends
@@ -57,9 +58,9 @@ has its own valid *Vermittlungscode*, which you'll need to acquire first to adva
     * The bot will enter your *Vermittlungscode*
     * It will check if there are available appointments
     * If there are appointments, it will alert you using your alert backend
-    * You will have to manually choose the appointment for your best convenience
-    * Alternatively use a remote access tool (I prefer `AnyDesk`, but `TeamViewer` also works) 
-       to access your machine remotely
+    * You can choose an appointment using your favorite chat app `appt:1` or book the appointment manually
+    * To book an appointment manually when you're not on your PC, use a remote access tool (I prefer `AnyDesk`, but 
+      `TeamViewer` also works) to access your machine remotely
 
 <sup>* Every center is hosted on a server, indicated by the numbers in the URL, e.g. 
 https://001-iz.impfterminservice.de/impftermine/service?plz=70713 is server **001**.
@@ -125,21 +126,33 @@ Please refer to the [Docker Setup](/docs/DOCKER.md) to run on a headless server.
 
 ### Feature Requests & Feedback
 
-Too complex? Successfully booked an appointment?  
-Feedback and reasonable feature requests are always much appreciated and can be submitted 
+Stuck? Too complex? File an [issue](https://github.com/alfonsrv/impf-botpy/issues/new/choose)!
+
+Successfully booked an appointment?  
+Feedback and feature requests are always much appreciated and can be submitted 
 [here](https://github.com/alfonsrv/impf-botpy/issues/1)!
+
+### Web Designers
+
+If you're a web designer and want to create a [GitHub Pages](https://pages.github.com/) for this project, you're 
+more than welcome!
 
 ### Adding Backends for Alerts
 
 Contributions are welcome! Adding your favorite backend (e.g. Slack) for alerting is easy. 
 Simply add your preferred integration to
 
-1. `alert.py` and integrate it with `read_code()` and `send_alert()`
+1. `alert.py` and integrate it with `read_backend()` and `send_alert()`
 2. `constructor.py` if your API is a bit more complex to keep things tidy
 3. `settings.py` add your relevant settings (must include `ENABLED` flag)
 4. `main.py` in `print_config` for NextGen UX
 5. Optionally: Setup Guide in [ALERTS.md](/docs/ALERTS.md)
 6. Pull Request & Done 💥
+
+### Unit Tests
+
+Good with pyTest? Help this project creating some proper test coverage! Unfortunately I'm pretty unexperienced with 
+mocking requests and what good tests should look like. Even just a few are enough, so I can get the hang of it.
 
 ### Stay Up-to-Date
 

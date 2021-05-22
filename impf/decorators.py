@@ -2,9 +2,11 @@ from datetime import datetime, timedelta
 from time import sleep
 import logging
 
+from requests import Timeout, ConnectionError
 from selenium.common.exceptions import StaleElementReferenceException
 
 import settings
+from impf.constructors import AdvancedSessionCache
 
 logger = logging.getLogger(__name__)
 
@@ -22,13 +24,13 @@ def sleep_bot() -> bool:
     return False
 
 
-def shadow_ban(func):
+def shadow_ban(f):
     """ Decorator um Shadow Ban autom. zu vermeiden """
 
-    def f(self, *args, **kwargs):
+    def func(self, *args, **kwargs):
         if sleep_bot(): return self.control_main()
 
-        x = func(self, *args, **kwargs)
+        x = f(self, *args, **kwargs)
 
         shadow_ban = self.too_many_requests  # oh Python 3.8...
         if shadow_ban:
@@ -42,21 +44,21 @@ def shadow_ban(func):
 
                 self.error_counter += 1
                 sleep(wait_time)
-                x = func(self, *args, **kwargs)
+                x = f(self, *args, **kwargs)
                 shadow_ban = self.too_many_requests
 
             if not shadow_ban: self.error_counter = 0
             else: self.control_main()
 
         return x
-    return f
+    return func
 
 
-def control_errors(func):
+def control_errors(f):
     """ Decorator to centrally coordinate error handling of control functions"""
-    def f(self, *args, **kwargs):
+    def func(self, *args, **kwargs):
         try:
-            return func(self, *args, **kwargs)
+            return f(self, *args, **kwargs)
         except StaleElementReferenceException:
             self.logger.warning('StaleElementReferenceException - we probably detatched somehow; reinitializing')
             # Reinitialize the browser, so we can reattach
@@ -65,19 +67,58 @@ def control_errors(func):
                 self.__post_init__()
                 return self.control_main()
         except AssertionError:
-            self.logger.error(f'AssertionError occurred in {func.__name__}. This usually happens if your computer/internet '
+            self.logger.error(f'AssertionError occurred in <{f.__name__}>. This usually happens if your computer/internet '
                               'connection is slow or if the ImpfterminService site changed.')
             self.logger.error('Sleeping for 120s before continuing, giving the user the '
                               'ability to interact before attempting to revover automatically...')
             sleep(120)
             return self.control_assert()
+        except SystemExit:
+            self.logger.warning('Exiting...')
         except:
-            self.logger.exception('An unexpected exception occurred')
+            self.logger.exception(f'An unexpected exception occurred in <{f.__name__}>!')
             if settings.KEEP_BROWSER_CRASH:
                 self.logger.exception('KEEP_BROWSER_CRASH configured; keeping browser open post crash')
                 self.keep_browser = settings.KEEP_BROWSER_CRASH
             else:
                 sleep(10)
             if not self.keep_browser: self.driver.close()
-            raise
-    return f
+
+    return func
+
+
+def api_call(f):
+    """ Decorator for API calls """
+    def api_response(self, *args, **kwargs):
+        try:
+            response = f(self, *args, **kwargs)
+        except Timeout:
+            self.logger.warning(f'Request timed out <{f.__name__}> (*{args}) (**{kwargs})')
+        except ConnectionError:
+            self.logger.warning(f'Request timed out <{f.__name__}> (*{args}) (**{kwargs})')
+        else:
+            self.logger.debug(f'<{f.__name__}> [{response.status_code}] {response.text}')
+            if response.status_code in (200, 201, 481):
+                return response
+            x = self._handle_error(response.status_code, response.json())
+            # Rise and Shine (once again) – danke kv.digital
+            return x or api_call(f)(self, *args, **kwargs)
+
+    return api_response
+
+
+def next_gen(f):
+    """ Decorator for NextGen Impfservice-specific error handling """
+    def func(self, *args, **kwargs):
+
+        try:
+            x = f(self, *args, **kwargs)
+        except AdvancedSessionCache:
+            self.logger.warning(f'Underlying service layer indicating invalid session for <{f.__name__}> – refreshing '
+                                f'all cookies and retrying')
+            self.xs.session.cookies = {}
+            self.refresh_cookies()
+            return next_gen(f)(self, **args, **kwargs)
+        return x
+
+    return func
