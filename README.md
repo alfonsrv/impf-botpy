@@ -147,6 +147,11 @@ Simply add your preferred integration to
 5. Optionally: Setup Guide in [ALERTS.md](/docs/ALERTS.md)
 6. Pull Request & Done 💥
 
+### Unit Tests
+
+Good with pyTest? Help this project creating some proper test coverage! Unfortunately I'm pretty unexperienced with 
+mocking requests and what good tests should look like. Even just a few are enough, so I can get the hang of it.
+
 ### Stay Up-to-Date
 
 ⚠ **Please note:** Even though this bot is geared towards being as solid as possible, you should consider regularly 
