@@ -10,7 +10,10 @@ import settings
 
 logger = logging.getLogger(__name__)
 
-locale.setlocale(locale.LC_TIME, "de_DE")
+try:
+    locale.setlocale(locale.LC_TIME, "de_DE")
+except locale.Error:
+    pass
 
 try:
     import zulip
