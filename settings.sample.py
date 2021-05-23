@@ -62,6 +62,9 @@ WAIT_API_CALLS: int = 60*1  # 1 Min
 # Seconds to wait before rechecking available appointments.
 # Only relevant if RESCAN_APPOINTMENT is set to True
 WAIT_RESCAN_APPOINTMENTS: int = 60*2  # 2 Min
+# Seconds to wait before retrying to get a *Vermittlungscode*. Only relevant
+# if RESCAN_VERMITTLUNGSCODE is set to True
+WAIT_RESCAN_VERMITTLUNGSCODE: int = 60*2  # 2 Min
 
 
 # > Basic Features
@@ -79,6 +82,12 @@ AVOID_SHADOW_BAN: bool = True
 # in an undesired behavior; if CONCURRENT_ENABLED is not used the bot will evidently only keep on
 # checking only one center over and over again.
 RESCAN_APPOINTMENT: bool = True
+# Controls whether or not the bot should simply keep on retrying to get a *Vermittlungscode*.
+# This is done by clicking "No (check eligibility)" again after waiting WAIT_RESCAN_VERMITTLUNGSCODE seconds.
+# This can be very useful if you only want to check for one center; however it might also result
+# in an undesired behavior; if CONCURRENT_ENABLED is not used the bot will evidently only keep on
+# checking only one center over and over again.
+RESCAN_VERMITTLUNGSCODE: bool = False
 # Pause bot during night times (2300-0600) since no new appointments are created anyways during
 # that time period. Can help reduce shadow bans
 SLEEP_NIGHT: bool = True

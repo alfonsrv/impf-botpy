@@ -392,7 +392,17 @@ class Browser:
         self.waiting_room()
         self.location_page()
         if self.code: return self.control_vermittlungscode()
-        if not self.has_vacancy: self.logger.info('No vacancy right now...'); return
+
+        if not self.has_vacancy:
+            self.logger.info('No vacancy right now...')
+            if not settings.RESCAN_VERMITTLUNGSCODE: return
+            self.logger.info(f'RESCAN_VERMITTLUNGSCODE is enabled - automatically retrying in {settings.WAIT_RESCAN_VERMITTLUNGSCODE // 60}m...')
+
+            while not self.has_vacancy:
+                sleep(settings.WAIT_RESCAN_VERMITTLUNGSCODE)
+                self.logger.info('Retrying getting a Vermittlungscode')
+                self.location_page()
+
         self.confirm_eligible()
         if not self.has_vacancy: self.logger.info('No vacancy right now...'); return
         return self.control_sms()
