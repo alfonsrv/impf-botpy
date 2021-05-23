@@ -78,19 +78,30 @@ def instant_code() -> None:
         print('Token could not be verified – did you enter the right SMS PIN?')
 
 
-def impf_me(location: dict):
+def impf_me(location: dict, browser: Browser = None):
     """ Helper function to support concurrency """
-    global b  # Open Browser Helper variable
-    x = b or Browser(**location)
-
     # Keep Browser open
-    if settings.KEEP_BROWSER and not (settings.CONCURRENT_ENABLED):
+    if settings.KEEP_BROWSER:
+      if settings.CONCURRENT_ENABLED:
+        x = browser or Browser(**location)
+
+        if browser is None:
+            logger.info('Keeping Browser open; KEEP_BROWSER is set to True')
+            x.keep_browser = True
+        else:
+            x.reinit(**location)
+      else:
+        global b  # Open Browser Helper variable
+        x = b or Browser(**location)
+
         if b is None:
             logger.info('Keeping Browser open; KEEP_BROWSER is set to True')
             x.keep_browser = True
             b = x
         else:
             x.reinit(**location)
+    else:
+      x = Browser(**location)
 
     # Continue with normal loop
     try:
@@ -102,8 +113,12 @@ def impf_me(location: dict):
     logger.info(f'Waiting until {(datetime.now() + timedelta(seconds=settings.WAIT_LOCATIONS)).strftime("%H:%M:%S")} '
                 f'before checking the next location')
     sleep(settings.WAIT_LOCATIONS)
-    if not x.keep_browser: x.driver.quit()
-    return location
+
+    if not x.keep_browser:
+      x.driver.quit()
+      x = None
+
+    return (location, x)
 
 
 if __name__ == '__main__':
@@ -141,8 +156,8 @@ if __name__ == '__main__':
 
                     for future in done:
                         futures.remove(future)
-                        _location = future.result()
-                        futures.append(executor.submit(impf_me, _location))
+                        _location, _browser = future.result()
+                        futures.append(executor.submit(impf_me, _location, _browser))
                         del future
 
         else:
