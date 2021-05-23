@@ -184,7 +184,7 @@ class Browser:
 
         # Small Mouse Wiggle heh
         action = ActionChains(self.driver)
-        action.move_to_element(element).click().perform()
+        action.move_to_element(element).perform()
         action.move_by_offset(40, 20).perform()
         element.click()
         action.move_by_offset(10, 5).perform()
