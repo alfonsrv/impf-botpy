@@ -16,7 +16,8 @@ RUN DEBIAN_FRONTEND=noninteractive \
 WORKDIR /app
 
 # Copy project files in directory
-COPY . .
+COPY requirements.txt main.py ./
+COPY impf/ ./impf/
 
 RUN pip3 install -r /app/requirements.txt
 
