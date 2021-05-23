@@ -87,7 +87,9 @@ def control_errors(f):
                 self.keep_browser = settings.KEEP_BROWSER_CRASH
             else:
                 sleep(10)
-            if not self.keep_browser: self.reset()
+                # Reinitialize the browser if it will be reused
+                if settings.REUSE_BROWSER and not self.keep_browser:
+                    self.reset()
             raise WorkflowException('Unexpected exception was raised!')
 
     return func

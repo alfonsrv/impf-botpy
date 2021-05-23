@@ -66,7 +66,7 @@ def instant_code() -> None:
         x.waiting_room()
         x.location_page()
         api = API(driver=x)
-        x.driver.close()
+        x.driver.quit()
 
     token = api.generate_vermittlungscode()
     if not token: return
@@ -78,30 +78,14 @@ def instant_code() -> None:
         print('Token could not be verified – did you enter the right SMS PIN?')
 
 
-def impf_me(location: dict, browser: Browser = None):
+def impf_me(location: dict, x: Browser = None):
     """ Helper function to support concurrency """
-    # Keep Browser open
-    if settings.KEEP_BROWSER:
-      if settings.CONCURRENT_ENABLED:
-        x = browser or Browser(**location)
-
-        if browser is None:
-            logger.info('Keeping Browser open; KEEP_BROWSER is set to True')
-            x.keep_browser = True
-        else:
-            x.reinit(**location)
-      else:
-        global b  # Open Browser Helper variable
-        x = b or Browser(**location)
-
-        if b is None:
-            logger.info('Keeping Browser open; KEEP_BROWSER is set to True')
-            x.keep_browser = True
-            b = x
-        else:
-            x.reinit(**location)
+    # Reuse Browser
+    if x and not x.keep_browser:
+        x.reinit(**location)
     else:
-      x = Browser(**location)
+        x = Browser(**location)
+        if settings.REUSE_BROWSER: logger.info('Reusing Browser; REUSE_BROWSER is set to True')
 
     # Continue with normal loop
     try:
@@ -110,14 +94,12 @@ def impf_me(location: dict, browser: Browser = None):
         # Something unexpected happened, we'll continue with the next loop
         pass
 
+    if not settings.REUSE_BROWSER and not x.keep_browser:
+        x.driver.quit()
+
     logger.info(f'Waiting until {(datetime.now() + timedelta(seconds=settings.WAIT_LOCATIONS)).strftime("%H:%M:%S")} '
                 f'before checking the next location')
     sleep(settings.WAIT_LOCATIONS)
-
-    if not x.keep_browser:
-      x.driver.quit()
-      x = None
-
     return (location, x)
 
 
@@ -161,5 +143,6 @@ if __name__ == '__main__':
                         del future
 
         else:
+            _browser = None
             for location in settings.LOCATIONS:
-                impf_me(location)
+                (_location, _browser) = impf_me(location, _browser)

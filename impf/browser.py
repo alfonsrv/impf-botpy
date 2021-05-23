@@ -30,7 +30,7 @@ class Browser:
     location: str
     code: str = ''
     location_full: str = ''  # Helper variable for extracting full MVZ name
-    keep_browser: bool = False  # Helper variable to indicate whether or not to keep browser open for reuse
+    keep_browser: bool = False  # Helper variable to indicate whether or not to keep browser for inspection/manual intervention
     error_counter: int = 0  # Helper variable to avoid infinite loop
     logger: logger = field(init=False)  # Internal adapter-logger to add PLZ field
 

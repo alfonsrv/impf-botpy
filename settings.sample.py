@@ -66,9 +66,9 @@ WAIT_RESCAN_APPOINTMENTS: int = 60*2  # 2 Min
 
 # > Basic Features
 # ----------------------
-# Keep the same browser window for checking all locations; makes it easier to run in background
-# Cannot be used in combination with `CONCURRENT_ENABLED` (ignored if CONCURRENT_ENABLED)
-KEEP_BROWSER: bool = True
+# Reuse the same browser window for checking all locations; makes it easier to run in background
+# Can be used in combination with `CONCURRENT_ENABLED`
+REUSE_BROWSER: bool = True
 # Checks if the backend is returning error `429` (Too Many Requests) and then sleeps for WAIT_SHADOW_BAN
 # seconds before sending the last request again.
 AVOID_SHADOW_BAN: bool = True
