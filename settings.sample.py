@@ -59,6 +59,9 @@ WAIT_SHADOW_BAN: int = 60*12  # 12 Min
 # Seconds to wait time before attempting another API call. Only relevant
 # if using instant codes or BOOKING_ENABLED
 WAIT_API_CALLS: int = 60*1  # 1 Min
+# Seconds to wait before rechecking available appointments. Only relevant
+# if RESCAN_APPOINTMENT is set to True
+WAIT_RESCAN_APPOINTMENTS: int = 45
 
 # > Basic Features
 # ----------------------
