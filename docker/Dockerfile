@@ -10,10 +10,8 @@ RUN DEBIAN_FRONTEND=noninteractive \
     xorg vnc4server autocutsel lxde-core novnc python-websockify \
     libffi-dev musl-dev libssl-dev python3-dev gcc \
     python3 python3-pip \
+    chromium-driver=90.0.4430.212-1~deb10u1 \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-RUN wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/90.0.4430.24/chromedriver_linux64.zip \
-    && unzip /tmp/chromedriver.zip -d /usr/local/bin/
 
 WORKDIR /app
 
