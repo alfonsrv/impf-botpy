@@ -433,7 +433,8 @@ class Browser:
         Impfterminen mit vorhandenem Vermittlungscode zu prüfen """
         appointments = self.search_appointments()
         if settings.RESCAN_APPOINTMENT and not appointments:
-            self.logger.info(f'RESCAN_APPOINTMENT is enabled - automatically rechecking in {settings.WAIT_RESCAN_APPOINTMENTS}s...')
+            self.logger.info(f'RESCAN_APPOINTMENT is enabled - automatically rechecking in '
+                             f'{settings.WAIT_RESCAN_APPOINTMENTS // 60}min...')
             while not appointments:
                 sleep(settings.WAIT_RESCAN_APPOINTMENTS)
                 self.logger.info('Rechecking for new appointments')
