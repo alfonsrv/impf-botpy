@@ -8,9 +8,11 @@ so if you're on your PC anyways while the bot is running, you're already set up.
 
 Currently only Zulip is supported as an alerting backend. Zulip is open source and can be hosted locally, since I use it 
 mainly for various project automations it's what's integrated right now. Zulip also offers a public service, along with
-an app for every major smartphone OS.
+an app for every major smartphone OS.  
 
-Alerts can be tested using `python main.py --alerts`.
+Messages older than 120 seconds will be ignored by the bot when waiting for interactive user input.  
+
+Alerts can be tested using `python main.py --alerts`. 
 
 ## Zulip Setup
 
@@ -56,7 +58,7 @@ ZULIP_TOPIC: str = 'General'
 
 ## Telegram
 
-⚠ Telegram integration can only send alerts and cannot receive any SMS codes to automatically fill in yet.
+⚠ Telegram Bots will only read the LATEST message in the chat (not older than 120 seconds)
 
 1. Visit [BotFather](https://t.me/botfather) and send `/start`
 
@@ -67,3 +69,5 @@ ZULIP_TOPIC: str = 'General'
 
 4. To get your Chat ID send `/start` to [IDBot](https://t.me/myidbot) and then obtain your Chat ID using `/getid`.
    Set your ChatID at `TELEGRAM_BOT_CHATID` in `settings.py`
+   
+5. Start a private chat with your bot and send `/start`

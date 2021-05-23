@@ -34,16 +34,23 @@ def appointment_slot(string: str) -> Union[str, None]:
     return m
 
 
+def _read_backend(backend_func: Callable, match_func: Callable) -> str:
+    """ Helper function to abstract backend reads """
+    code = backend_func(match_func)
+    if code:
+        logger.info(f'Read {match_func.__name__.upper()} Code from '
+                    f'{backend_func.__name__.replace("_read", "").capitalize()}: {code}')
+    return code
+
+
 def read_backend(case: str) -> str:
     """ Reads the SMS Code from any of the confired alerting backends and returns it as string """
     match_func = sms_code if case == 'sms' else appointment_slot
     code = ''
     if settings.ZULIP_ENABLED:
-        _code = zulip_read(match_func)
-        if _code:
-            logger.info(f'Read {case.capitalize()} Code from Zulip: {_code}')
-            code = _code
-
+       code = _read_backend(zulip_read, match_func) or code
+    if settings.TELEGRAM_ENABLED:
+        code = _read_backend(telegram_read, match_func) or code
     return code
 
 
@@ -83,18 +90,31 @@ def zulip_read(match_func: Callable) -> str:
 
 
 def telegram_send(message: str) -> None:
-    api_token = settings.TELEGRAM_BOT_TOKEN
-    chat_id = settings.TELEGRAM_BOT_CHATID
-
-    url = f'https://api.telegram.org/bot{api_token}/sendMessage'
+    url = f'https://api.telegram.org/bot{settings.TELEGRAM_API_TOKEN}/sendMessage'
     params = {
-        'chat_id': chat_id,
+        'chat_id': settings.TELEGRAM_CHAT_ID,
         'parse_mode': 'Markdown',
         'text': message
     }
 
-    response = requests.get(url, params=params, headers=HEADERS)
-    logger.debug(response)
+    r = requests.get(url, params=params, headers=HEADERS)
+    logger.debug(r)
+
+
+def telegram_read(match_func: Callable) -> None:
+    url = f'https://api.telegram.org/bot{settings.TELEGRAM_API_TOKEN}/getUpdates'
+    params = {
+        'chat_id': settings.TELEGRAM_CHAT_ID,
+        'offset': -1
+    }
+
+    r = requests.get(url, params=params, headers=HEADERS).json()
+    logger.debug(r)
+    for message in r.get('result'):
+        _message = message.get('message')
+        # wenn im erwarteten Format und innerhalb der letzten 2 Minuten
+        if match_func(_message.get('text')) and time() - _message.get('date') <= 120:
+            return match_func(_message.get('text'))
 
 
 def pushover_send(message: str) -> None:
