@@ -11,6 +11,7 @@ services:
         ports:
             - 5901:5901
             - 6901:6901
+        tmpfs: /tmp
         environment:
             - VNC_PASSWORD=CHANGEME
             - TZ=Europe/Berlin
