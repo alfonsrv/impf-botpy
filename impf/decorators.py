@@ -28,7 +28,9 @@ def shadow_ban(f):
     """ Decorator um Shadow Ban autom. zu vermeiden """
 
     def func(self, *args, **kwargs):
-        if sleep_bot(): return self.control_main()
+        if sleep_bot():
+            self.error_counter = 0
+            return self.control_main()
 
         x = f(self, *args, **kwargs)
 
@@ -76,7 +78,7 @@ def control_errors(f):
         except SystemExit:
             self.logger.warning('Exiting...')
         except:
-            self.logger.exception(f'An unexpected exception occurred in <{f.__name__}>!')
+            self.logger.exception(f'An unexpected exception occurred in <{f.__name__}>')
             if settings.KEEP_BROWSER_CRASH:
                 self.logger.exception('KEEP_BROWSER_CRASH configured; keeping browser open post crash')
                 self.keep_browser = settings.KEEP_BROWSER_CRASH

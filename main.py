@@ -70,7 +70,7 @@ def instant_code() -> None:
 
     sms_pin = input('Please enter the SMS code you got via SMS: ').strip().replace('-', '')
     if a.verify_token(token=token, sms_pin=sms_pin):
-        print('Please check your emails and enter the code for the correlating location')
+        print('OK! Please check your emails and enter the code for the correlating location')
     else:
         print('Token could not be verified – did you enter the right SMS PIN?')
 

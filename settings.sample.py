@@ -48,7 +48,7 @@ ZIP_CODE: str = '70173'
 WAIT_LOCATIONS: int = 60*5  # 5 Min
 # Seconds to wait for manual SMS input, if no
 # Zulip message is received or configured
-WAIT_SMS_MANUAL: int = 60*10  # 9 Min
+WAIT_SMS_MANUAL: int = 60*10  # 10 Min
 # Seconds to wait for page to load and elements to show
 WAIT_BROWSER_MAXIMUM: int = 10
 # If CONCURRENT_ENABLED browsers will be delayed WAIT_CONCURRENT
@@ -56,12 +56,13 @@ WAIT_BROWSER_MAXIMUM: int = 10
 WAIT_CONCURRENT: int = 30
 # Only relevant if AVOID_SHADOW_BAN is set to True
 WAIT_SHADOW_BAN: int = 60*12  # 12 Min
-# Seconds to wait time before attempting another API call. Only relevant
-# if using instant codes or BOOKING_ENABLED
+# Seconds to wait time before attempting another API call.
+# Only relevant if using instant codes or BOOKING_ENABLED
 WAIT_API_CALLS: int = 60*1  # 1 Min
-# Seconds to wait before rechecking available appointments. Only relevant
-# if RESCAN_APPOINTMENT is set to True
-WAIT_RESCAN_APPOINTMENTS: int = 60*2.5  # 2,5 Min
+# Seconds to wait before rechecking available appointments.
+# Only relevant if RESCAN_APPOINTMENT is set to True
+WAIT_RESCAN_APPOINTMENTS: int = 60*2  # 2 Min
+
 
 # > Basic Features
 # ----------------------
@@ -88,6 +89,7 @@ SLEEP_NIGHT: bool = True
 # Note: This is an experimental feature; but should be stable.
 BOOK_REMOTELY: bool = False
 
+
 # > Advanced Features
 # ----------------------
 # Check availability with multiple browsers simultaneously
@@ -99,6 +101,7 @@ CONCURRENT_WORKERS: int = 3
 # however can backfire quickly as it can lead to an infinite amount of Browser windows. Also works
 # in combination with CONCURRENT_ENABLED
 KEEP_BROWSER_CRASH: bool = False
+
 
 # Chromium Driver Path - leave empty to use auto detect
 # OS examples for common paths - e.g.
@@ -121,7 +124,7 @@ USER_AGENT: str = 'default'
 # > Alerting Settings
 # ----------------------
 ALERT_SMS: str = 'Neuer Vermittlungscode für {{ LOCATION }}! SMS Code innerhalb der nächsten 10 Minuten übermitteln. (sms:123-456)'
-ALERT_AVAILABLE: str = 'Impftermine verfügbar in {{ LOCATION }}! Reserviert für die nächsten 10 Minuten...'
+ALERT_AVAILABLE: str = 'Impftermine verfügbar in {{ LOCATION }}! Reserviert für die nächsten 10 Minuten... Buchungslink: {{ LINK }}'
 ALERT_BOOKINGS: str = ' **Verfügbare Termine:**\n\n{{ APPOINTMENTS }}'
 
 # Run a custom command when a new appointment is found (e.g. audio alerts); if COMMAND_ENABLED is set to True, but no

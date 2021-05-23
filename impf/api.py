@@ -43,7 +43,7 @@ class AdvancedSession:
         if self.error_counter > 3:
             raise AdvancedSessionError(-1, 'Maximum retries exceeded')
         elif code == 429:
-            self.logger.warning('The server is experiencing too many requests – either from our IP or generally. '
+            self.logger.warning('[429] The server is experiencing too many requests – either from our IP or generally. '
                            f'Waiting {settings.WAIT_API_CALLS // 60}min before trying again')
             self.logger.warning('It is highly recommended to avoid any further activity and stop '
                                 'requesting ImpfterminService during that time')

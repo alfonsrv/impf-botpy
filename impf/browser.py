@@ -38,7 +38,7 @@ class Browser:
             self.driver = webdriver.Chrome(settings.SELENIUM_PATH, options=opts)
         else:
             self.driver = webdriver.Chrome(options=opts)
-        self.driver.implicitly_wait(settings.WAIT_BROWSER_MAXIMUM // 2 or 2.5)
+        self.driver.implicitly_wait(settings.WAIT_BROWSER_MAXIMUM // 4 or 2.5)
         self.wait = WebDriverWait(self.driver, settings.WAIT_BROWSER_MAXIMUM)
         self.logger = settings.LocationAdapter(logger, {'location': self.location[:5]})
 
@@ -251,7 +251,10 @@ class Browser:
         """ Benachrichtigung User - um entweder Termin via ext. Plattform (Zulip, ...) zu buchen
         oder manuell einzugeben. Kritischste Funktion – max. Exception-Verschachtelung """
         self.logger.warning('Available appointments! Waiting for user input')
-        send_alert(settings.ALERT_AVAILABLE.replace('{{ LOCATION }}', self.location_full))
+        alert = settings.ALERT_AVAILABLE\
+            .replace('{{ LOCATION }}', self.location_full)\
+            .replace('{{ LINK }}', self.driver.current_url)
+        send_alert()
         self.keep_browser = True
 
         if not settings.BOOK_REMOTELY:
