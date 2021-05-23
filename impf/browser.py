@@ -420,8 +420,8 @@ class Browser:
             # We're likely sending too many requests too quickly or the server is under too much stress
             self.logger.info(
                 f'Ran into what is probably a temporary error with code {self.code}; retrying in '
-                f'{settings.AVOID_SHADOW_BAN // 60}min')
-            sleep(settings.AVOID_SHADOW_BAN)
+                f'{settings.WAIT_SHADOW_BAN // 60}min')
+            sleep(settings.WAIT_SHADOW_BAN)
             self.error_counter += 3
             return self.control_main()
 
