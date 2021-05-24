@@ -28,9 +28,7 @@ def shadow_ban(f):
     """ Decorator um Shadow Ban autom. zu vermeiden """
 
     def func(self, *args, **kwargs):
-        if sleep_bot():
-            self.error_counter = 0
-            return self.control_main()
+        if sleep_bot(): raise Exception('Woke up from sleep, need to restart!')
 
         x = f(self, *args, **kwargs)
 
