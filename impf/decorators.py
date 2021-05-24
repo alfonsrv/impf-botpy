@@ -50,7 +50,7 @@ def shadow_ban(f):
                 shadow_ban = self.too_many_requests
 
             if not shadow_ban: self.error_counter = 0
-            else: return self.control_main()
+            else: raise Exception('Recovering from shadow ban failed!')
 
         return x
     return func
