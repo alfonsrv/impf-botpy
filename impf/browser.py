@@ -254,7 +254,7 @@ class Browser:
         alert = settings.ALERT_AVAILABLE\
             .replace('{{ LOCATION }}', self.location_full)\
             .replace('{{ LINK }}', self.driver.current_url)
-        send_alert()
+        send_alert(alert)
         self.keep_browser = True
 
         if not settings.BOOK_REMOTELY:
