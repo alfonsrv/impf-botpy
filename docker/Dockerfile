@@ -6,12 +6,21 @@ ENV PYTHONUNBUFFERED 1
 # install apt dependencies
 RUN apt-get update -y
 RUN DEBIAN_FRONTEND=noninteractive \
-    apt-get install -y unzip wget chromium=90.0.4430.212-1~deb10u1 \
+    apt-get install -y unzip wget \
     xorg vnc4server autocutsel lxde-core novnc python-websockify \
     libffi-dev musl-dev libssl-dev python3-dev gcc \
     python3 python3-pip \
     chromium-driver=90.0.4430.212-1~deb10u1 \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+  && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+  && apt-get update -qqy \
+  && apt-get -qqy install \
+    ${CHROME_VERSION:-google-chrome-stable} \
+  && rm /etc/apt/sources.list.d/google-chrome.list \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
 
 WORKDIR /app
 
