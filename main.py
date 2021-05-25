@@ -52,7 +52,7 @@ def instant_code() -> None:
 
     center = API.zip_center(zip_code)
     if not center: print(f'Center with zip code "{zip_code}" not found'); return
-    print(f'Requesting Vermittlungscode for: {center.get("Zentrumsname")}, {center.get("PLZ")} {center.get("Ort")}')
+    print(f'Requesting Vermittlungscode for: {center.get("Zentrumsname").strip()}, {center.get("PLZ")} {center.get("Ort")}')
 
     if args.manual:
         print(f'URL: {center.get("URL")}impftermine/service?plz={zip_code}')

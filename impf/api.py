@@ -86,8 +86,9 @@ class API:
         """ Undocumented super-method """
         api = cls()
         api.host = host
+        api.logger.info('Refreshing cookies manually...')
         api.set_cookies(cookies)
-        print(f'We {"DO" if api.cookies_complete else "DO NOT"} have all cookies!')
+        api.logger.info(f'We {"DO" if api.cookies_complete else "DO NOT"} have all cookies!')
         return api
 
     @property
@@ -180,7 +181,7 @@ class API:
                                   'the bot run for 1-2h with `CONCURRENT_ENABLED = False` and `KEEP_BROWSER = True`')
                 self.logger.warning('Alternatively you can run the bot interactively using `python main.py --surf` and '
                                     'click around a bit manually for ~45min to attempt and acquire the cookies.')
-            self.logger.error('Could not generate code – please try again later')
+            self.logger.error('Could not generate code – please try again later (~2345 is usually a good time)')
             return
 
         if not r.json().get("token"):
