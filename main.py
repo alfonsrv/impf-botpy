@@ -4,7 +4,8 @@ from concurrent.futures import FIRST_COMPLETED
 from time import sleep
 from datetime import datetime, timedelta
 import logging
-import readline
+try: import readline
+except: pass
 
 import settings
 from impf import __version__ as v
