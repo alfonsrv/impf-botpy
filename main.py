@@ -114,6 +114,7 @@ if __name__ == '__main__':
 
     logger.info(f'Starting up Impf Bot.py - github/@alfonsrv, 05/2021 (version {v})')
     if args.code: instant_code(); exit()
+    if args.manual: print('Try in combination with --code'); exit()
     elif args.surf: x = Browser(location='', code=''); input('Press Enter to end interactive session'); x.driver.quit(); exit()
     print_config()
 
