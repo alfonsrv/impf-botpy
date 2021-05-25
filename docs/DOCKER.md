@@ -35,3 +35,4 @@ doing it manually but barely works when letting the bot do it itself.
 ⚠ Things may break in Docker environments, especially when using Concurrency. Please note that there is **NO** support
 for Docker environments and no in-depth technical troubleshooting. If you're running Docker, you're technically capable 
 yourself. Hope you understand. Pull requests welcome.
+Stay up-to-date: https://github.com/alfonsrv/impf-botpy/issues/27
