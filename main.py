@@ -30,7 +30,7 @@ def print_config() -> None:
     print('[x] Alerting Methods')
     if settings.COMMAND_ENABLED: print('- Custom Command ✓')
     if settings.ZULIP_ENABLED: print('- Zulip ✓')
-    if settings.TELEGRAM_ENABLED: print('- Telegram ✓ (only sending)')
+    if settings.TELEGRAM_ENABLED: print('- Telegram ✓')
     if settings.PUSHOVER_ENABLED: print('- Pushover ✓')
 
 

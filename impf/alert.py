@@ -49,7 +49,7 @@ def read_backend(case: str) -> str:
     code = ''
     try:
         if settings.ZULIP_ENABLED:
-           code = _read_backend(zulip_read, match_func) or code
+            code = _read_backend(zulip_read, match_func) or code
         if settings.TELEGRAM_ENABLED:
             code = _read_backend(telegram_read, match_func) or code
     except:
