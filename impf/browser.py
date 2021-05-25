@@ -323,13 +323,22 @@ class Browser:
         assert title.text == 'Onlinebuchung für Ihre Corona-Schutzimpfung'
 
         try:
+            close = self.driver.find_elements_by_xpath('//button[contains(text(), "Abbrechen")]')[-1]
+            close.click()
+            sleep(1)
+        except NoSuchElementException:
+            self.logger.info('Could not find "Abbrechen" button - this usually happens when you are running in a slow '
+                             'environment such as Docker or if the ImpfterminService site has changed.')
+
+        try:
             submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(), "Termine suchen")]')))
             submit.click()
             sleep(2.5)
 
         # Docker seems to have consistent runtime errors
         except ElementClickInterceptedException:
-            self.rescan_appointments()
+            self.logger.info('Could not click "Termine suchen" button - this usually happens when you are running in a slow '
+                             'environment such as Docker or if the ImpfterminService site has changed.')
             return self.search_appointments()
 
         try:
@@ -357,24 +366,6 @@ class Browser:
                 (By.XPATH, f'//input[@type="radio" and @name="vaccination-approval-checked"]//following-sibling::span[contains(text(),"{claim}")]/..')))
             element.click()
             sleep(2)
-
-    def rescan_appointments(self) -> None:
-        """ Erneut im Buchungsbildschirm nach Terminen suchen """
-        title = self.wait.until(EC.presence_of_element_located((By.XPATH, '//h1')))
-        assert title.text == 'Onlinebuchung für Ihre Corona-Schutzimpfung'
-        close = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//button[contains(text(), "Abbrechen")]')))[-1]
-        close.click()
-        try:
-            rescan = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//a[contains(text(), "hier")]')))
-            rescan.click()
-            close = self.wait.until(
-                EC.presence_of_all_elements_located(
-                    (By.XPATH, '//button[contains(text(), "Abbrechen")]'))
-            )[-1]
-            close.click()
-        except TimeoutException:
-            pass
-
 
 
     @control_errors
@@ -442,7 +433,6 @@ class Browser:
             while not appointments:
                 sleep(settings.WAIT_RESCAN_APPOINTMENTS)
                 self.logger.info('Rechecking for new appointments')
-                self.rescan_appointments()
                 appointments = self.search_appointments()
 
         if appointments:
