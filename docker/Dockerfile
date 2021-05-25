@@ -6,12 +6,22 @@ ENV PYTHONUNBUFFERED 1
 # install apt dependencies
 RUN apt-get update -y
 RUN DEBIAN_FRONTEND=noninteractive \
-    apt-get install -y unzip wget chromium=90.0.4430.212-1~deb10u1 \
+    apt-get install -y unzip wget curl \
     xorg vnc4server autocutsel lxde-core novnc python-websockify \
     libffi-dev musl-dev libssl-dev python3-dev gcc \
     python3 python3-pip \
-    chromium-driver=90.0.4430.212-1~deb10u1 \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+    echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list && \
+    apt-get update -y && \
+    apt-get install -y google-chrome-stable && \
+    CHROMEVER=$(google-chrome --product-version | grep -o "[^\.]*\.[^\.]*\.[^\.]*") && \
+    DRIVERVER=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROMEVER") && \
+    wget -q --continue -P /chromedriver "http://chromedriver.storage.googleapis.com/$DRIVERVER/chromedriver_linux64.zip" && \
+    unzip /chromedriver/chromedriver* -d /usr/local/bin && \
+    rm -r -f /chromedirver/
 
 WORKDIR /app
 
