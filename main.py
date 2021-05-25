@@ -125,7 +125,7 @@ if __name__ == '__main__':
                 futures = []
                 for location in settings.LOCATIONS:
                     futures.append(executor.submit(impf_me, location))
-                    sleep(30)
+                    sleep(settings.WAIT_CONCURRENT)
 
                 while futures:
                     done, _ = concurrent.futures.wait(futures, return_when=FIRST_COMPLETED)
