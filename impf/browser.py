@@ -326,8 +326,9 @@ class Browser:
             close = self.driver.find_elements_by_xpath('//button[contains(text(), "Abbrechen")]')[-1]
             close.click()
             sleep(1)
-        except Exception:
-            pass
+        except NoSuchElementException:
+            self.logger.info('Could not find "Abbrechen" button - this usually happens when you are running in a slow '
+                             'environment such as Docker or if the ImpfterminService site has changed.')
 
         try:
             submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(), "Termine suchen")]')))
@@ -336,6 +337,8 @@ class Browser:
 
         # Docker seems to have consistent runtime errors
         except ElementClickInterceptedException:
+            self.logger.info('Could not click "Termine suchen" button - this usually happens when you are running in a slow '
+                             'environment such as Docker or if the ImpfterminService site has changed.')
             return self.search_appointments()
 
         try:
