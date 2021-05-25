@@ -5,12 +5,20 @@ from typing import Any, List, Dict, Union
 from urllib.parse import urlparse
 import logging
 
+import requests
 from requests.sessions import Session
 import settings
 from impf.constructors import AdvancedSessionError, AdvancedSessionCache
 from impf.decorators import api_call, next_gen
 
 logger = logging.getLogger(__name__)
+
+HEADERS = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36'
+                            if settings.USER_AGENT == 'default' else settings.USER_AGENT,
+            'Content-Type': 'application/json; charset=utf-8',
+            'Accept-Encoding': 'gzip, deflate, br',
+        }
 
 @dataclass
 class AdvancedSession:
@@ -20,14 +28,7 @@ class AdvancedSession:
 
     def __post_init__(self):
         self.session = Session()
-
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36'
-                            if settings.USER_AGENT == 'default' else settings.USER_AGENT,
-            'Content-Type': 'application/json; charset=utf-8',
-            'Accept-Encoding': 'gzip, deflate, br',
-        })
-
+        self.session.headers.update(HEADERS)
         self.logger = settings.LocationAdapter(logger, {'location': 'API'})
 
     @api_call
@@ -61,7 +62,7 @@ class AdvancedSession:
 
 @dataclass
 class API:
-    host: str = field(init=False)
+    host: str = ''
     driver: 'Browser' = None
     xs: AdvancedSession = None  # requests.Session
     logger: 'logger' = field(init=False)
@@ -77,6 +78,15 @@ class API:
         self.logger = settings.LocationAdapter(logger, {'location': 'API'})
         if not self.cookies_complete:
             self.logger.info('Caution! You might not have all cookies to issue requests!')
+
+    @classmethod
+    def manual(cls, host: str, cookies: str) -> 'API':
+        """ Undocumented super-method """
+        api = cls()
+        api.host = host
+        api.set_cookies(cookies)
+        print(f'We {"DO" if api.cookies_complete else "DO NOT"} have all cookies!')
+        return api
 
     @property
     def zip_code(self) -> str:
@@ -117,6 +127,16 @@ class API:
         if missing: self.logger.info(f'Potentially missing cookies: {missing}')
         return not(missing)
 
+    @staticmethod
+    def zip_center(zip_code: str) -> Union[dict, None]:
+        """ Returns the information of a center given a zip code -
+         should probably be at the bottom of the file """
+        r = requests.get('https://www.impfterminservice.de/assets/static/impfzentren.json', headers=HEADERS, timeout=10)
+        if not r.status_code == 200 or not r.json(): return
+        centers = r.json().get(settings.BUNDESLAND)
+        center = [center for center in centers if center.get('PLZ') == zip_code]
+        return next(iter(center), '')
+
     def auth(self) -> None:
         """ Sets Authorization Header """
         self.xs.session.headers.update({
@@ -131,6 +151,13 @@ class API:
         x.location_page()
         self.xs.session.cookies.update({c['name']: c['value'] for c in x.driver.get_cookies()})
         x.driver.quit()
+
+    def set_cookies(self, cookies: str) -> None:
+        """ Sets cookies from browser header string """
+        self.xs.session.cookies.update({
+            c[0].strip(): c[1].strip() for c in
+            [cookie.split('=', 1) for cookie in cookies.split(';')]
+        })
 
     @next_gen
     def generate_vermittlungscode(self) -> str:

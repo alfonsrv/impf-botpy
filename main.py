@@ -46,30 +46,30 @@ def instant_code() -> None:
           'this method won\'t work for you.\n')
     print('Please note: This is an experimental feature and may break at any time.')
     print('If it breaks, please just fall back to using the browser instead.\n\n')
-    zip_code = input('Enter the zip code or partial name of the location you require a Vermittlungscode for: ')
-    location = ''
-    for _location in settings.LOCATIONS:
-        if zip_code in _location['location']:
-            location = _location['location']
-            break
+    zip_code = input('Enter the zip code of the location you require a Vermittlungscode for: ')
 
-    if not location or not location[:5].isdigit():
-        print(f'Location {location} not found or ZIP code ({location[:5]}) not formatted properly')
-        return
+    center = API.zip_center(zip_code)
+    if not center: print(f'Center with zip code "{zip_code}" not found'); return
+    print(f'Requesting Vermittlungscode for: {center.get("Zentrumsname")}, {center.get("PLZ")} {center.get("Ort")}')
 
-    print(f'Requesting Instant Vermittlungscode for location {location}...')
-    x = Browser(location=location, code='')
-    x.main_page()
-    x.waiting_room()
-    x.location_page()
-    a = API(driver=x)
-    x.driver.close()
+    if args.manual:
+        print(f'URL: {center.get("URL")}impftermine/service?plz={zip_code}')
+        c = input(f'Input cookies: ')
+        api = API.manual(center.get("URL"), c)
+        api.zip_code = zip_code
+    else:
+        x = Browser(location=zip_code, code='')
+        x.main_page()
+        x.waiting_room()
+        x.location_page()
+        api = API(driver=x)
+        x.driver.close()
 
-    token = a.generate_vermittlungscode()
+    token = api.generate_vermittlungscode()
     if not token: return
 
     sms_pin = input('Please enter the SMS code you got via SMS: ').strip().replace('-', '')
-    if a.verify_token(token=token, sms_pin=sms_pin):
+    if api.verify_token(token=token, sms_pin=sms_pin):
         print('OK! Please check your emails and enter the code for the correlating location')
     else:
         print('Token could not be verified – did you enter the right SMS PIN?')
@@ -95,7 +95,7 @@ def impf_me(location: dict):
     logger.info(f'Waiting until {(datetime.now() + timedelta(seconds=settings.WAIT_LOCATIONS)).strftime("%H:%M:%S")} '
                 f'before checking the next location')
     sleep(settings.WAIT_LOCATIONS)
-    if not x.keep_browser: x.driver.close()
+    if not x.keep_browser: x.driver.quit()
     return location
 
 
@@ -103,6 +103,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--alerts', help='Check all alert backends and exit', action='store_true')
     parser.add_argument('--code', help='Instant Vermittlungscode Generator', action='store_true')
+    parser.add_argument('--manual', help='Undocumented super function', action='store_true')
     parser.add_argument('--surf', help='Interactive Surf Session for Cookie Enrichment', action='store_true')
     parser.add_argument('--version', help='Print version and exit', action='store_true')
     args = parser.parse_args()
@@ -121,7 +122,7 @@ if __name__ == '__main__':
             logger.info(f'Spawning Browsers with {settings.WAIT_CONCURRENT}s delay.')
             locations = settings.LOCATIONS
             with concurrent.futures.ThreadPoolExecutor(max_workers=settings.CONCURRENT_WORKERS) as executor:
-                # futures = [executor.submit(impf_me, location) for location in settings.LOCATIONS]10
+                # futures = [executor.submit(impf_me, location) for location in settings.LOCATIONS]
                 futures = []
                 for location in settings.LOCATIONS:
                     futures.append(executor.submit(impf_me, location))
@@ -134,6 +135,7 @@ if __name__ == '__main__':
                         futures.remove(future)
                         _location = future.result()
                         futures.append(executor.submit(impf_me, _location))
+                        del future
 
         else:
             for location in settings.LOCATIONS:
