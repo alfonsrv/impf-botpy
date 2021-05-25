@@ -328,8 +328,8 @@ class Browser:
             close.click()
             sleep(1)
         except (NoSuchElementException, ElementClickInterceptedException, ElementNotInteractableException):
-            self.logger.info('Could not find "Abbrechen" button - this usually happens when you are running in a slow '
-                             'environment such as Docker or if the ImpfterminService site has changed.')
+            self.logger.debug('Could not find "Abbrechen" button - this usually happens when you are running in a slow '
+                              'environment such as Docker or if the ImpfterminService site has changed.')
 
         try:
             submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(), "Termine suchen")]')))
