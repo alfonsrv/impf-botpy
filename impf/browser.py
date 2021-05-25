@@ -3,7 +3,8 @@ from time import sleep, time
 from typing import List, Tuple
 
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException, \
+    ElementNotInteractableException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -326,7 +327,7 @@ class Browser:
             close = self.driver.find_elements_by_xpath('//button[contains(text(), "Abbrechen")]')[-1]
             close.click()
             sleep(1)
-        except (NoSuchElementException, ElementClickInterceptedException):
+        except (NoSuchElementException, ElementClickInterceptedException, ElementNotInteractableException):
             self.logger.info('Could not find "Abbrechen" button - this usually happens when you are running in a slow '
                              'environment such as Docker or if the ImpfterminService site has changed.')
 
