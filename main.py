@@ -12,6 +12,7 @@ from impf import __version__ as v
 from impf.alert import send_alert
 from impf.api import API
 from impf.browser import Browser
+from impf.exceptions import WorkflowException
 
 logger = logging.getLogger(__name__)
 b = None  # helper variable for keeping browser open
@@ -93,11 +94,10 @@ def impf_me(location: dict):
 
     # Continue with normal loop
     try:
-      x.control_main()
-    except:
-      # Probably failure to recover from shadow ban
-      self.logger.exception(f'An unexpected exception occurred in <{f.__name__}>!')
-      pass
+        x.control_main()
+    except WorkflowException:
+        # Something unexpected happened, we'll continue with the next loop
+        pass
 
     logger.info(f'Waiting until {(datetime.now() + timedelta(seconds=settings.WAIT_LOCATIONS)).strftime("%H:%M:%S")} '
                 f'before checking the next location')

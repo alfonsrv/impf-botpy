@@ -7,6 +7,7 @@ from selenium.common.exceptions import StaleElementReferenceException, WebDriver
 
 import settings
 from impf.constructors import AdvancedSessionCache
+from impf.exceptions import WorkflowException
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ def shadow_ban(f):
     """ Decorator um Shadow Ban autom. zu vermeiden """
 
     def func(self, *args, **kwargs):
-        if sleep_bot(): raise Exception('Woke up from sleep, need to restart!')
+        if sleep_bot(): raise WorkflowException('Woke up from sleep, need to restart!')
 
         x = f(self, *args, **kwargs)
 
@@ -48,7 +49,7 @@ def shadow_ban(f):
                 shadow_ban = self.too_many_requests
 
             if not shadow_ban: self.error_counter = 0
-            else: raise Exception('Recovering from shadow ban failed!')
+            else: raise WorkflowException('Recovering from shadow ban failed!')
 
         return x
     return func
@@ -64,10 +65,8 @@ def control_errors(f):
             # Reinitialize the browser, so we can reattach –
             # TODO: Make it a dedicated function (maybe)
             if self.keep_browser:
-                return self.reset()
-        except WebDriverException as e:
-            if 'chrome not reachable' in str(e):
-                return self.reset()
+                self.reset()
+            raise WorkflowException('Got StaleElementReferenceException!')
         except AssertionError:
             self.logger.error(f'AssertionError occurred in <{f.__name__}>. This usually happens if your computer/internet '
                               'connection is slow or if the ImpfterminService site changed.')
@@ -77,6 +76,9 @@ def control_errors(f):
             return self.control_assert()
         except SystemExit:
             self.logger.warning('Exiting...')
+            raise
+        except WorkflowException:
+            raise
         except:
             self.logger.exception(f'An unexpected exception occurred in <{f.__name__}>')
             if settings.KEEP_BROWSER_CRASH:
@@ -84,7 +86,8 @@ def control_errors(f):
                 self.keep_browser = settings.KEEP_BROWSER_CRASH
             else:
                 sleep(10)
-            if not self.keep_browser: self.driver.close()
+            if not self.keep_browser: self.reset()
+            raise WorkflowException('Unexpected exception was raised!')
 
     return func
 

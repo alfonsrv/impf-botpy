@@ -12,6 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 import settings
 from impf.alert import send_alert, read_backend
+from impf.exceptions import WorkflowException
 
 import logging
 
@@ -47,8 +48,8 @@ class Browser:
         """ Hacky Helper function to reset
         Browser instance while keeping data """
         self.driver.quit()
+        sleep(1) # give the driver the chance to close the browser window
         self.__post_init__()
-        return self.control_main()
 
     def reinit(self, *args, **kwargs):
         """ Hacky Helper function to reinitialize
@@ -384,10 +385,7 @@ class Browser:
             self.logger.error('Maximum errors and retries exceeded - skipping location for now')
             return
 
-        # Quick Restart
-        if self.error_counter == 0: self.main_page()
-        else: self.driver.refresh()
-
+        self.main_page()
         self.logger.info(f'Connected to server [{self.server_id}]')
         self.waiting_room()
         self.location_page()
@@ -475,11 +473,7 @@ class Browser:
             self.logger.info('Continuing with <control_appointment>')
             return self.control_appointment()
 
-        if title.text == 'Buchen Sie die Termine für Ihre Corona-Schutzimpfung':
-            self.error_counter = 0
-
         # Virtueller Warteraum des Impfterminservice
         # SMS Verifizierung
-        self.logger.info('Continuing with reset via <control_main>')
-        self.error_counter = 1
-        return self.control_main()
+        self.logger.info('Continuing with reset via WorkflowException')
+        raise WorkflowException('Could not recover from AssertionError!')
