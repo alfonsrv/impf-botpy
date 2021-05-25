@@ -47,24 +47,31 @@ def read_backend(case: str) -> str:
     """ Reads the SMS Code from any of the confired alerting backends and returns it as string """
     match_func = sms_code if case == 'sms' else appointment_slot
     code = ''
-    if settings.ZULIP_ENABLED:
-       code = _read_backend(zulip_read, match_func) or code
-    if settings.TELEGRAM_ENABLED:
-        code = _read_backend(telegram_read, match_func) or code
+    try:
+        if settings.ZULIP_ENABLED:
+           code = _read_backend(zulip_read, match_func) or code
+        if settings.TELEGRAM_ENABLED:
+            code = _read_backend(telegram_read, match_func) or code
+    except:
+        logger.exception('An unexpected exception occurred while reading alerts! Please report this '
+                         'issue to https://github.com/alfonsrv/impf-botpy/issues')
     return code
 
 
 def send_alert(message: str) -> None:
-    logger.info(f'Sending alert "{message}"')
-    if settings.COMMAND_ENABLED:
-        try: os.system(get_command())
-        except: pass
-    if settings.ZULIP_ENABLED:
-        zulip_send(message)
-    if settings.TELEGRAM_ENABLED:
-        telegram_send(message)
-    if settings.PUSHOVER_ENABLED:
-        pushover_send(message)
+    try:
+        logger.info(f'Sending alert "{message}"')
+        if settings.COMMAND_ENABLED:
+            os.system(get_command())
+        if settings.ZULIP_ENABLED:
+            zulip_send(message)
+        if settings.TELEGRAM_ENABLED:
+            telegram_send(message)
+        if settings.PUSHOVER_ENABLED:
+            pushover_send(message)
+    except:
+        logger.exception('An unexpected exception occurred trying to send alerts! Please report this '
+                         'issue to https://github.com/alfonsrv/impf-botpy/issues')
 
 
 def zulip_send(message: str) -> None:
@@ -78,7 +85,7 @@ def zulip_send(message: str) -> None:
         logger.error(f'Error sending Zulip message - got {r}')
 
 
-def zulip_read(match_func: Callable) -> str:
+def zulip_read(match_func: Callable) -> Union[None, str]:
     client = zulip_client()
     if client is None: return
     request = zulip_read_payload()
@@ -101,7 +108,7 @@ def telegram_send(message: str) -> None:
     logger.debug(r)
 
 
-def telegram_read(match_func: Callable) -> None:
+def telegram_read(match_func: Callable) -> Union[None, str]:
     url = f'https://api.telegram.org/bot{settings.TELEGRAM_API_TOKEN}/getUpdates'
     params = {
         'chat_id': settings.TELEGRAM_CHAT_ID,
@@ -112,6 +119,7 @@ def telegram_read(match_func: Callable) -> None:
     logger.debug(r)
     for message in r.get('result'):
         _message = message.get('message')
+        if not _message: return
         # wenn im erwarteten Format und innerhalb der letzten 2 Minuten
         if match_func(_message.get('text')) and time() - _message.get('date') <= 120:
             return match_func(_message.get('text'))
@@ -122,6 +130,9 @@ def pushover_send(message: str) -> None:
     data = {
         'token': settings.PUSHOVER_APP_TOKEN,
         'user': settings.PUSHOVER_USER_KEY,
+        'title': 'Impf-Bot.py Notification',
+        'sound': 'persistent',
+        'priority': 1,
         'message': message
     }
 

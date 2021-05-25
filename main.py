@@ -42,7 +42,7 @@ def instant_code() -> None:
     print('Before a Vermittlungscode can be generated, you must specify your '
           'phone number, email and the location in `settings.py`\n')
     print('The bot is hard-coded to only request BioNTech + Moderna (18-60yo)')
-    print('Should you request a vaccination for an older demographic or prefer another vaccination '
+    print('Should you request a vaccination for an older demographic or prefer another vaccine '
           'this method won\'t work for you.\n')
     print('Please note: This is an experimental feature and may break at any time.')
     print('If it breaks, please just fall back to using the browser instead.\n\n')
@@ -103,6 +103,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--alerts', help='Check all alert backends and exit', action='store_true')
     parser.add_argument('--code', help='Instant Vermittlungscode Generator', action='store_true')
+    parser.add_argument('--surf', help='Interactive Surf Session for Cookie Enrichment', action='store_true')
     parser.add_argument('--version', help='Print version and exit', action='store_true')
     args = parser.parse_args()
 
@@ -111,6 +112,7 @@ if __name__ == '__main__':
 
     logger.info(f'Starting up Impf Bot.py - github/@alfonsrv, 05/2021 (version {v})')
     if args.code: instant_code(); exit()
+    elif args.surf: x = Browser(location='', code=''); input('Press Enter to end interactive session'); x.driver.quit(); exit()
     print_config()
 
     while True:

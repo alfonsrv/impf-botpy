@@ -1,6 +1,7 @@
 /venv/
 /pytest-venv/
 settings.py
+/selenium/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

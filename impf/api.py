@@ -40,7 +40,7 @@ class AdvancedSession:
 
     def _handle_error(self, code: int, message: dict) -> None:
         self.error_counter += 1
-        if self.error_counter > 3:
+        if self.error_counter >= 3:
             raise AdvancedSessionError(-1, 'Maximum retries exceeded')
         elif code == 429:
             self.logger.warning('[429] The server is experiencing too many requests – either from our IP or generally. '
@@ -75,6 +75,8 @@ class API:
             self.host = f'{_host.scheme}://{_host.hostname}'
             self.xs.session.cookies.update({c['name']: c['value'] for c in self.driver.driver.get_cookies()})
         self.logger = settings.LocationAdapter(logger, {'location': 'API'})
+        if not self.cookies_complete:
+            self.logger.info('Caution! You might not have all cookies to issue requests!')
 
     @property
     def zip_code(self) -> str:
@@ -108,6 +110,13 @@ class API:
             return
         self._code = value
 
+    @property
+    def cookies_complete(self) -> bool:
+        cookies = ['bm_sz', 'bm_mi', 'ak_bmsc' , '_abck', 'bm_sv', 'akavpau_User_allowed']
+        missing = [cookie for cookie in cookies if cookie not in self.xs.session.cookies.get_dict().keys()]
+        if missing: self.logger.info(f'Potentially missing cookies: {missing}')
+        return not(missing)
+
     def auth(self) -> None:
         """ Sets Authorization Header """
         self.xs.session.headers.update({
@@ -137,7 +146,12 @@ class API:
         try:
             r = self.xs.post(f'{self.host}/rest/smspin/anforderung', json=data)
         except AdvancedSessionError:
-            self.logger.error('Could not generate code – please try again later')
+            if not self.cookies_complete:
+                self.logger.warning('You do not seem to have all cookies. Please first enrich your cookies by letting '
+                                  'the bot run for 1-2h with `CONCURRENT_ENABLED = False` and `KEEP_BROWSER = True`')
+                self.logger.warning('Alternatively you can run the bot interactively using `python main.py --surf` and '
+                                    'click around a bit manually for ~45min to attempt and acquire the cookies.')
+            self.logger.error('Could not generate code – please try again later.')
             return
 
         if not r.json().get("token"):

@@ -49,13 +49,17 @@ class AdvancedSessionCache(Exception):
 def browser_options():
     """ Helper function to build Selenium Browser options """
     opts = Options()
-    opts.add_argument('--disable-dev-shm-usage')
+    opts.add_experimental_option("excludeSwitches", ["enable-automation"])
     opts.add_experimental_option("excludeSwitches", ["enable-logging"])
     if settings.SELENIUM_DEBUG: opts.add_argument('--auto-open-devtools-for-tabs')
     if settings.USER_AGENT != 'default': opts.add_argument(f'user-agent={settings.USER_AGENT}')
     # Fallback, falls Chrome Installation in Program Files installiert ist
     if settings.CHROME_PATH: opts.binary_location = settings.CHROME_PATH
+    if not settings.CONCURRENT_ENABLED:
+        opts.add_argument('--user-data-dir=selenium')  # Used for persistent cookies
+        opts.add_argument('--profile-directory=Default')
     if os.environ.get('DOCKER_ENV'):
+        opts.add_argument('--disable-dev-shm-usage')
         opts.add_argument('--no-sandbox')
     return opts
 
