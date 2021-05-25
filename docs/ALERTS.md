@@ -6,13 +6,18 @@ you a notification, so you can send it your confirmation SMS or book the appropr
 Alerting backends are optional to configure. When a new slot is found the bot will alert you via Audio Text-to-Speech,
 so if you're on your PC anyways while the bot is running, you're already set up.
 
-Currently only Zulip is supported as an alerting backend. Zulip is open source and can be hosted locally, since I use it 
-mainly for various project automations it's what's integrated right now. Zulip also offers a public service, along with
-an app for every major smartphone OS.  
+Zulip is open source and can be hosted locally, since I use it mainly for various project automations it's what has the 
+best documentation right now. Zulip also offers a public service, along with an app for every major smartphone OS.  
 
 Messages older than 120 seconds will be ignored by the bot when waiting for interactive user input.  
 
-Alerts can be tested using `python main.py --alerts`. 
+Alerts can be tested using `python main.py --alerts` aka `python3 main.py --alerts`. 
+
+## Currently supported alerting backends:
+
+* Zulip
+* Telegram
+* Pushover
 
 ## Zulip Setup
 
@@ -49,9 +54,9 @@ ZULIP_TARGET: str = 'user1234@chat.zulip.org'
 ZULIP_TOPIC: str = 'General'
 ```
 
-7. Download the Zulip smartphone app, login and test your bot using `python main.py --alerts`. If you should not get any
-   notification, check if your phone allows Zulip to send notifications and in-app if you enabled notifications for 
-   private messages (`Settings` -> `Notifications` -> `Notifications when offline/online`)
+7. Download the Zulip smartphone app, login and test your bot using `python main.py --alerts` / `python3 main.py --alerts`. 
+   If you should not get anynotification, check if your phone allows Zulip to send notifications and in-app if you 
+   enabled notifications for private messages (`Settings` -> `Notifications` -> `Notifications when offline/online`)
    
 ![Zulip Settings 5](/docs/zulip-5.jpg)
 

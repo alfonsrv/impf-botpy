@@ -326,7 +326,7 @@ class Browser:
             close = self.driver.find_elements_by_xpath('//button[contains(text(), "Abbrechen")]')[-1]
             close.click()
             sleep(1)
-        except NoSuchElementException:
+        except (NoSuchElementException, ElementClickInterceptedException):
             self.logger.info('Could not find "Abbrechen" button - this usually happens when you are running in a slow '
                              'environment such as Docker or if the ImpfterminService site has changed.')
 

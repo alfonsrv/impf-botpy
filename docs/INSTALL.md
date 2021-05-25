@@ -1,6 +1,7 @@
 # Installation Guide
 
-This guide is designed to be as easy as possible. If anything is unclear, please feel free to ask.
+This guide is designed to be as easy as possible. If anything is unclear, please feel free to ask. Every OS has its own
+subchapter - be sure you follow the steps for your system.
 
 ## Windows
 
@@ -64,6 +65,8 @@ Make sure you have Google Chrome installed.
 
 ### Selenium macOS
 
+#### Option 1
+
 Open `Terminal` and Copy+Paste the code below:
 
 ```bash
@@ -73,6 +76,8 @@ xattr -dr com.apple.quarantine /usr/local/bin/chromedriver
 ```
 
 It will ask for your password. Just type it and press Enter. You won't be able to see it, so don't get confused.
+
+#### Option 2
 
 Alternatively, you can download the executable here manually `https://sites.google.com/a/chromium.org/chromedriver/downloads`
 See the Selenium installation for Windows for more details regarding which version to pick.

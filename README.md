@@ -64,7 +64,8 @@ has its own valid *Vermittlungscode*, which you'll need to acquire first to adva
 
 <sup>* Every center is hosted on a server, indicated by the numbers in the URL, e.g. 
 https://001-iz.impfterminservice.de/impftermine/service?plz=70713 is server **001**.
-Vermittlungscodes are valid for *every* center on the given server</sup>  
+Vermittlungscodes are valid for *every* center on the given server 
+[ref](https://www.impfterminservice.de/assets/static/impfzentren.json)</sup>  
 
 
 > ### ⚠ Warning: The online booking isn't an authorization
@@ -100,7 +101,7 @@ python3 main.py
 
 ### Configuration
 
-1. Rename `settings.sample.py` to `settings.py`
+1. Rename `settings.sample.py` to `settings.py` and open it with your favorite text editor (recommended: Sublime Text)
 2. Edit the `LOCATIONS` by adding your Impfzentrum with the name as shown on [ImpfterminService](https://impfterminservice.de/)
 3. If you already have a *Vermittlungscode* for one of the centers, enter it at `code` - otherwise leave empty
 4. Enter your age, mail and phone number
@@ -146,7 +147,7 @@ Simply add your preferred integration to
 2. `constructor.py` if your API is a bit more complex to keep things tidy
 3. `settings.py` add your relevant settings (must include `ENABLED` flag)
 4. `main.py` in `print_config` for NextGen UX
-5. Optionally: Setup Guide in [ALERTS.md](/docs/ALERTS.md)
+5. Optional: Setup Guide in [ALERTS.md](/docs/ALERTS.md)
 6. Pull Request & Done 💥
 
 ### Unit Tests
