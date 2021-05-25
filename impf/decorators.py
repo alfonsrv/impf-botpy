@@ -3,7 +3,7 @@ from time import sleep
 import logging
 
 from requests import Timeout, ConnectionError
-from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import StaleElementReferenceException, WebDriverException
 
 import settings
 from impf.constructors import AdvancedSessionCache
@@ -50,7 +50,7 @@ def shadow_ban(f):
                 shadow_ban = self.too_many_requests
 
             if not shadow_ban: self.error_counter = 0
-            else: self.control_main()
+            else: return self.control_main()
 
         return x
     return func
@@ -63,11 +63,13 @@ def control_errors(f):
             return f(self, *args, **kwargs)
         except StaleElementReferenceException:
             self.logger.warning('StaleElementReferenceException - we probably detatched somehow; reinitializing')
-            # Reinitialize the browser, so we can reattach
+            # Reinitialize the browser, so we can reattach –
+            # TODO: Make it a dedicated function (maybe)
             if self.keep_browser:
-                self.driver.close()
-                self.__post_init__()
-                return self.control_main()
+                return self.reset()
+        except WebDriverException as e:
+            if 'chrome not reachable' in str(e):
+                return self.reset()
         except AssertionError:
             self.logger.error(f'AssertionError occurred in <{f.__name__}>. This usually happens if your computer/internet '
                               'connection is slow or if the ImpfterminService site changed.')

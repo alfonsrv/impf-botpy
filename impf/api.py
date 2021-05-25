@@ -53,6 +53,8 @@ class AdvancedSession:
             if message:
                 if 'Anfragelimit erreicht' in message.get('error'):
                     raise AdvancedSessionError(-1, 'Maximum requests reached for phone number and email')
+                elif message.get('error'):
+                    self.logger.warning(f'Endpoint returned Error: {message.get("error")}')
             self.logger.info('Cookies probably expired – raising AdvancedSessionCache')
             raise AdvancedSessionCache(code, message)
         else:
@@ -178,7 +180,7 @@ class API:
                                   'the bot run for 1-2h with `CONCURRENT_ENABLED = False` and `KEEP_BROWSER = True`')
                 self.logger.warning('Alternatively you can run the bot interactively using `python main.py --surf` and '
                                     'click around a bit manually for ~45min to attempt and acquire the cookies.')
-            self.logger.error('Could not generate code – please try again later.')
+            self.logger.error('Could not generate code – please try again later')
             return
 
         if not r.json().get("token"):

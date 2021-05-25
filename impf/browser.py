@@ -43,8 +43,16 @@ class Browser:
         self.wait = WebDriverWait(self.driver, settings.WAIT_BROWSER_MAXIMUM)
         self.logger = settings.LocationAdapter(logger, {'location': self.location[:5]})
 
+    def reset(self, *args, **kwargs):
+        """ Hacky Helper function to reset
+        Browser instance while keeping data """
+        self.driver.quit()
+        self.__post_init__()
+        return self.control_main()
+
     def reinit(self, *args, **kwargs):
-        """ Hacky Helper function - sorry """
+        """ Hacky Helper function to reinitialize
+        Browser with new data - sorry """
         self.location = kwargs.get('location')
         self.code = kwargs.get('code')
         self.error_counter = 0
