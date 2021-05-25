@@ -6,8 +6,7 @@ from requests import Timeout, ConnectionError
 from selenium.common.exceptions import StaleElementReferenceException, WebDriverException
 
 import settings
-from impf.constructors import AdvancedSessionCache
-from impf.exceptions import WorkflowException
+from impf.exceptions import AdvancedSessionCache, WorkflowException
 
 logger = logging.getLogger(__name__)
 

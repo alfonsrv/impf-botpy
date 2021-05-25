@@ -8,8 +8,8 @@ import logging
 import requests
 from requests.sessions import Session
 import settings
-from impf.constructors import AdvancedSessionError, AdvancedSessionCache
 from impf.decorators import api_call, next_gen
+from impf.exceptions import AdvancedSessionError, AdvancedSessionCache
 
 logger = logging.getLogger(__name__)
 
