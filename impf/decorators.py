@@ -65,14 +65,14 @@ def control_errors(f):
             # TODO: Make it a dedicated function (maybe)
             if self.keep_browser:
                 self.reset()
-            raise WorkflowException('Got StaleElementReferenceException!')
+            self.control_assert()
         except AssertionError:
             self.logger.error(f'AssertionError occurred in <{f.__name__}>. This usually happens if your computer/internet '
                               'connection is slow or if the ImpfterminService site changed.')
             self.logger.error('Sleeping for 120s before continuing, giving the user the '
                               'ability to interact before attempting to revover automatically...')
             sleep(120)
-            return self.control_assert()
+            self.control_assert()
         except SystemExit:
             self.logger.warning('Exiting...')
             raise

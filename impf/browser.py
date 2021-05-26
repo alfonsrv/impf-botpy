@@ -463,17 +463,14 @@ class Browser:
         if title.text == 'Wurde Ihr Anspruch auf eine Corona-Schutzimpfung bereits geprüft?' and self.code:
             self.logger.info('Continuing with <control_vermuttlingscode>')
             self.location_page()
-            return self.control_vermittlungscode()
-
-        if title.text == 'Vermittlungscode anfordern':
+            self.control_vermittlungscode()
+        elif title.text == 'Vermittlungscode anfordern':
             self.logger.info('Continuing with <control_sms>')
-            return self.control_sms()
-
-        if title.text == 'Onlinebuchung für Ihre Corona-Schutzimpfung':
+            self.control_sms()
+        elif title.text == 'Onlinebuchung für Ihre Corona-Schutzimpfung':
             self.logger.info('Continuing with <control_appointment>')
-            return self.control_appointment()
+            self.control_appointment()
+        else:
+            self.logger.info('Nothing found to continue with')
 
-        # Virtueller Warteraum des Impfterminservice
-        # SMS Verifizierung
-        self.logger.info('Continuing with reset via WorkflowException')
-        raise WorkflowException('Could not recover from AssertionError!')
+        raise WorkflowException('Stopping execution of broken workflows after trying to recover from AssertionError!')
