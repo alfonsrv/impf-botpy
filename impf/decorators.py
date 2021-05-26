@@ -60,11 +60,10 @@ def control_errors(f):
         try:
             return f(self, *args, **kwargs)
         except StaleElementReferenceException:
-            self.logger.warning('StaleElementReferenceException - we probably detatched somehow; reinitializing')
-            # Reinitialize the browser, so we can reattach –
-            # TODO: Make it a dedicated function (maybe)
-            if self.keep_browser:
-                self.reset()
+            self.logger.warning('StaleElementReferenceException - something happened in the webpage')
+            self.logger.error('Sleeping for 120s before continuing, giving the user the '
+                              'ability to interact before attempting to revover automatically...')
+            sleep(120)
             self.control_assert()
         except AssertionError:
             self.logger.error(f'AssertionError occurred in <{f.__name__}>. This usually happens if your computer/internet '
