@@ -79,7 +79,7 @@ def format_appointments(raw_appointments: list) -> List[str]:
     appointments = []
     for i, appointment in enumerate(raw_appointments):
         appointments.append(
-            f'* {_format_appointments(appointment)} (appt:{i + 1})'
+            f'- {_format_appointments(appointment)} (appt:{i + 1})'
         )
     return appointments
 
