@@ -1,2 +1,4 @@
 docs/* linguist-documentation
 test/res/* linguist-vendored
+*.js linguist-detectable=false
+*.html linguist-detectable=false
