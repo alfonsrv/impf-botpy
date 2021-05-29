@@ -48,6 +48,7 @@ class Browser:
         Browser instance while keeping data """
         self.driver.quit()
         self.__post_init__()
+        self.error_counter = 0
         return self.control_main()
 
     def reinit(self, *args, **kwargs):

@@ -64,7 +64,6 @@ def control_errors(f):
         except StaleElementReferenceException:
             self.logger.warning('StaleElementReferenceException - we probably detatched somehow; reinitializing')
             # Reinitialize the browser, so we can reattach –
-            # TODO: Make it a dedicated function (maybe)
             if self.keep_browser:
                 return self.reset()
         except WebDriverException as e:
