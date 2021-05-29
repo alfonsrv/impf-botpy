@@ -1,5 +1,6 @@
+import os, sys
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from impf.browser import Browser
-
 # TODO: Make this an actual test – this is literally horrible af
 
 def test_monolith():
@@ -8,7 +9,7 @@ def test_monolith():
 		code='Q29X-AX2F-TPC7',
 		location_full='71636 Ludwigsburg, Impfzentrum Ludwigsburg'
 	)
-	x.driver.get('http://127.0.0.1:5000')
-	x.alert_appointment()
+	x.driver.get('http://127.0.0.1:5000/impftermine/suche/Q29X-AX2F-TPC7/71636')
+	x.book_appointment(2)
 
-# https://003-iz.impfterminservice.de/impftermine/suche/Q29X-AX2F-TPC7/71636
+test_monolith()

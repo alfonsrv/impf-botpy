@@ -98,7 +98,7 @@ def impf_me(location: dict):
                 f'before checking the next location')
     sleep(settings.WAIT_LOCATIONS)
     if not x.keep_browser: x.driver.quit()
-    return location
+    return {'location': x.location, 'code': x.code}
 
 
 if __name__ == '__main__':
@@ -119,27 +119,39 @@ if __name__ == '__main__':
     elif args.surf: x = Browser(location='', code=''); input('Press Enter to end interactive session'); x.driver.quit(); exit()
     print_config()
 
-    while True:
-        if settings.CONCURRENT_ENABLED:
-            logger.info(f'CONCURRENT_ENABLED set with {settings.CONCURRENT_WORKERS} simultaneous workers')
-            logger.info(f'Spawning Browsers with {settings.WAIT_CONCURRENT}s delay.')
-            locations = settings.LOCATIONS
-            with concurrent.futures.ThreadPoolExecutor(max_workers=settings.CONCURRENT_WORKERS) as executor:
-                # futures = [executor.submit(impf_me, location) for location in settings.LOCATIONS]
-                futures = []
-                for location in settings.LOCATIONS:
-                    futures.append(executor.submit(impf_me, location))
-                    sleep(settings.WAIT_CONCURRENT)
-
-                while futures:
-                    done, _ = concurrent.futures.wait(futures, return_when=FIRST_COMPLETED)
-
-                    for future in done:
-                        futures.remove(future)
-                        _location = future.result()
-                        futures.append(executor.submit(impf_me, _location))
-                        del future
-
-        else:
+    if settings.CONCURRENT_ENABLED:
+        logger.info(f'CONCURRENT_ENABLED set with {settings.CONCURRENT_WORKERS} simultaneous workers')
+        logger.info(f'Spawning Browsers with {settings.WAIT_CONCURRENT}s delay.')
+        locations = settings.LOCATIONS
+        with concurrent.futures.ThreadPoolExecutor(max_workers=settings.CONCURRENT_WORKERS) as executor:
+            # futures = [executor.submit(impf_me, location) for location in settings.LOCATIONS]
+            futures = []
             for location in settings.LOCATIONS:
-                impf_me(location)
+                futures.append(executor.submit(impf_me, location))
+                sleep(settings.WAIT_CONCURRENT)
+
+            while futures:
+                done, _ = concurrent.futures.wait(futures, return_when=FIRST_COMPLETED)
+
+                for future in done:
+                    futures.remove(future)
+                    _location = future.result()
+
+                    futures.append(executor.submit(impf_me, _location))
+                    del future
+
+    else:
+        while True:
+            for location in settings.LOCATIONS:
+                _location = impf_me(location)
+
+                # If Vermittlungscode is invalid/already used, it is unset during Browser
+                # runtime, let's make sure we unset it for the next iteration
+                if _location.get('code') != location.get('code'):
+                    # Get Index of Location in settings-Location List
+                    idx = next((index for (index, d) in enumerate(settings.LOCATIONS)
+                                if d["location"] == location['location']
+                                and d['code'] == location['code']),
+                               None)
+                    if idx: settings.LOCATIONS[idx]['code'] = ''
+

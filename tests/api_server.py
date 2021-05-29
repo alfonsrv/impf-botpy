@@ -2,7 +2,7 @@
 """ Impftermin Service Mock Backend """
 from random import randint
 
-from flask import Flask, Response, request, jsonify, make_response
+from flask import Flask, Response, request, jsonify, make_response, render_template
 from base64 import b64decode
 
 # TODO: Clean-up
@@ -90,13 +90,17 @@ def chaos_monkey(f):
     return func
 
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='res')
 
 # TODO: Mock HTML sites + mock cookies + mock workflow
 
+@app.route('/impftermine/suche/<vermittlungscode>/<zip>')
+def termin_suche(*args, **kwargs):
+    return render_template('appointment_appointment_form.html')
+
 @chaos_monkey
 @app.route('/rest/suche/impfterminsuche', methods=['GET'])
-def termin_suche():
+def rest_termin_suche():
     assert request.headers.get('Referer')
     assert request.headers.get('Authorization')
     assert 'application/json' in request.headers.get('Content-Type')
@@ -117,7 +121,7 @@ def termin_suche():
 
 @chaos_monkey
 @app.route('/rest/buchung', methods=['POST'])
-def termin_buchung():
+def rest_termin_buchung():
     assert request.headers.get('Referer')
     assert request.headers.get('Authorization')
     assert 'application/json' in request.headers.get('Content-Type')

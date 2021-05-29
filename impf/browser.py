@@ -112,6 +112,24 @@ class Browser:
             return False
 
     @property
+    def code_booked(self) -> bool:
+        """ Prüft ob Termin bereits gebucht wurde und wir auf Buchungsseite landen"""
+        try:
+            element = self.driver.find_element_by_xpath('//h2[contains(@class, "ets-booking-headline")]')
+            return 'Ihr Termin' in element.text
+        except NoSuchElementException:
+            return False
+
+    @property
+    def code_expired(self) -> bool:
+        """ Prüft ob Anspruch mit Vermittlungscode abgelaufen """
+        try:
+            element = self.driver.find_element_by_xpath('//div[contains(@class, "kv-alert-danger")]')
+            return 'Anspruch abgelaufen' in element.text
+        except NoSuchElementException:
+            return False
+
+    @property
     def loading_vacancy(self) -> bool:
         """ Prüft ob Verfügbarkeit noch geladen wird """
         try:
@@ -136,7 +154,7 @@ class Browser:
 
     def cookie_popup(self) -> None:
         try:
-            button = self.driver.find_element_by_xpath('//a[contains(text(),"Auswahl bestätigen")]')
+            button = self.driver.find_element_by_xpath('//a[contains(text(), "Auswahl bestätigen")]')
             button.click()
         except:
             pass
@@ -296,7 +314,7 @@ class Browser:
             _code = read_backend('appt')
             if _code:
                 self.logger.warning(f'Received Appointment indicator from backend: {_code} - booking now...')
-                if api.book_appointment(appointments, int(_code)):
+                if api.book_appointment(appointments, int(_code)) or self.book_appointment(int(_code)):
                     appointment = fappointments[int(_code) - 1].replace("* ", "").replace(f' (appt:{_code})', '')
                     send_alert(f'Successfully booked appointment "**{appointment}**" – check your mails!  \n'
                                f'Thanks for using RAUSYS Technologies :)  \n'
@@ -364,6 +382,55 @@ class Browser:
         except NoSuchElementException: element = None
         return bool(element)
 
+    def book_appointment(self, appointment: int) -> bool:
+        """ Bucht Termin <appointment> via Browser mit den in settings.py spezifizierten
+        personenbezogenen Daten – Funktion dient als Fallback (shoutout github/timoknapp) """
+
+        # Step 1 – Select Appointment
+        elements = self.wait.until(EC.presence_of_all_elements_located((By.XPATH, '//input[@type="radio" and @formcontrolname="slotPair"]//following-sibling::div[contains(@class,"its-slot-pair-search-slot-wrapper")]/..')))
+        # Select appointment ID user submitted via backend
+        elements[appointment-1].click()
+
+        try:
+            submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, f'//button[@type="submit" and contains(text(), "AUSWÄHLEN")]')))
+            submit.click()
+        except:
+            # Button not clickable – timer likely expired due to racing condition; attempting to recover automatically
+            self.search_appointments()
+            return self.book_appointment()
+
+        # Step 2 – Input Data
+        element = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//button[contains(text(), "Daten erfassen")]')))
+        element.click()
+
+        salutation = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//input[@type="radio" and @name="salutation"]//following-sibling::span[contains(text(), "{settings.SALUTATION}")]/..')))
+        salutation.click()
+
+        enter_form = lambda elem, id: self.wait.until(EC.presence_of_element_located((By.XPATH, f'//input[@formcontrolname="{elem}"]'))).send_keys(getattr(settings, id))
+        enter_form('firstname', 'FIRST_NAME')
+        enter_form('lastname', 'LAST_NAME')
+        enter_form('zip', 'ZIP_CODE')
+        enter_form('city', 'CITY')
+        enter_form('street', 'STREET_NAME')
+        enter_form('housenumber', 'HOUSE_NUMBER')
+        enter_form('phone', 'PHONE')
+        enter_form('notificationReceiver', 'MAIL')
+
+        try:
+            submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, f'//button[@type="submit" and contains(text(), "Übernehmen")]')))
+            submit.click()
+        except:
+            # Button not clickable – timer likely expired due to racing condition; attempting to recover automatically
+            self.search_appointments()
+            return self.book_appointment()
+
+        # Step 3 – Leben zurückbekommen
+        element = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//button[contains(text(), "VERBINDLICH BUCHEN")]')))
+        element.click()
+
+        return self.code_booked
+
+
     def wiggle_recover(self) -> None:
         """ Can solve `429` error by clicking Yes, No """
         claims = [
@@ -415,11 +482,7 @@ class Browser:
         """ 1/2 Kontrollfunktion gibt Vermittlungscode ein - um Verfügbarkeit
         von Impfterminen mit vorhandenem Vermittlungscode zu prüfen """
         self.fill_code()
-        if not self.code_valid:
-            self.logger.warning(f'Code invalid for server {self.driver.current_url}')
-            self.logger.info('Retrying without code')
-            self.code = ''
-            return self.control_main()
+
         if self.code_error:
             # We're likely sending too many requests too quickly or the server is under too much stress
             self.logger.info(
@@ -429,12 +492,24 @@ class Browser:
             self.error_counter += 3
             return self.control_main()
 
+        code_reason = ''
+        if not self.code_valid: code_reason = f'invalid for server [{self.server_id}]'
+        if self.code_booked: code_reason = 'already used'
+        if self.code_expired: code_reason = 'has expired'
+
+        if code_reason:
+            self.logger.warning(f'Vermittlungscode "{self.code}" {code_reason}!')
+            self.logger.info('Removing code from global config for current runtime and continuing without it')
+            self.code = ''
+            return self.control_main
+
         self.control_appointment()
 
     @control_errors
     def control_appointment(self) -> None:
         """ 2/2 Kontrollfunktion sucht nach Terminen - um Verfügbarkeit von
         Impfterminen mit vorhandenem Vermittlungscode zu prüfen """
+
         appointments = self.search_appointments()
         if settings.RESCAN_APPOINTMENT and not appointments:
             self.logger.info(f'RESCAN_APPOINTMENT is enabled - automatically rechecking in '

@@ -1,4 +1,5 @@
 /venv/
+/venv2/
 /pytest-venv/
 settings.py
 /selenium/

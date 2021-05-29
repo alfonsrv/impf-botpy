@@ -9,6 +9,9 @@ from impf.constructors import zulip_client, zulip_send_payload, zulip_read_paylo
 
 import requests
 
+from impf.decorators import alert_resilience
+from impf.exceptions import AlertError
+
 HEADERS = {
     'Accept': 'application/json',
     'User-Agent': 'https://github.com/alfonsrv/impf-botpy'
@@ -19,9 +22,9 @@ SMS_RE = re.compile(r"sms:\d{3}-?\d{3}")
 APPT_RE = re.compile(r"appt:\d")
 
 
-# TODO: Make the following 3 functions pythonic
 def sms_code(string: str) -> Union[str, None]:
     """ Checks if string contains a valid SMS code """
+    if not string: return ''
     m = SMS_RE.search(string.strip())
     if m: m = m.group().replace('-', '').replace('sms:', '')
     return m
@@ -29,6 +32,7 @@ def sms_code(string: str) -> Union[str, None]:
 
 def appointment_slot(string: str) -> Union[str, None]:
     """ Checks if string contains a valid appointment wish """
+    if not string: return ''
     m = APPT_RE.search(string.strip())
     if m: m = m.group().replace('appt:', '')
     return m
@@ -47,33 +51,31 @@ def read_backend(case: str) -> str:
     """ Reads the SMS Code from any of the confired alerting backends and returns it as string """
     match_func = sms_code if case == 'sms' else appointment_slot
     code = ''
-    try:
-        if settings.ZULIP_ENABLED:
-            code = _read_backend(zulip_read, match_func) or code
-        if settings.TELEGRAM_ENABLED:
-            code = _read_backend(telegram_read, match_func) or code
-    except:
-        logger.exception('An unexpected exception occurred while reading alerts! Please report this '
-                         'issue to https://github.com/alfonsrv/impf-botpy/issues')
+    if settings.ZULIP_ENABLED:
+        code = _read_backend(zulip_read, match_func) or code
+    if settings.TELEGRAM_ENABLED:
+        code = _read_backend(telegram_read, match_func) or code
     return code
 
 
 def send_alert(message: str) -> None:
-    try:
-        logger.info(f'Sending alert "{message}"')
-        if settings.COMMAND_ENABLED:
-            os.system(get_command())
-        if settings.ZULIP_ENABLED:
-            zulip_send(message)
-        if settings.TELEGRAM_ENABLED:
-            telegram_send(message)
-        if settings.PUSHOVER_ENABLED:
-            pushover_send(message)
-    except:
-        logger.exception('An unexpected exception occurred trying to send alerts! Please report this '
-                         'issue to https://github.com/alfonsrv/impf-botpy/issues')
+    logger.info(f'Sending alert "{message}"')
+    if settings.COMMAND_ENABLED:
+        execute_command()
+    if settings.ZULIP_ENABLED:
+        zulip_send(message)
+    if settings.TELEGRAM_ENABLED:
+        telegram_send(message)
+    if settings.PUSHOVER_ENABLED:
+        pushover_send(message)
 
 
+@alert_resilience
+def execute_command() -> None:
+    os.system(get_command())
+
+
+@alert_resilience
 def zulip_send(message: str) -> None:
     """ Just send a message; no logic going on here """
     client = zulip_client()
@@ -81,21 +83,23 @@ def zulip_send(message: str) -> None:
     request = zulip_send_payload()
     request.setdefault('content', message)
     r = client.send_message(request)
-    if r.get('result') != 'success':
-        logger.error(f'Error sending Zulip message - got {r}')
+    if r.get('result') != 'success': raise AlertError(r.status_code, r.text)
 
 
+@alert_resilience
 def zulip_read(match_func: Callable) -> Union[None, str]:
     client = zulip_client()
     if client is None: return
     request = zulip_read_payload()
     r = client.get_messages(request)
+    if r.status_code != 200: raise AlertError(r.status_code, r.text)
     for message in r.get('messages'):
         # wenn im erwarteten Format und innerhalb der letzten 2 Minuten
         if match_func(message.get('content')) and time() - message.get('timestamp') <= 120:
             return match_func(message.get('content'))
 
 
+@alert_resilience
 def telegram_send(message: str) -> None:
     url = f'https://api.telegram.org/bot{settings.TELEGRAM_API_TOKEN}/sendMessage'
     params = {
@@ -105,9 +109,11 @@ def telegram_send(message: str) -> None:
     }
 
     r = requests.get(url, params=params, headers=HEADERS)
+    if r.status_code != 200: raise AlertError(r.status_code, r.text)
     logger.debug(r)
 
 
+@alert_resilience
 def telegram_read(match_func: Callable) -> Union[None, str]:
     url = f'https://api.telegram.org/bot{settings.TELEGRAM_API_TOKEN}/getUpdates'
     params = {
@@ -117,6 +123,7 @@ def telegram_read(match_func: Callable) -> Union[None, str]:
 
     r = requests.get(url, params=params, headers=HEADERS).json()
     logger.debug(r)
+    if r.status_code != 200: raise AlertError(r.status_code, r.text)
     for message in r.get('result'):
         _message = message.get('message')
         if not _message: return
@@ -125,6 +132,7 @@ def telegram_read(match_func: Callable) -> Union[None, str]:
             return match_func(_message.get('text'))
 
 
+@alert_resilience
 def pushover_send(message: str) -> None:
     url = f'https://api.pushover.net/1/messages.json'
     data = {
@@ -136,5 +144,6 @@ def pushover_send(message: str) -> None:
         'message': message
     }
 
-    response = requests.post(url, data=data)
-    logger.debug(response)
+    r = requests.post(url, data=data)
+    if r.status_code != 200: raise AlertError(r.status_code, r.text)
+    logger.debug(r)

@@ -6,7 +6,7 @@ from requests import Timeout, ConnectionError
 from selenium.common.exceptions import StaleElementReferenceException, WebDriverException
 
 import settings
-from impf.constructors import AdvancedSessionCache
+from impf.exceptions import AdvancedSessionCache, AlertError
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +88,19 @@ def control_errors(f):
                 sleep(10)
             if not self.keep_browser: self.driver.close()
 
+    return func
+
+
+def alert_resilience(f):
+    """ Decorator to make alerts error-resilient """
+    def func(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except AlertError:
+            logger.exception(f'The alerting backend <{f.__name__}> returned the wrong value!')
+        except:
+            logger.exception(f'An unexpected exception occurred in <{f.__name__}> trying to send or read alerts! '
+                             'Please report this issue to https://github.com/alfonsrv/impf-botpy/issues')
     return func
 
 
