@@ -121,10 +121,10 @@ def telegram_read(match_func: Callable) -> Union[None, str]:
         'offset': -1
     }
 
-    r = requests.get(url, params=params, headers=HEADERS).json()
+    r = requests.get(url, params=params, headers=HEADERS)
     logger.debug(r)
     if r.status_code != 200: raise AlertError(r.status_code, r.text)
-    for message in r.get('result'):
+    for message in r.json().get('result'):
         _message = message.get('message')
         if not _message: return
         # wenn im erwarteten Format und innerhalb der letzten 2 Minuten
