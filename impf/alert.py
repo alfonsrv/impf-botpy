@@ -92,7 +92,7 @@ def zulip_read(match_func: Callable) -> Union[None, str]:
     if client is None: return
     request = zulip_read_payload()
     r = client.get_messages(request)
-    if r.status_code != 200: raise AlertError(r.status_code, r.text)
+    if r.get('result') != 'success': raise AlertError(301, r)
     for message in r.get('messages'):
         # wenn im erwarteten Format und innerhalb der letzten 2 Minuten
         if match_func(message.get('content')) and time() - message.get('timestamp') <= 120:
