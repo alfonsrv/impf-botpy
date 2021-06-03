@@ -513,13 +513,13 @@ class Browser:
 
         appointments = self.search_appointments()
         counter = 0
-        while counter < settings.RESCAN_APPOINTMENT and not appointments:
+        while (settings.RESCAN_APPOINTMENT == 0 or counter < settings.RESCAN_APPOINTMENT) and not appointments:
             self.logger.info(f'automatically rechecking in '
                              f'{settings.WAIT_RESCAN_APPOINTMENTS // 60}min...')
 
             sleep(settings.WAIT_RESCAN_APPOINTMENTS)
             counter = counter + 1
-            self.logger.info(f'Rechecking for new appointments ({counter}/{settings.RESCAN_APPOINTMENT} times)')
+            self.logger.info(f'Rechecking for new appointments ({counter}/{"infinite" if settings.RESCAN_APPOINTMENT == 0 else settings.RESCAN_APPOINTMENT} times)')
             appointments = self.search_appointments()
 
         if appointments:
