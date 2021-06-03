@@ -191,7 +191,7 @@ class API:
         }
 
         try:
-            self.setup_vermittlungscode(birthday)
+            #self.setup_vermittlungscode(birthday)
             r = self.xs.post(f'{self.host}/rest/smspin/anforderung', json=data)
         except AdvancedSessionError as e:
             self.logger.warning(f'Error from backend: {e}')

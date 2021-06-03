@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Made%20with-Python%203.x-blue.svg?style=flat-square&logo=Python&logoColor=white)](https://www.python.org/) 
 [![Selenium](https://img.shields.io/badge/Selenium-3.141.0-green.svg?style=flat-square&logo=Selenium&logoColor=white)](https://www.selenium.dev/) 
-[![Version](https://img.shields.io/badge/Version-0.45b-dc2f02.svg?style=flat-square&logoColor=white)](https://github.com/alfonsrv/impf-botpy)
+[![Version](https://img.shields.io/badge/Version-0.45c-dc2f02.svg?style=flat-square&logoColor=white)](https://github.com/alfonsrv/impf-botpy)
 
 ### Entspahnt in den Sommer ☀
 
@@ -30,6 +30,7 @@ did a lot of the heavy lifting.
  ⭐ Full browser automation   
  ⭐ Concurrent checking  
  ⭐ Waiting room detection  
+ ⭐ Instant Vermittlungscode Creation  
  ⭐ Timeout / Shadow Ban `429` detection  
  ⭐ Automatically re-check *Vermittlungscode*  
  ⭐ `settings.py` for single point of configuration  
@@ -37,7 +38,6 @@ did a lot of the heavy lifting.
  ⭐ Zulip, Pushover, Telegram integration  
  ⭐ Run custom Commands for Alerting (Text-to-Speech preconfigured)  
  ⭐ Easy to add additional backends, like Slack, Webhooks ...  
- ⭐ ~~Instant Vermittlungscode Creation~~ (RIP 03. JUN 2021)  
  ⭐ Docker Support  
 
 ## Workflow
@@ -46,7 +46,7 @@ This is a two-step process. First you'll need a *Vermittlungscode* to then book 
 has its own valid *Vermittlungscode*, which you'll need to acquire first to advance to the next step.
 
 1. If you do not have a *Vermittlungscode* for a center yet - you can either follow the standard
-   workflow described below ~~or create one instantly~~
+   workflow described below or create one instantly (see [Run it](#Run-it-))
     * The bot will check the site to see if there is vacancy
     * If there is vacancy, the bot will enter your age, email and phone number
     * The bot will alert you that there is vacancy using the alert backends
@@ -117,6 +117,7 @@ the bot remotely, follow [this](/docs/ALERTS.md) setup guide.
 
 * `python3 main.py` und entspahnen
 * `python3 main.py --alerts` to test configured alerts
+* `python3 main.py --code` to instantly create a *Vermittlungscode*
 
 ### Docker
 
