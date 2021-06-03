@@ -200,7 +200,10 @@ class API:
                                   'the bot run for 1-2h with `CONCURRENT_ENABLED = False` and `KEEP_BROWSER = True`')
                 self.logger.warning('Alternatively you can run the bot interactively using `python main.py --surf` and '
                                     'click around a bit manually for ~45min to attempt and acquire the cookies.')
-            self.logger.error('Could not generate code – please try again later (~2345 is usually a good time)')
+            self.logger.error('Could not generate code – please try again later, 23:45 is usually a good time. '
+                            'The instant code generation is not bound your rate limit, but rather the overall traffic. '
+                            'Therefore you might have more luck generating codes at night. (Remember: The default rate '
+                            'limiting still applies!)')
             return
 
         if not r.json().get("token"):
