@@ -46,7 +46,8 @@ def instant_code() -> None:
     print('The bot is hard-coded to only request BioNTech + Moderna (18-60yo)')
     print('Should you request a vaccination for an older demographic or prefer another vaccine '
           'this method won\'t work for you.\n')
-    print('Please note: This is an experimental feature and may break at any time.')
+    print('Please note: This feature is BROKEN(!) and just left here for reference. '
+          'Seems like they finally *actually* hired Software Engineers.')
     print('If it breaks, please just fall back to using the browser instead.\n\n')
     zip_code = input('Enter the zip code of the location you require a Vermittlungscode for: ')
 

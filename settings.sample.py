@@ -23,8 +23,8 @@ LOCATIONS: List[Dict[str, str]] = [
     },
 ]
 
-
-BIRTHDATE: str = '01.01.1994'  # dd.mm.yyyy
+# DD.MM.YYYY
+BIRTHDATE: str = '31.12.1994'
 # after the +49 // after the 0
 PHONE: str = '1514201337'
 MAIL: str = 'erst-mal@ent-spahnen.de'

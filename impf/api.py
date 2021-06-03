@@ -51,7 +51,9 @@ class AdvancedSession:
             sleep(settings.WAIT_API_CALLS)
         elif code >= 400:
             if message:
-                if 'Anfragelimit erreicht' in message.get('error'):
+                if message.get('errors'):
+                    raise AdvancedSessionError(-1, message.get('errors'))
+                if message.get('error') and 'Anfragelimit erreicht' in message.get('error'):
                     raise AdvancedSessionError(-1, 'Maximum requests reached for phone number and email')
                 elif message.get('error'):
                     self.logger.warning(f'Endpoint returned Error: {message.get("error")}')
@@ -125,7 +127,7 @@ class API:
 
     @property
     def cookies_complete(self) -> bool:
-        cookies = ['bm_sz', 'bm_mi', 'ak_bmsc' , '_abck', 'bm_sv', 'akavpau_User_allowed']
+        cookies = ['bm_sz', 'ak_bmsc' , '_abck', 'bm_sv', 'akavpau_User_allowed']  # bm_mi
         missing = [cookie for cookie in cookies if cookie not in self.xs.session.cookies.get_dict().keys()]
         if missing: self.logger.info(f'Potentially missing cookies: {missing}')
         return not(missing)
@@ -191,7 +193,8 @@ class API:
         try:
             self.setup_vermittlungscode(birthday)
             r = self.xs.post(f'{self.host}/rest/smspin/anforderung', json=data)
-        except AdvancedSessionError:
+        except AdvancedSessionError as e:
+            self.logger.warning(f'Error from backend: {e}')
             if not self.cookies_complete:
                 self.logger.warning('You do not seem to have all cookies. Please first enrich your cookies by letting '
                                   'the bot run for 1-2h with `CONCURRENT_ENABLED = False` and `KEEP_BROWSER = True`')
