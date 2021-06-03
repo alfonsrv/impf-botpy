@@ -134,7 +134,7 @@ def next_gen(f):
                                 f'all cookies and retrying')
             self.xs.session.cookies = {}
             self.refresh_cookies()
-            return next_gen(f)(self, **args, **kwargs)
+            return next_gen(f)(self, *args, **kwargs)
         return x
 
     return func
