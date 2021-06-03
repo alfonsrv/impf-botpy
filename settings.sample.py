@@ -60,7 +60,7 @@ WAIT_SHADOW_BAN: int = 60*12  # 12 Min
 # Only relevant if using instant codes or BOOKING_ENABLED
 WAIT_API_CALLS: int = 60*1  # 1 Min
 # Seconds to wait before rechecking available appointments.
-# Only relevant if RESCAN_APPOINTMENT is set to True
+# Only relevant if RESCAN_APPOINTMENT is > 0
 WAIT_RESCAN_APPOINTMENTS: int = 60*2  # 2 Min
 
 
@@ -72,13 +72,12 @@ KEEP_BROWSER: bool = True
 # Checks if the backend is returning error `429` (Too Many Requests) and then sleeps for WAIT_SHADOW_BAN
 # seconds before sending the last request again.
 AVOID_SHADOW_BAN: bool = True
-# Controls whether or not the bot should simply keep on rechecking if new appointments
+# Controls how often the bot should simply keep on rechecking if new appointments
 # are available once we have passed the *Vermittlungscode* and are in the Online Booking screen.
 # This is done by clicking "Check for new appointments" after the 10m reservation time runs out
-# This can be very useful if you only want to check for one center; however it might also result
-# in an undesired behavior; if CONCURRENT_ENABLED is not used the bot will evidently only keep on
-# checking only one center over and over again.
-RESCAN_APPOINTMENT: bool = True
+# This prevents the bot from checking only one center over and over again.
+# If set to 0, rescan is disabled.
+RESCAN_APPOINTMENT: int = 10
 # Pause bot during night times (2300-0600) since no new appointments are created anyways during
 # that time period. Can help reduce shadow bans
 SLEEP_NIGHT: bool = True

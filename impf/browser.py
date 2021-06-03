@@ -373,7 +373,7 @@ class Browser:
             if self.driver.find_element_by_xpath('//span[@class="its-slot-pair-search-no-results"]') \
                     or self.driver.find_element_by_xpath(
                     '//span[contains(@class, "text-pre-wrap") and contains(text(), "Fehler")]'):
-                self.logger.info('Vermittlungscode ok, but not free vaccination slots')
+                self.logger.info('Vermittlungscode ok, but no free vaccination slots')
                 return False
         except NoSuchElementException:
             pass
@@ -512,19 +512,21 @@ class Browser:
         Impfterminen mit vorhandenem Vermittlungscode zu prüfen """
 
         appointments = self.search_appointments()
-        if settings.RESCAN_APPOINTMENT and not appointments:
-            self.logger.info(f'RESCAN_APPOINTMENT is enabled - automatically rechecking in '
+        counter = 0
+        while counter < settings.RESCAN_APPOINTMENT and not appointments:
+            self.logger.info(f'automatically rechecking in '
                              f'{settings.WAIT_RESCAN_APPOINTMENTS // 60}min...')
-            while not appointments:
-                sleep(settings.WAIT_RESCAN_APPOINTMENTS)
-                self.logger.info('Rechecking for new appointments')
-                appointments = self.search_appointments()
+
+            sleep(settings.WAIT_RESCAN_APPOINTMENTS)
+            counter = counter + 1
+            self.logger.info(f'Rechecking for new appointments ({counter}/{settings.RESCAN_APPOINTMENT} times)')
+            appointments = self.search_appointments()
 
         if appointments:
             self.alert_appointment()
             sleep(600)
             exit()
-        if settings.RESCAN_APPOINTMENT: return self.control_appointment()
+
         # Rescanning for appointments not enabled
         self.logger.info('No appointments available right now :(')
 
