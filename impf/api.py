@@ -177,7 +177,7 @@ class API:
     def generate_vermittlungscode(self) -> str:
         """ Generiert Vermittlungscode via REST API Call """
         self.logger.info('Attempting to get Vermittlungscode from server')
-        d, m, y = settings.BIRTHDAY.split('.')
+        d, m, y = settings.BIRTHDATE.split('.')
         birthday = f'{y}-{m}-{d}'
 
         data = {
