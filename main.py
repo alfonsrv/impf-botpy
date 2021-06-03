@@ -19,7 +19,7 @@ b = None  # helper variable for keeping browser open
 
 def print_config() -> None:
     print('[x] General')
-    print(f'- Age: {settings.AGE}')
+    print(f'- Birthday: {settings.BIRTHDATE}')
     print(f'- Mail: {settings.MAIL}')
     print(f'- Mobile: +49{settings.PHONE}')
     print(f'- Centers: {len(settings.LOCATIONS)} locations')
