@@ -163,17 +163,33 @@ class API:
         })
 
     @next_gen
+    def setup_vermittlungscode(self, birthday: str) -> None:
+        """ Sets up cookies to get Vermittlungscode """
+        data = {
+            'geburtsdatum': birthday,
+            'plz': self.zip_code
+        }
+
+        r = self.xs.post(f'{self.host}/rest/suche/termincheck/alter', json=data)
+
+
+    @next_gen
     def generate_vermittlungscode(self) -> str:
         """ Generiert Vermittlungscode via REST API Call """
         self.logger.info('Attempting to get Vermittlungscode from server')
+        d, m, y = settings.BIRTHDAY.split('.')
+        birthday = f'{y}-{m}-{d}'
+
         data = {
             'email': settings.MAIL,
-            'leistungsmerkmal': 'L921',  # BioNTech, Moderna
+            'einzeltermin': False,
+            'birthday': birthday,
             'phone': f'+49{settings.PHONE}',
             'plz': self.zip_code
         }
 
         try:
+            self.setup_vermittlungscode(birthday)
             r = self.xs.post(f'{self.host}/rest/smspin/anforderung', json=data)
         except AdvancedSessionError:
             if not self.cookies_complete:

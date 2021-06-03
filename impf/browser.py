@@ -234,8 +234,8 @@ class Browser:
         element.click()
 
         # Enter Age
-        input = self.wait.until(EC.presence_of_element_located((By.XPATH, '//input[@formcontrolname="age"]')))
-        input.send_keys(str(settings.AGE))
+        input = self.wait.until(EC.presence_of_element_located((By.XPATH, '//input[@formcontrolname="birthdate"]')))
+        input.send_keys(str(settings.BIRTHDAY))
         submit = self.wait.until(EC.element_to_be_clickable((By.XPATH, f'//button[@type="submit"]')))
         submit.click()
 
