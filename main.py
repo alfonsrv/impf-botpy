@@ -104,7 +104,7 @@ def impf_me(location: dict):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--alerts', help='Check all alert backends and exit', action='store_true')
-    parser.add_argument('--code', help='Instant Vermittlungscode Generator (works best at night)', action='store_true')
+    parser.add_argument('--code', help='Instant Vermittlungscode Generator (works best from 23:00 to 07:00)', action='store_true')
     parser.add_argument('--manual', help='Undocumented super function', action='store_true')
     parser.add_argument('--surf', help='Interactive Surf Session for Cookie Enrichment', action='store_true')
     parser.add_argument('--version', help='Print version and exit', action='store_true')
