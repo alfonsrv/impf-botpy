@@ -21,7 +21,7 @@ Make sure you have Google Chrome installed.
   * put the `chromedriver.exe` from the zip-Archive in `C:\Windows\system32`
   * put it somewhere else, but you should make sure the folder is in your %PATH%-variable
   * point the `SELENIUM_PATH` in `settings.py` to the path of the `chromedriver.exe` explicitly
-9. If you configured this step improperly, the bot will fail with this error - or a similar one
+8. If you configured this step improperly, the bot will fail with this error - or a similar one
    `selenium.common.exceptions.WebDriverException: Message: 'chromedriver.exe' executable needs to be in PATH. Please see https://sites.google.com/a/chromium.org/chromedriver/home`
    OR `WebDriverException: unknown error: cannot find Chrome binary error with Selenium in Python for older versions of Google Chrome`
 
