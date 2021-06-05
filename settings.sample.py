@@ -117,7 +117,7 @@ SELENIUM_DEBUG: bool = False
 CHROME_PATH = r''
 
 # User Agent to use. Use 'default' to not alter the Browser's user agent manually
-# can be se to e.g. 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36'
+# can be se to e.g. 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36'
 USER_AGENT: str = 'default'
 
 

@@ -32,11 +32,11 @@ When installing Python make sure to click `Customize Installation` and check
 
 ### Download Project
 
-Download the Project. To do that go to the main site, click `Code` (green button top right) -> `Download ZIP`
+Download this Project. To do that go to the main site, click `Code` (green button top right) -> `Download ZIP`
 
-Extract the ZIP file. Configure the project `settings.py` as shown in `README.md` and then type in Temrinal:
+Extract the ZIP file, navigate to the unzipped contents and configure the projects `settings.py` as shown in `README.md` ⚠
 
-Open Command Line again. And type the following
+Open your Command Line (*Kommandozeile*) – simply search for it. And type the following:
 
 ```bash
 cd Downloads/impf-botpy-main
@@ -52,12 +52,17 @@ starting with `cryptography` + `zulip` and run `pip` again.
 
 ### Troubleshooting
 
+* How to open Command Line?
+  * Press `Windows key` + `R` (a window will appear bottom left), type `cmd` and press enter. A black window should open.
 * Error: `WebDriverException: unknown error: cannot find Chrome binary error with Selenium in Python for older versions of Google Chrome`
   * Copy the path of your chrome.exe file (e.g. `C:\Program Files\Google\Chrome\Application\chrome.exe`) and set it as `CHROME_PATH` in `settings.py`
 * Error: `Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Manage App Execution Aliases.`
   * Try running `python main.py` instead. If that doesn't work, see below.
   * You did not install Python properly. Either reinstall, following the steps or delete the `python.exe` and `python3.exe` in `%LocalAppData%\Microsoft\WindowsApps`
+
 ----
+
+
 
 ## macOS
 
