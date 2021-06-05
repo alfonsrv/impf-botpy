@@ -117,7 +117,7 @@ the bot remotely, follow [this](/docs/ALERTS.md) setup guide.
 
 * `python3 main.py` und entspahnen
 * `python3 main.py --alerts` to test configured alerts
-* `python3 main.py --code` to instantly create a *Vermittlungscode*
+* `python3 main.py --code` to instantly create a *Vermittlungscode* (works best from 23:00 to 07:00)
 
 ### Docker
 
