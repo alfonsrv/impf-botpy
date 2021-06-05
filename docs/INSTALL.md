@@ -15,7 +15,7 @@ Make sure you have Google Chrome installed.
 4. Note the Version (89.0..., 90.0..., 91.0...)
 5. Visit the [Selenium WebDriver website](https://sites.google.com/a/chromium.org/chromedriver/downloads)
 6. Download the zip-Archive
-7. If you thing you'll only need selenium for this bot, just copy the `chromedriver.exe` in the same folder as `main.py` (e.g. `Downloads/impf-botpy-main`)
+7. If you think you'll only need selenium for this bot (you never heard about it), just copy the `chromedriver.exe` in the same folder as `main.py` (e.g. `Downloads/impf-botpy-main`)
 
    Alternatively you can also...
   * put the `chromedriver.exe` from the zip-Archive in `C:\Windows\system32`
