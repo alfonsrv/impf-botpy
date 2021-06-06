@@ -8,6 +8,7 @@ import settings
 from impf.constructors import zulip_client, zulip_send_payload, zulip_read_payload, get_command
 
 import requests
+import json
 
 from impf.decorators import alert_resilience
 from impf.exceptions import AlertError
@@ -68,11 +69,22 @@ def send_alert(message: str) -> None:
         telegram_send(message)
     if settings.PUSHOVER_ENABLED:
         pushover_send(message)
-
+    if settings.SYNOLOGYCHAT_ENABLED:
+        synologychat_send(message)
 
 @alert_resilience
 def execute_command() -> None:
     os.system(get_command())
+
+
+@alert_resilience
+def synologychat_send(message: str) -> None:
+    payload = 'payload=' + json.dumps({'text': message})
+    response = requests.post(settings.SYNOLOGYCHAT_WEBHOOK_URL, payload, verify=False)
+    response_json = response.json()
+    success = str(response_json["success"])
+    if success == 'False':
+        logger.error(response.text)
 
 
 @alert_resilience

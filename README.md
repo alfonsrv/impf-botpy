@@ -35,7 +35,7 @@ did a lot of the heavy lifting.
  ⭐ Automatically re-check *Vermittlungscode*  
  ⭐ `settings.py` for single point of configuration  
  ⭐ Manual user intervention & smart error resilience  
- ⭐ Zulip, Pushover, Telegram integration  
+ ⭐ Zulip, Pushover, Telegram, Synology Chat integration  
  ⭐ Run custom Commands for Alerting (Text-to-Speech preconfigured)  
  ⭐ Easy to add additional backends, like Slack, Webhooks ...  
  ⭐ Docker Support  

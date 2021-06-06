@@ -159,6 +159,10 @@ PUSHOVER_USER_KEY: str = 'abcdefghijklmnopqrst0123456789'
 PUSHOVER_APP_TOKEN: str = '0123456789abcdefghijklmnopqrst'
 
 
+# Synology Chat 
+SYNOLOGYCHAT_ENABLED: bool = False
+SYNOLOGYCHAT_WEBHOOK_URL: str = 'http://diskstation.local:5000/webapi/entry.cgi?api=SYNO.Chat.External&method=incoming&version=2&token=%22xxx%22'
+
 # > Logging Setup
 # ----------------------
 import logging

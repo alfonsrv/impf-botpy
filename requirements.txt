@@ -4,6 +4,7 @@ chardet==4.0.0
 cryptography==3.3.2
 distro==1.5.0
 idna==2.10
+json==2.0.9
 matrix-client==0.3.2
 pycparser==2.20
 pyOpenSSL==20.0.1

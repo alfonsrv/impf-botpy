@@ -18,6 +18,7 @@ Alerts can be tested using `python main.py --alerts` aka `python3 main.py --aler
 * Zulip
 * Telegram
 * Pushover
+* Synology Chat
 
 ## Zulip Setup
 
@@ -76,3 +77,15 @@ ZULIP_TOPIC: str = 'General'
    Set your ChatID at `TELEGRAM_BOT_CHATID` in `settings.py`
    
 5. Start a private chat with your bot and send `/start`
+
+## Synology Chat
+
+If you own a Synology NAS you can be notified by Synology Chat Service. This has to be installed in DSM. For configuring an incoming webhook head to the Synology Chat (http://diskstation.local:5000/?launchApp=SYNO.SDS.Chat.Application) with administrative permissions.
+
+1. Open [SynologyChat](http://diskstation.fritz.box:5000/?launchApp=SYNO.SDS.Chat.Application) and select "Integrations" on User Avatar icon
+
+2. Add an integration and copy the url in "Webhook URL"
+
+3. Activate 'SYNOLOGYCHAT_ENABLED' in 'settings.py'
+
+4. Enter copied url from step 2 in SYNOLOGYCHAT_WEBHOOK_URL

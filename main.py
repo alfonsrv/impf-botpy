@@ -34,6 +34,7 @@ def print_config() -> None:
     if settings.ZULIP_ENABLED: print('- Zulip ✓')
     if settings.TELEGRAM_ENABLED: print('- Telegram ✓')
     if settings.PUSHOVER_ENABLED: print('- Pushover ✓')
+    if settings.SYNOLOGYCHAT_ENABLED: print('- Synology-Chat ✓')
 
 
 def print_version() -> None:
