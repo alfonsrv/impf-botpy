@@ -12,6 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 import settings
 from impf.alert import send_alert, read_backend
+from impf.exceptions import WorkflowException
 
 import logging
 
@@ -47,9 +48,8 @@ class Browser:
         """ Hacky Helper function to reset
         Browser instance while keeping data """
         self.driver.quit()
+        sleep(1) # give the driver the chance to close the browser window
         self.__post_init__()
-        self.error_counter = 0
-        return self.control_main()
 
     def reinit(self, *args, **kwargs):
         """ Hacky Helper function to reinitialize
@@ -448,14 +448,11 @@ class Browser:
     @control_errors
     def control_main(self):
         """ 1/2 Kontrollfunktion um Vermittlungscode zu beziehen """
-        if self.error_counter == 5:
+        if self.error_counter >= 5:
             self.logger.error('Maximum errors and retries exceeded - skipping location for now')
             return
 
-        # Quick Restart
-        if self.error_counter == 0: self.main_page()
-        else: self.driver.refresh()
-
+        self.main_page()
         self.logger.info(f'Connected to server [{self.server_id}]')
         self.waiting_room()
         self.location_page()
@@ -541,21 +538,14 @@ class Browser:
         if title.text == 'Wurde Ihr Anspruch auf eine Corona-Schutzimpfung bereits geprüft?' and self.code:
             self.logger.info('Continuing with <control_vermuttlingscode>')
             self.location_page()
-            return self.control_vermittlungscode()
-
-        if title.text == 'Vermittlungscode anfordern':
+            self.control_vermittlungscode()
+        elif title.text == 'Vermittlungscode anfordern':
             self.logger.info('Continuing with <control_sms>')
-            return self.control_sms()
-
-        if title.text == 'Onlinebuchung für Ihre Corona-Schutzimpfung':
+            self.control_sms()
+        elif title.text == 'Onlinebuchung für Ihre Corona-Schutzimpfung':
             self.logger.info('Continuing with <control_appointment>')
-            return self.control_appointment()
+            self.control_appointment()
+        else:
+            self.logger.info('Nothing found to continue with')
 
-        if title.text == 'Buchen Sie die Termine für Ihre Corona-Schutzimpfung':
-            self.error_counter = 0
-
-        # Virtueller Warteraum des Impfterminservice
-        # SMS Verifizierung
-        self.logger.info('Continuing with reset via <control_main>')
-        self.error_counter = 1
-        return self.control_main()
+        raise WorkflowException('Stopping execution of broken workflows after trying to recover from AssertionError!')

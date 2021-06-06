@@ -6,7 +6,7 @@ from requests import Timeout, ConnectionError
 from selenium.common.exceptions import StaleElementReferenceException, WebDriverException
 
 import settings
-from impf.exceptions import AdvancedSessionCache, AlertError
+from impf.exceptions import AdvancedSessionCache, AlertError, WorkflowException
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,8 @@ def shadow_ban(f):
     def func(self, *args, **kwargs):
         if sleep_bot():
             self.error_counter = 0
-            return self.control_main()
+            self.control_main()
+            raise WorkflowException('Resetting after recovering from sleep!')
 
         x = f(self, *args, **kwargs)
 
@@ -50,7 +51,7 @@ def shadow_ban(f):
                 shadow_ban = self.too_many_requests
 
             if not shadow_ban: self.error_counter = 0
-            else: return self.control_main()
+            else: raise WorkflowException('Recovering from shadow ban failed!')
 
         return x
     return func
@@ -62,22 +63,23 @@ def control_errors(f):
         try:
             return f(self, *args, **kwargs)
         except StaleElementReferenceException:
-            self.logger.warning('StaleElementReferenceException - we probably detatched somehow; reinitializing')
-            # Reinitialize the browser, so we can reattach –
-            if self.keep_browser:
-                return self.reset()
-        except WebDriverException as e:
-            if 'chrome not reachable' in str(e):
-                return self.reset()
+            self.logger.warning('StaleElementReferenceException - something happened in the webpage')
+            self.logger.error('Sleeping for 120s before continuing, giving the user the '
+                              'ability to interact before attempting to revover automatically...')
+            sleep(120)
+            self.control_assert()
         except AssertionError:
             self.logger.error(f'AssertionError occurred in <{f.__name__}>. This usually happens if your computer/internet '
                               'connection is slow or if the ImpfterminService site changed.')
             self.logger.error('Sleeping for 120s before continuing, giving the user the '
                               'ability to interact before attempting to revover automatically...')
             sleep(120)
-            return self.control_assert()
+            self.control_assert()
         except SystemExit:
             self.logger.warning('Exiting...')
+            raise
+        except WorkflowException:
+            raise
         except:
             self.logger.exception(f'An unexpected exception occurred in <{f.__name__}>')
             if settings.KEEP_BROWSER_CRASH:
@@ -85,7 +87,8 @@ def control_errors(f):
                 self.keep_browser = settings.KEEP_BROWSER_CRASH
             else:
                 sleep(10)
-            if not self.keep_browser: self.driver.close()
+            if not self.keep_browser: self.reset()
+            raise WorkflowException('Unexpected exception was raised!')
 
     return func
 
