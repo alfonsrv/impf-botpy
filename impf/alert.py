@@ -82,9 +82,8 @@ def synologychat_send(message: str) -> None:
     payload = 'payload=' + json.dumps({'text': message})
     response = requests.post(settings.SYNOLOGYCHAT_WEBHOOK_URL, payload, verify=False)
     response_json = response.json()
-    success = str(response_json["success"])
-    if success == 'False':
-        logger.error(response.text)
+    if response_json['success'] == False:
+        logger.error("Synology Chat: " + response.text)
 
 
 @alert_resilience
