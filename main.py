@@ -93,7 +93,8 @@ def impf_me(location: dict):
             x.reinit(**location)
 
     # Continue with normal loop
-    x.control_main()
+    try: x.control_main()
+    except RecursionError: pass
 
     logger.info(f'Waiting until {(datetime.now() + timedelta(seconds=settings.WAIT_LOCATIONS)).strftime("%H:%M:%S")} '
                 f'before checking the next location')
