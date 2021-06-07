@@ -158,6 +158,10 @@ PUSHOVER_ENABLED: bool = False
 PUSHOVER_USER_KEY: str = 'abcdefghijklmnopqrst0123456789'
 PUSHOVER_APP_TOKEN: str = '0123456789abcdefghijklmnopqrst'
 
+# Gotify (selfhosted, https://gotify.net/)
+GOTIFY_ENABLED: bool = False
+GOTIFY_URL: str = 'https://push.example.de:8080'
+GOTIFY_APP_TOKEN: str = '111111111111111'
 
 # > Logging Setup
 # ----------------------
