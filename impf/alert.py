@@ -154,12 +154,12 @@ def pushover_send(message: str) -> None:
 def gotify_send(message: str) -> None:
     url = f'{settings.GOTIFY_URL}/message'
     params = (
-        ('token', f'{settings.GOTIFY_APP_TOKEN}')
+        ('token', f'{settings.GOTIFY_APP_TOKEN}'),
     )
     files = {
         'title': (None, 'impf-botpy'),
         'message': (None, f'{message}'),
-        'priority': (None, '5')
+        'priority': (None, '5'),
     }
     r = requests.post(url, params=params, files=files)
     if r.status_code != 200: raise AlertError(r.status_code, r.text)
