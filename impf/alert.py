@@ -68,6 +68,8 @@ def send_alert(message: str) -> None:
         telegram_send(message)
     if settings.PUSHOVER_ENABLED:
         pushover_send(message)
+    if settings.GOTIFY_ENABLED:
+        gotify_send(message)
 
 
 @alert_resilience
@@ -145,5 +147,20 @@ def pushover_send(message: str) -> None:
     }
 
     r = requests.post(url, data=data)
+    if r.status_code != 200: raise AlertError(r.status_code, r.text)
+    logger.debug(r)
+
+@alert_resilience
+def gotify_send(message: str) -> None:
+    url = f'{settings.GOTIFY_URL}/message'
+    params = (
+        ('token', f'{settings.GOTIFY_APP_TOKEN}'),
+    )
+    files = {
+        'title': (None, 'impf-botpy'),
+        'message': (None, f'{message}'),
+        'priority': (None, '5'),
+    }
+    r = requests.post(url, params=params, files=files)
     if r.status_code != 200: raise AlertError(r.status_code, r.text)
     logger.debug(r)

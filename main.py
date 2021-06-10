@@ -34,6 +34,7 @@ def print_config() -> None:
     if settings.ZULIP_ENABLED: print('- Zulip ✓')
     if settings.TELEGRAM_ENABLED: print('- Telegram ✓')
     if settings.PUSHOVER_ENABLED: print('- Pushover ✓')
+    if settings.GOTIFY_ENABLED: print('- Gotify ✓')
 
 
 def print_version() -> None:

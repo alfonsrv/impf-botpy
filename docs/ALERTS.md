@@ -18,6 +18,7 @@ Alerts can be tested using `python main.py --alerts` aka `python3 main.py --aler
 * Zulip
 * Telegram
 * Pushover
+* Gotify
 
 ## Zulip Setup
 
@@ -76,3 +77,9 @@ ZULIP_TOPIC: str = 'General'
    Set your ChatID at `TELEGRAM_BOT_CHATID` in `settings.py`
    
 5. Start a private chat with your bot and send `/start`
+
+## Gotify
+
+Gotify offers a self hosted push-messaging server.
+
+The remote booking feature is NOT supported since Gotify only works in the server -> client direction
