@@ -35,6 +35,9 @@ def print_config() -> None:
     if settings.TELEGRAM_ENABLED: print('- Telegram ✓')
     if settings.PUSHOVER_ENABLED: print('- Pushover ✓')
     if settings.GOTIFY_ENABLED: print('- Gotify ✓')
+    print('[x] Locations')
+    for location in settings.LOCATIONS:
+        print(f'- {location["location"]}: {location["code"] if location["code"] else "No code configured"}')
 
 
 def print_version() -> None:
