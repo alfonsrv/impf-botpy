@@ -85,7 +85,7 @@ def zulip_send(message: str) -> None:
     request = zulip_send_payload()
     request.setdefault('content', message)
     r = client.send_message(request)
-    if r.get('result') != 'success': raise AlertError(r.status_code, r.text)
+    if r.get('result') != 'success': raise AlertError(r.get('code'), r.get('msg'))
 
 
 @alert_resilience
