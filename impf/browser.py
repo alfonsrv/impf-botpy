@@ -287,6 +287,7 @@ class Browser:
 
         if not settings.BOOK_REMOTELY:
             self.logger.warning('Exiting in 10 minutes, our job here is done. Keeping browser open.')
+            sleep(600)
             return
 
         try:
@@ -294,6 +295,7 @@ class Browser:
         except:
             self.logger.exception('Unexpected exception occurred trying to book appointments remotely!')
             send_alert('Appointment could not be booked – please continue manually!')
+            sleep(600)
 
     def remote_booking(self) -> None:
         """ Hilfsfunktion um Termine Remote zu buchen – wartet auf max 10 Minuten
@@ -522,8 +524,7 @@ class Browser:
 
         if appointments:
             self.alert_appointment()
-            sleep(600)
-            exit()
+            return
         if settings.RESCAN_APPOINTMENT: return self.control_appointment()
         # Rescanning for appointments not enabled
         self.logger.info('No appointments available right now :(')
