@@ -35,3 +35,8 @@ class AlertError(Exception):
 
     def __str__(self):
         return f'[{self.code}] {self.message}'
+
+
+class ImpfbotTimeoutError(Exception):
+    """ Custom timeout of impfbot was triggered """
+    pass

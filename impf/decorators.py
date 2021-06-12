@@ -6,7 +6,7 @@ from requests import Timeout, ConnectionError
 from selenium.common.exceptions import StaleElementReferenceException, WebDriverException
 
 import settings
-from impf.exceptions import AdvancedSessionCache, AlertError
+from impf.exceptions import AdvancedSessionCache, AlertError, ImpfbotTimeoutError
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +76,8 @@ def control_errors(f):
                               'ability to interact before attempting to revover automatically...')
             sleep(120)
             return self.control_assert()
+        except ImpfbotTimeoutError as e:
+            self.logger.info(f'ImpfbotTimeoutError: {str(e)}')
         except SystemExit:
             self.logger.warning('Exiting...')
         except:

@@ -62,6 +62,10 @@ WAIT_API_CALLS: int = 60*1  # 1 Min
 # Seconds to wait before rechecking available appointments.
 # Only relevant if RESCAN_APPOINTMENT is set to True
 WAIT_RESCAN_APPOINTMENTS: int = 60*2  # 2 Min
+# Seconds to wait in waiting room before skipping the current location
+# Normally, the waiting room should disappear quickly by itself but in some
+# cases a longer wait in there can happen
+WAIT_WAITING_ROOM: int = 60*10  # 10 Min
 
 
 # > Basic Features

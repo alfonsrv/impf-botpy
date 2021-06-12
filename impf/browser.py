@@ -18,6 +18,7 @@ import logging
 from impf.api import API
 from impf.constructors import browser_options, format_appointments
 from impf.decorators import shadow_ban, control_errors
+from impf.exceptions import ImpfbotTimeoutError
 
 logger = logging.getLogger(__name__)
 
@@ -195,8 +196,15 @@ class Browser:
 
     def waiting_room(self):
         if not self.in_waiting_room: return
-        self.logger.info('Taking a seat in the waiting room (very german)')
-        while self.in_waiting_room: sleep(5)
+        self.logger.info('Taking a seat in the waiting room (very German)')
+        time_spent_in_waiting_room = 0
+        while self.in_waiting_room:
+            if time_spent_in_waiting_room > settings.WAIT_WAITING_ROOM:
+                raise ImpfbotTimeoutError(f'Maximum time in waiting room ({settings.WAIT_WAITING_ROOM} s) exceeded')
+            sleep_time = 5
+            sleep(sleep_time)
+            time_spent_in_waiting_room += sleep_time
+
         self.logger.info('No longer in waiting room!')
 
     @shadow_ban
