@@ -63,7 +63,13 @@ def instant_code() -> None:
         x = Browser(location=zip_code, code='')
         x.main_page()
         x.waiting_room()
+        x.inject_session()
         x.location_page()
+        x.driver.get(f'https://{x.server_id}-iz.impfterminservice.de/impftermine/check')
+        x.claim_code()
+
+        input('Please continue manually... press Enter to continue trying via API if this doesn\'t work! ')
+
         api = API(driver=x)
         x.driver.close()
 

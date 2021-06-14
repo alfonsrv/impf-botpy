@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass, field
 from time import sleep, time
 from typing import List, Tuple
@@ -160,10 +161,14 @@ class Browser:
         except:
             pass
 
-    def page_ready(self) -> bool:
-        """ Not in use; optional to check if page is ready (unreliable) before proceeding """
-        page_state = self.driver.execute_script('return document.readyState;')
-        return page_state == 'complete'
+    def inject_session(self) -> None:
+        """ Sets Session Storage to allow Vermittlungcode request """
+        d, m, y = settings.BIRTHDATE.split('.')
+        birthday = f'{y}-{m}-{d}'
+        storage = {"birthdate": birthday, "slotsAvailable": {"pair": True, "single": False}}
+        payload = json.dumps(storage)
+        self.logger.debug(f'sessionStorage.setItem("ets-session-its-cv-quick-check", "{payload}");')
+        self.driver.execute_script(f'sessionStorage.setItem("ets-session-its-cv-quick-check", \'{payload}\');')
 
     def main_page(self) -> None:
         self.logger.info('Navigating to ImpfterminService')
