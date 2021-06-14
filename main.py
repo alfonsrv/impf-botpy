@@ -72,7 +72,7 @@ def instant_code() -> None:
         x.driver.get(f'https://{x.server_id}-iz.impfterminservice.de/impftermine/check')
         x.claim_code()
 
-        input('Please continue manually... press Enter to continue trying via API if this doesn\'t work! ')
+        input('Please continue manually... press Enter to continue trying via API if this doesn\'t work! (Press CTRL+C to exit) ')
 
         api = API(driver=x)
         x.driver.close()
