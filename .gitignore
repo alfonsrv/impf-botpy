@@ -113,3 +113,4 @@ venv.bak/
 .idea
 /static/admin/
 /static/rest_framework/
+.vagrant

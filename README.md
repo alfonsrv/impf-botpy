@@ -82,6 +82,8 @@ Vermittlungscodes are valid for *every* center on the given server
 * Google Chrome
 * `pip3 install -r requirements.txt`
 
+Alternatively you can use the provided Vagrant box, which already has all these requirements included. See [Vagrant Setup](/docs/VAGRANT.md) for instructions.
+
 ### For Dummies
 
 > I don't know anything about programming! And CLI gives me anxiety
@@ -122,6 +124,10 @@ the bot remotely, follow [this](/docs/ALERTS.md) setup guide.
 ### Docker
 
 Please refer to the [Docker Setup](/docs/DOCKER.md) to run on a headless server.
+
+### Vagrant
+
+Please refer to the [Vagrant Setup](/docs/VAGRANT.md) to setup a virtual machine using Vagrant.
 
 ## Support & Contributing 🪢
 
