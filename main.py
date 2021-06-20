@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import concurrent.futures
 from concurrent.futures import FIRST_COMPLETED
