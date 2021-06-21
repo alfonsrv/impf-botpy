@@ -17,6 +17,7 @@ Alerts can be tested using `python main.py --alerts` aka `python3 main.py --aler
 
 * Zulip
 * Telegram
+* Slack
 * Pushover
 * Gotify
 
@@ -77,6 +78,14 @@ ZULIP_TOPIC: str = 'General'
    Set your ChatID at `TELEGRAM_BOT_CHATID` in `settings.py`
    
 5. Start a private chat with your bot and send `/start`
+
+## Slack
+
+The remote booking feature is NOT (yet?) supported.
+
+1. [Get a Slack Webhook URL](https://api.slack.com/messaging/webhooks)
+
+2. Set the `SLACK_WEBHOOK_URL` in `settings.py` and set `SLACK_ENABLED` to `True`
 
 ## Gotify
 
