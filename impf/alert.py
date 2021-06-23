@@ -107,7 +107,7 @@ def slack_send(message: str) -> None:
     url = settings.SLACK_WEBHOOK_URL
     payload = {
         'text': message,
-        'username': 'impfbot'
+        'username': 'Impf-Bot.py'
     }
 
     r = requests.post(url, json=payload, headers=HEADERS)
