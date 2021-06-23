@@ -66,6 +66,8 @@ def send_alert(message: str) -> None:
         zulip_send(message)
     if settings.TELEGRAM_ENABLED:
         telegram_send(message)
+    if settings.SLACK_ENABLED:
+        slack_send(message)
     if settings.PUSHOVER_ENABLED:
         pushover_send(message)
     if settings.GOTIFY_ENABLED:
@@ -100,6 +102,17 @@ def zulip_read(match_func: Callable) -> Union[None, str]:
         if match_func(message.get('content')) and time() - message.get('timestamp') <= 120:
             return match_func(message.get('content'))
 
+@alert_resilience
+def slack_send(message: str) -> None:
+    url = settings.SLACK_WEBHOOK_URL
+    payload = {
+        'text': message,
+        'username': 'Impf-Bot.py'
+    }
+
+    r = requests.post(url, json=payload, headers=HEADERS)
+    if r.status_code != 200: raise AlertError(r.status_code, r.text)
+    logger.debug(r)
 
 @alert_resilience
 def telegram_send(message: str) -> None:

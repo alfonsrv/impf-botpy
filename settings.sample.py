@@ -146,12 +146,14 @@ ZULIP_TYPE: str = 'stream'  # private, stream
 ZULIP_TARGET: str = 'hunter'
 ZULIP_TOPIC: str = 'General'
 
-
 # Telegram (https://core.telegram.org/)
 TELEGRAM_ENABLED: bool = False
 TELEGRAM_API_TOKEN: str = '1111111111:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
 TELEGRAM_CHAT_ID: str = '111111111'
 
+# Slack (https://slack.com)
+SLACK_ENABLED: bool = False
+SLACK_WEBHOOK_URL: str = 'https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX'
 
 # Pushover (https://pushover.net/)
 PUSHOVER_ENABLED: bool = False
